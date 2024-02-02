@@ -49,7 +49,7 @@ const ValueColumn = ({current, previous, enableComparing} : {current: string, pr
 export type PopularityTableRow = {
   name: string,
   current: string
-  previous: string
+  previous: string | undefined
 }
 
 export const PopularityTable = ({valueColumnName, tableRows, enableComparing} : {valueColumnName: string, tableRows: PopularityTableRow[], enableComparing?: boolean}) => {

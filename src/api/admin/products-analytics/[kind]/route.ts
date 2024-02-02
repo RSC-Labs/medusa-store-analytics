@@ -15,7 +15,7 @@ import type {
   MedusaResponse,
 } from "@medusajs/medusa"
 import { OrderStatus } from "@medusajs/medusa";
-import CustomersAnalyticsService from "../../../../services/customersAnalytics";
+import ProductsAnalyticsService from "../../../../services/productsAnalytics";
 
 export const GET = async (
   req: MedusaRequest,
@@ -32,28 +32,13 @@ export const GET = async (
   const orderStatuses: OrderStatus[] = orderStatusesFromQuery !== undefined ? 
     orderStatusesFromQuery.map(status => OrderStatus[status.toUpperCase()]).filter(orderStatus => orderStatus !== undefined): [];
 
-  let result;
-  const customersAnalyticsService: CustomersAnalyticsService = req.scope.resolve('customersAnalyticsService');
+
+  let result: any;
+  const productsAnalyticsService: ProductsAnalyticsService = req.scope.resolve('productsAnalyticsService');
 
   switch (kind) {
-    case 'history':
-      result = await customersAnalyticsService.getHistory(
-        dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
-        dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
-        dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
-        dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
-      );
-      break;
-    case 'count':
-      result = await customersAnalyticsService.getNewCount(
-        dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
-        dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
-        dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
-        dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
-      );
-      break;
-    case 'repeat-customer-rate':
-      result = await customersAnalyticsService.getRepeatCustomerRate(
+    case 'popularity-by-count':
+      result = await productsAnalyticsService.getTopProductsByCount(
         orderStatuses,
         dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
         dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 

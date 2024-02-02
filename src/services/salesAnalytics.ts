@@ -176,29 +176,8 @@ export default class SalesAnalyticsService extends TransactionBaseService {
   }
 
   async getSalesChannelsPopularity(orderStatuses: OrderStatus[], from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<OrdersSalesChannelPopularityResult> {
-    let startQueryFrom: Date | undefined;
     const orderStatusesAsStrings = Object.values(orderStatuses);
     if (orderStatusesAsStrings.length) {
-      if (!dateRangeFromCompareTo) {
-        if (from) {
-          startQueryFrom = from;
-        } else {
-          // All time
-          const lastOrder = await this.activeManager_.getRepository(Order).find({
-            skip: 0,
-            take: 1,
-            order: { created_at: "ASC"},
-            where: { status: In(orderStatusesAsStrings) }
-          })
-
-          if (lastOrder.length > 0) {
-            startQueryFrom = lastOrder[0].created_at;
-          }
-        }
-      } else {
-          startQueryFrom = dateRangeFromCompareTo;
-      }
-
       if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
         const resolution = calculateResolution(from);
         const query = this.activeManager_
@@ -250,6 +229,27 @@ export default class SalesAnalyticsService extends TransactionBaseService {
           previous: finalOrders.previous ? finalOrders.previous : [],
         } 
       }
+
+      let startQueryFrom: Date | undefined;
+      if (!dateRangeFromCompareTo) {
+        if (from) {
+          startQueryFrom = from;
+        } else {
+          // All time
+          const lastOrder = await this.activeManager_.getRepository(Order).find({
+            skip: 0,
+            take: 1,
+            order: { created_at: "ASC"},
+            where: { status: In(orderStatusesAsStrings) }
+          })
+
+          if (lastOrder.length > 0) {
+            startQueryFrom = lastOrder[0].created_at;
+          }
+        }
+      } else {
+          startQueryFrom = dateRangeFromCompareTo;
+      }
       
       if (startQueryFrom) {
         const resolution = calculateResolution(startQueryFrom);
@@ -298,29 +298,8 @@ export default class SalesAnalyticsService extends TransactionBaseService {
   }
 
   async getRegionsPopularity(orderStatuses: OrderStatus[], from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<OrdersRegionsPopularityResult> {
-    let startQueryFrom: Date | undefined;
     const orderStatusesAsStrings = Object.values(orderStatuses);
     if (orderStatusesAsStrings.length) {
-      if (!dateRangeFromCompareTo) {
-        if (from) {
-          startQueryFrom = from;
-        } else {
-          // All time
-          const lastOrder = await this.activeManager_.getRepository(Order).find({
-            skip: 0,
-            take: 1,
-            order: { created_at: "ASC"},
-            where: { status: In(orderStatusesAsStrings) }
-          })
-
-          if (lastOrder.length > 0) {
-            startQueryFrom = lastOrder[0].created_at;
-          }
-        }
-      } else {
-          startQueryFrom = dateRangeFromCompareTo;
-      }
-
       if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
         const resolution = calculateResolution(from);
         const query = this.activeManager_
@@ -371,6 +350,27 @@ export default class SalesAnalyticsService extends TransactionBaseService {
           current: finalOrders.current ? finalOrders.current : [],
           previous: finalOrders.previous ? finalOrders.previous : [],
         } 
+      }
+
+      let startQueryFrom: Date | undefined;
+      if (!dateRangeFromCompareTo) {
+        if (from) {
+          startQueryFrom = from;
+        } else {
+          // All time
+          const lastOrder = await this.activeManager_.getRepository(Order).find({
+            skip: 0,
+            take: 1,
+            order: { created_at: "ASC"},
+            where: { status: In(orderStatusesAsStrings) }
+          })
+
+          if (lastOrder.length > 0) {
+            startQueryFrom = lastOrder[0].created_at;
+          }
+        }
+      } else {
+          startQueryFrom = dateRangeFromCompareTo;
       }
       
       if (startQueryFrom) {

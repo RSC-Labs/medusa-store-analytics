@@ -12,7 +12,7 @@
 
 import { OrderStatus, TransactionBaseService } from "@medusajs/medusa"
 import { Order, OrderService } from "@medusajs/medusa"
-import { calculateStartQuery, calculateResolution, getTruncateFunction } from "./utils/dateTransformations"
+import { calculateResolution } from "./utils/dateTransformations"
 import { OrdersHistoryResult } from "./utils/types"
 import { In } from "typeorm"
 
@@ -37,29 +37,8 @@ export default class OrdersAnalyticsService extends TransactionBaseService {
   }
 
   async getOrdersHistory(orderStatuses: OrderStatus[], from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<OrdersHistoryResult> {
-    let startQueryFrom: Date | undefined;
     const orderStatusesAsStrings = Object.values(orderStatuses);
     if (orderStatusesAsStrings.length) {
-      if (!dateRangeFromCompareTo) {
-        if (from) {
-          startQueryFrom = from;
-        } else {
-          // All time
-          const lastOrder = await this.activeManager_.getRepository(Order).find({
-            skip: 0,
-            take: 1,
-            order: { created_at: "ASC"},
-            where: { status: In(orderStatusesAsStrings) }
-          })
-  
-          if (lastOrder.length > 0) {
-            startQueryFrom = lastOrder[0].created_at;
-          }
-        }
-      } else {
-        startQueryFrom = dateRangeFromCompareTo;
-      }
-  
       if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
         const resolution = calculateResolution(from);
         const query = this.activeManager_.getRepository(Order)
@@ -103,6 +82,27 @@ export default class OrdersAnalyticsService extends TransactionBaseService {
           previous: finalOrders.previous ? finalOrders.previous : [],
         } 
       }
+
+      let startQueryFrom: Date | undefined;
+      if (!dateRangeFromCompareTo) {
+        if (from) {
+          startQueryFrom = from;
+        } else {
+          // All time
+          const lastOrder = await this.activeManager_.getRepository(Order).find({
+            skip: 0,
+            take: 1,
+            order: { created_at: "ASC"},
+            where: { status: In(orderStatusesAsStrings) }
+          })
+  
+          if (lastOrder.length > 0) {
+            startQueryFrom = lastOrder[0].created_at;
+          }
+        }
+      } else {
+        startQueryFrom = dateRangeFromCompareTo;
+      }
   
       if (startQueryFrom) {
         const resolution = calculateResolution(startQueryFrom);
@@ -144,7 +144,6 @@ export default class OrdersAnalyticsService extends TransactionBaseService {
     const orderStatusesAsStrings = Object.values(orderStatuses);
 
     if (orderStatusesAsStrings.length) {
-
       if (!dateRangeFromCompareTo) {
         if (from) {
           startQueryFrom = from;

@@ -35,11 +35,6 @@ export function calculateResolution(date?: Date) : DateResolutionType | undefine
   return DateResolutionType.Month
 }
 
-export function calculateStartQuery(from: Date, compare?: boolean) : Date | undefined {
-  const dateFromFull = compare ? new Date(Date.now() - (Date.now() - from.getTime()) * 2) : new Date(from);
-  return new Date(dateFromFull.setHours(0,0,0,0))
-}
-
 export function getTruncateFunction(dateResolution: DateResolutionType) : (date: Date) => Date  {
   if (dateResolution == DateResolutionType.Day) {
     return (date: Date) => new Date(new Date(date).setHours(0,0,0,0));

@@ -11,7 +11,6 @@
  */
 
 import { Heading, Tooltip } from "@medusajs/ui";
-import { ArrowUpMini, ArrowDownMini, MinusMini } from "@medusajs/icons"
 import { calculatePercentage } from "../utils/helpers";
 
 export const PercentageComparison = ({current, label, previous, headingLevel = "h2" } : {current: string, label: string, previous: string, headingLevel?: any}) => {

@@ -13,11 +13,11 @@
 import { useState } from 'react';
 import { useMemo } from "react"
 import { RouteConfig } from "@medusajs/admin"
-import { Button, Tooltip, Container, Text, Label, Switch, DropdownMenu, IconButton, Checkbox } from "@medusajs/ui"
-import { EllipsisHorizontal, LightBulb } from "@medusajs/icons"
+import { Button, Container, Tooltip, Text, Label, Switch, DropdownMenu, IconButton, Checkbox } from "@medusajs/ui"
+import { EllipsisHorizontal, InformationCircleSolid, LightBulb } from "@medusajs/icons"
 import { ExclamationCircle } from "@medusajs/icons"
 import { OrdersOverviewCard } from "./orders/orders-overview-card";
-import { Grid } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import { DateLasts, DateRange, convertDateLastsToComparedDateRange, convertDateLastsToDateRange } from './utils/types';
 import { OrderStatus } from './common/types';
 import { SalesOverviewCard } from './sales/sales-overview-card';
@@ -25,6 +25,7 @@ import { CustomersOverviewCard } from './customers/customers-overview-card';
 import { CustomersRepeatCustomerRate } from './customers/customers-repeat-customer-rate';
 import { SalesChannelPopularityCard } from './sales/sales-channel-popularity-card';
 import { RegionsPopularityCard } from './sales/regions-popularity-card';
+import { VariantsTopByCountCard } from './products/variants-top-by-count';
 
 const ComparedDate = ({compare, comparedToDateRange} : {compare: boolean, comparedToDateRange?: DateRange}) => {
   if (comparedToDateRange && compare) {
@@ -141,17 +142,23 @@ const OverviewPage = () => {
             </Button>
           </Grid>
           <Grid item>
-            <Grid container alignItems={'center'} spacing={1} >
+            <Grid container alignItems={'center'} spacing={1}>
               <Grid item>
                 <Button variant={dateLast == DateLasts.All ? 'primary' : 'secondary'} onClick={setAlltime}>
                   All time
                 </Button>
               </Grid>
               <Grid item>
-                <Tooltip content={'If you have many orders, it might take a while to load statistics.'}>
-                  <ExclamationCircle/>
+                <Tooltip content='If you have many orders, it might take a while to load statistics.'>
+                    <ExclamationCircle />
                 </Tooltip>
               </Grid>
+            </Grid>
+          </Grid>
+          {/* Workaround to have Tooltip working */}
+          <Grid container>
+            <Grid item>
+              <Box minHeight={20}></Box>
             </Grid>
           </Grid>
         </Grid>
@@ -209,6 +216,11 @@ const OverviewPage = () => {
             </Container>
           </Grid>
         </Grid>
+      </Grid>
+      <Grid item xs={6} md={6} xl={6}>
+        <Container>
+          <VariantsTopByCountCard orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
+        </Container>
       </Grid>
     </Grid> 
   )

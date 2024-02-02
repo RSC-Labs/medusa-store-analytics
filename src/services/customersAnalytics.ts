@@ -12,8 +12,7 @@
 
 import { CustomerService, Order, OrderService, OrderStatus, TransactionBaseService } from "@medusajs/medusa"
 import { Customer } from "@medusajs/medusa"
-import { calculateStartQuery, calculateResolution } from "./utils/dateTransformations"
-import { OrdersHistoryResult } from "./utils/types"
+import { calculateResolution } from "./utils/dateTransformations"
 import { In } from "typeorm"
 
 type CustomersHistory = {
@@ -48,20 +47,6 @@ type CustomersRepeatCustomerRate = {
   previous: number
 }
 
-type CustomersRepeatCustomerRateHistory = {
-  repeatCustomerRate: string,
-  date: string
-}
-
-type CustomersRepeatCustomerRateHistoryResult = {
-  dateRangeFrom?: number
-  dateRangeTo?: number,
-  dateRangeFromCompareTo?: number,
-  dateRangeToCompareTo?: number,
-  current: CustomersRepeatCustomerRateHistory[];
-  previous: CustomersRepeatCustomerRateHistory[];
-}
-
 export default class CustomersAnalyticsService extends TransactionBaseService {
 
   private readonly customerService: CustomerService;
@@ -74,25 +59,7 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
   }
 
   async getHistory(from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<CustomersHistoryResult> {
-    let startQueryFrom: Date | undefined;
-    if (!dateRangeFromCompareTo) {
-      if (from) {
-        startQueryFrom = from;
-      } else {
-        // All time
-        const lastCustomer = await this.activeManager_.getRepository(Customer).find({
-          skip: 0,
-          take: 1,
-          order: { created_at: "ASC"},
-        })
-
-        if (lastCustomer.length > 0) {
-          startQueryFrom = lastCustomer[0].created_at;
-        }
-      }
-    } else {
-      startQueryFrom = dateRangeFromCompareTo;
-    }
+    
 
     if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
         const resolution = calculateResolution(from);
@@ -135,6 +102,26 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
         } 
     }
 
+    let startQueryFrom: Date | undefined;
+    if (!dateRangeFromCompareTo) {
+      if (from) {
+        startQueryFrom = from;
+      } else {
+        // All time
+        const lastCustomer = await this.activeManager_.getRepository(Customer).find({
+          skip: 0,
+          take: 1,
+          order: { created_at: "ASC"},
+        })
+
+        if (lastCustomer.length > 0) {
+          startQueryFrom = lastCustomer[0].created_at;
+        }
+      }
+    } else {
+      startQueryFrom = dateRangeFromCompareTo;
+    }
+
     if (startQueryFrom) {
       const resolution = calculateResolution(startQueryFrom);
       const customers = await this.activeManager_.getRepository(Customer)
@@ -167,7 +154,6 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
   }
 
   async getNewCount(from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<CustomersCounts> {
-
     let startQueryFrom: Date | undefined;
     if (!dateRangeFromCompareTo) {
       if (from) {
