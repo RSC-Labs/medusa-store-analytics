@@ -1,6 +1,6 @@
 {
   "name": "@rsc-labs/medusa-store-analytics",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Get analytics data about your store",
   "author": "RSC Labs (https://rsoftcon.com)",
   "license": "MIT",
@@ -48,7 +48,7 @@
     "typescript": "^4.5.2"
   },
   "peerDependencies": {
-    "@medusajs/medusa": "1.19.0",
+    "@medusajs/medusa": "1.20.1",
     "react": "^18.2.0",
     "react-router-dom": "^6.13.0"
   },
