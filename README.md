@@ -102,6 +102,12 @@ No configuration is needed. Everything is done through UI. You can use such opti
 | Repeat customer rate | :white_check_mark: |
 | Customers chart | :white_check_mark: |
 
+### Products
+
+| Name | Status |
+| --- | --- |
+| Top variants sold by orders | Soon... |
+
 ## License
 
 MIT
