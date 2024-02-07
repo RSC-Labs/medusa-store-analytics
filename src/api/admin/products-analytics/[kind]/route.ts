@@ -38,7 +38,7 @@ export const GET = async (
 
   switch (kind) {
     case 'popularity-by-count':
-      result = await productsAnalyticsService.getTopProductsByCount(
+      result = await productsAnalyticsService.getTopVariantsByCount(
         orderStatuses,
         dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
         dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 

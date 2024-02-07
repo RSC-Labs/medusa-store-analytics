@@ -16,7 +16,7 @@ import { Grid } from "@mui/material";
 import { OrdersByNewChart } from "./orders-by-new-chart";
 import { DateRange } from "../utils/types";
 import { OrdersNumber } from "./orders-number-overview";
-import { OrderStatus } from "../common/types";
+import { OrderStatus } from "../utils/types";
 
 export const OrdersOverviewCard = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} : 
   {orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled: boolean}) => {

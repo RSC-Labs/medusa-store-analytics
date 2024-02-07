@@ -10,7 +10,11 @@
  * limitations under the License.
  */
 
-import { ChartResolutionType } from "../../utils/types";
+export enum ChartResolutionType {
+  DayWeek,
+  DayMonth,
+  Month
+}
 
 export function calculateResolution(date?: Date) : ChartResolutionType {
   if (!date) return undefined;

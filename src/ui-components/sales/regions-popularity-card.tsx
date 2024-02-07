@@ -16,7 +16,7 @@ import { CircularProgress, Grid } from "@mui/material";
 import { DateRange } from "../utils/types";
 import { useAdminCustomQuery } from "medusa-react"
 import { PopularityTable, PopularityTableRow } from "../common/popularity-table";
-import { OrderStatus } from "../common/types";
+import { OrderStatus } from "../utils/types";
 
 type AdminRegionsStatisticsQuery = {
   orderStatuses: string[],

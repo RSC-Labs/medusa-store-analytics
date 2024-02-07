@@ -15,7 +15,7 @@ import { Heading } from "@medusajs/ui";
 import { CircularProgress } from "@mui/material";
 import { DateRange } from "../utils/types";
 import { ChartCurrentPrevious } from "../common/chart-components";
-import { OrderStatus } from "../common/types";
+import { OrderStatus } from "../utils/types";
 
 type AdminOrdersStatisticsQuery = {
   orderStatuses: string[],

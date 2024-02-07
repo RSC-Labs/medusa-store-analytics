@@ -12,7 +12,7 @@
 
 import { Heading, Container } from "@medusajs/ui";
 import { calculateResolution, getChartDateName, getChartTooltipDate, getLegendName } from "./utils/chartUtils";
-import { ChartResolutionType } from "../utils/types";
+import { ChartResolutionType } from "./utils/chartUtils";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { useEffect, useState } from 'react';
 

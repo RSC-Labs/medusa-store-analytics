@@ -17,7 +17,7 @@ import { useAdminCustomQuery } from "medusa-react"
 import { DateRange } from "../utils/types";
 import { CustomersRepeatCustomerRateResponse } from "./types";
 import { RepeatCustomerRateNummber } from "./customers-repeat-customer-rate-number";
-import { OrderStatus } from "../common/types";
+import { OrderStatus } from "../utils/types";
 
 type AdminCustomersStatisticsQuery = {
   orderStatuses: string[],

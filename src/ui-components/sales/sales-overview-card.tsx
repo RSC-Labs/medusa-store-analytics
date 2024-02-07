@@ -13,14 +13,13 @@
 import { Heading, Select, Text } from "@medusajs/ui";
 import { CurrencyDollar } from "@medusajs/icons";
 import { CircularProgress, Grid } from "@mui/material";
-import { DateRange } from "../utils/types";
+import { DateRange, OrderStatus } from "../utils/types";
 import { SalesNumber } from "./sales-number-overview";
 import { useState } from 'react';
 import { useAdminRegions } from "medusa-react"
 import { SalesByNewChart } from "./sales-total-chart";
 import { useAdminCustomQuery } from "medusa-react"
 import { SalesHistoryResponse } from "./types";
-import { OrderStatus } from "../common/types";
 
 type AdminSalesStatisticsQuery = {
   orderStatuses: string[],

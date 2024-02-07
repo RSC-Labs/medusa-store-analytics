@@ -10,21 +10,25 @@
  * limitations under the License.
  */
 
-export enum DateLasts {
-  All,
-  LastMonth,
-  LastWeek,
-  LastYear
-}
-export type DateRange = {
-  from: Date,
-  to: Date
-}
+import { DateLasts, DateRange } from "./types";
 
-export enum ChartResolutionType {
-  DayWeek,
-  DayMonth,
-  Month
+export function calculatePercentage(current: number, previous: number) : number | undefined {
+  if (current == previous) {
+    return 0;
+  }
+  if (current == 0) {
+    return 100;
+  }
+
+  if (previous == 0) {
+    return undefined;
+  }
+
+  const percentage: number = Number((((current) - previous) / previous).toFixed(2)) * 100;
+  if (percentage > 0) {
+    return Math.round(percentage * 100) / 100;
+  }
+  return Math.round((percentage - percentage - percentage) * 100) / 100;
 }
 
 export function convertDateLastsToDateRange(dateLasts: DateLasts): DateRange | undefined {

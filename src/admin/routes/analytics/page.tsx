@@ -13,100 +13,26 @@
 import { useState } from 'react';
 import { useMemo } from "react"
 import { RouteConfig } from "@medusajs/admin"
-import { Button, Container, Tooltip, Text, Label, Switch, DropdownMenu, IconButton, Checkbox } from "@medusajs/ui"
-import { EllipsisHorizontal, InformationCircleSolid, LightBulb } from "@medusajs/icons"
+import { Button, Container, Tooltip, Text } from "@medusajs/ui"
+import { LightBulb } from "@medusajs/icons"
 import { ExclamationCircle } from "@medusajs/icons"
-import { OrdersOverviewCard } from "./orders/orders-overview-card";
 import { Box, Grid } from "@mui/material";
-import { DateLasts, DateRange, convertDateLastsToComparedDateRange, convertDateLastsToDateRange } from './utils/types';
-import { OrderStatus } from './common/types';
-import { SalesOverviewCard } from './sales/sales-overview-card';
-import { CustomersOverviewCard } from './customers/customers-overview-card';
-import { CustomersRepeatCustomerRate } from './customers/customers-repeat-customer-rate';
-import { SalesChannelPopularityCard } from './sales/sales-channel-popularity-card';
-import { RegionsPopularityCard } from './sales/regions-popularity-card';
-import { VariantsTopByCountCard } from './products/variants-top-by-count';
-
-const ComparedDate = ({compare, comparedToDateRange} : {compare: boolean, comparedToDateRange?: DateRange}) => {
-  if (comparedToDateRange && compare) {
-    return (
-      <Text>
-        {`Compared to ${comparedToDateRange.from.toLocaleDateString()} - ${comparedToDateRange.to.toLocaleDateString()}`}
-      </Text>
-    );
-  }
-  return (
-    <Text>
-      {`No comparison`}
-    </Text>
-  ); 
-}
-
-type BooleanCallback = (value: boolean) => any;
-
-const SwitchComparison = ({compareEnabled, onCheckChange, allTime} : {compareEnabled: boolean, onCheckChange: BooleanCallback, allTime: boolean}) => {
-  return (
-    <div className="flex items-center gap-x-2">
-      <Switch id="manage-inventory" onCheckedChange={onCheckChange} disabled={allTime} checked={compareEnabled && !allTime}/>
-      <Label htmlFor="manage-inventory">Compare</Label>
-    </div>
-  )
-}
-
-type OrderStatusCallback = (value: OrderStatus[]) => any;
-
-const DropdownOrderStatus = ({onOrderStatusChange, appliedStatuses} : {onOrderStatusChange: OrderStatusCallback, appliedStatuses: OrderStatus[]}) => {
-
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-
-  const handleStatusToggle = (status) => {
-    setSelectedStatuses((prevSelectedStatuses) =>
-      prevSelectedStatuses.includes(status)
-        ? prevSelectedStatuses.filter((selected) => selected !== status)
-        : [...prevSelectedStatuses, status]
-    );
-  };
-
-
-  const handleApplyClick = () => {
-    // Close the dropdown when Apply is clicked
-    setIsDropdownOpen(false);
-    onOrderStatusChange(selectedStatuses.map(selectedStatus => OrderStatus[selectedStatus.toUpperCase()]));
-  };
-
-  return (
-    <DropdownMenu open={isDropdownOpen} onOpenChange={(isOpen) => {
-      if (isOpen) {
-        setSelectedStatuses(Object.values(appliedStatuses));
-      }
-      setIsDropdownOpen(isOpen)
-    }}>
-    <DropdownMenu.Trigger asChild>
-      <IconButton>
-        <EllipsisHorizontal />
-      </IconButton>
-    </DropdownMenu.Trigger>
-    <DropdownMenu.Content>
-      {Object.values(OrderStatus).map(orderStatus => (
-        <DropdownMenu.Item className="gap-x-2" onSelect={event => event.preventDefault()}>
-          <Checkbox 
-            id={`order-status-${orderStatus}`}
-            checked={selectedStatuses.includes(orderStatus)}
-            onCheckedChange={() => handleStatusToggle(orderStatus)}
-          />
-          <Label htmlFor={`order-status-${orderStatus}`}>{orderStatus}</Label>
-        </DropdownMenu.Item>
-      ))}
-      <DropdownMenu.Label className="gap-x-2">
-          <Button onClick={handleApplyClick}>
-            Apply
-          </Button>
-      </DropdownMenu.Label>
-    </DropdownMenu.Content> 
-    </DropdownMenu>
-  )
-}
+import { 
+  ComparedDate, 
+  DropdownOrderStatus, 
+  SwitchComparison, 
+  OrdersOverviewCard, 
+  SalesOverviewCard, 
+  CustomersOverviewCard, 
+  CustomersRepeatCustomerRate, 
+  SalesChannelPopularityCard, 
+  RegionsPopularityCard, 
+  VariantsTopByCountCard, 
+  DateLasts, 
+  OrderStatus, 
+  convertDateLastsToDateRange, 
+  convertDateLastsToComparedDateRange 
+} from '../../../ui-components';
 
 const OverviewPage = () => {
 
