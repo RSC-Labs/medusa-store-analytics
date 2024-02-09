@@ -106,7 +106,8 @@ No configuration is needed. Everything is done through UI. You can use such opti
 
 | Name | Status |
 | --- | --- |
-| Top variants sold by orders | :white_check_mark: |
+| Top variants | :white_check_mark: |
+| Top returned variants | :white_check_mark: |
 
 ## License
 
