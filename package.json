@@ -24,11 +24,11 @@
   },
   "dependencies": {
     "@medusajs/admin": "7.1.11",
-    "@medusajs/ui": "2.4.0",
+    "@medusajs/ui": "2.4.1",
     "@medusajs/icons": "1.2.0",
     "@tanstack/react-query": "4.22",
     "medusa-interfaces": "^1.3.7",
-    "medusa-react": "9.0.14",
+    "medusa-react": "9.0.15",
     "@mui/material": "^5.15.3",
     "typeorm": "^0.3.16",
     "react-hook-form": "^7.49.2",
