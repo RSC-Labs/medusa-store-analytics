@@ -38,13 +38,19 @@ type CustomersCounts = {
   previous: number
 }
 
-type CustomersRepeatCustomerRate = {
+type Distributions = {
+  returnCustomerRate: number,
+  orderOneTimeFrequency?: number,
+  orderRepeatFrequency?: number
+}
+
+type CustomersOrdersDistribution = {
   dateRangeFrom?: number
   dateRangeTo?: number,
   dateRangeFromCompareTo?: number,
   dateRangeToCompareTo?: number,
-  current: number,
-  previous: number
+  current: Distributions,
+  previous: Distributions
 }
 
 export default class CustomersAnalyticsService extends TransactionBaseService {
@@ -214,7 +220,7 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
     return customers[1];
   }
 
-  async getRepeatCustomerRate(orderStatuses: OrderStatus[], from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<CustomersRepeatCustomerRate> {
+  async getRepeatCustomerRate(orderStatuses: OrderStatus[], from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<CustomersOrdersDistribution> {
     
     // Use the same query like finding for Orders, but include Customers
     let startQueryFrom: Date | undefined;
@@ -267,21 +273,26 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
         }, new Map<string, number>());
 
         const returningCustomersForCurrentOrders = Object.values(currentOrderCountByCustomer).filter(count => parseInt(count) > 1).length;
-
         const totalCustomersForCurrentOrders = Object.keys(currentOrderCountByCustomer).length;
-        const currentValue = totalCustomersForCurrentOrders > 0 ? returningCustomersForCurrentOrders * 100 / totalCustomersForCurrentOrders : undefined;
 
         const returningCustomersForPreviousOrders = Object.values(previousOrderCountByCustomer).filter(count => parseInt(count) > 1).length;
-
         const totalCustomersForPreviousOrders = Object.keys(previousOrderCountByCustomer).length;
-        const previousValue = totalCustomersForPreviousOrders > 0 ? returningCustomersForPreviousOrders * 100 / totalCustomersForPreviousOrders : undefined;
+
+        // Return Customer Rate
+        const returnCustomerRateCurrentValue = totalCustomersForCurrentOrders > 0 ? returningCustomersForCurrentOrders * 100 / totalCustomersForCurrentOrders : undefined;
+        const returnCustomerRatePreviousValue = totalCustomersForPreviousOrders > 0 ? returningCustomersForPreviousOrders * 100 / totalCustomersForPreviousOrders : undefined;
+
         return {
           dateRangeFrom: from.getTime(),
           dateRangeTo: to.getTime(),
           dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
           dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
-          current: currentValue,
-          previous: previousValue
+          current: {
+            returnCustomerRate: returnCustomerRateCurrentValue
+          },
+          previous: {
+            returnCustomerRate: returnCustomerRatePreviousValue
+          }
         }
       }
 
@@ -294,13 +305,16 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
         const returningCustomersForCurrentOrders = Object.values(orderCountByCustomer).filter(count => parseInt(count) > 1).length;
     
         const totalCustomersForCurrentOrders = Object.keys(orderCountByCustomer).length;
-        const currentValue = totalCustomersForCurrentOrders > 0 ? returningCustomersForCurrentOrders * 100 / totalCustomersForCurrentOrders : undefined;
+        // Return Customer Rate
+        const returnCustomerRateCurrentValue = totalCustomersForCurrentOrders > 0 ? returningCustomersForCurrentOrders * 100 / totalCustomersForCurrentOrders : undefined;
         return {
           dateRangeFrom: startQueryFrom.getTime(),
           dateRangeTo: to ? to.getTime() : new Date(Date.now()).getTime(),
           dateRangeFromCompareTo: undefined,
           dateRangeToCompareTo: undefined,
-          current: currentValue,
+          current: {
+            returnCustomerRate: returnCustomerRateCurrentValue
+          },
           previous: undefined
         }
       }
@@ -310,8 +324,31 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
       dateRangeTo: undefined,
       dateRangeFromCompareTo: undefined,
       dateRangeToCompareTo: undefined,
-      current: 0,
-      previous: 0
+      current: {
+        returnCustomerRate: 0
+      },
+      previous: {
+        returnCustomerRate: 0
+      }
     }
   }
 }
+
+/*
+Example Data:
+
+Total number of unique customers: 500
+Total number of orders placed: 750
+Number of customers who made more than one purchase (repeat customers): 150
+
+return customer rate = 150/500 ~ 30%
+
+customer order distribution
+
+one-time customrs = 350
+repeat customers = 150
+
+one time % = 350 / 500
+repeat % = 150 / 500
+
+*/

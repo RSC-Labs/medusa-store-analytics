@@ -18,9 +18,9 @@ import { CustomersRepeatCustomerRateResponse } from "./types"
 
 export const RepeatCustomerRateNummber = ({repeatCustomerRateResponse, compareEnabled} : {repeatCustomerRateResponse: CustomersRepeatCustomerRateResponse, compareEnabled?: boolean}) => {
   const currentPercentage: number | undefined =  repeatCustomerRateResponse.analytics.current !== undefined ? 
-    parseInt(repeatCustomerRateResponse.analytics.current) : undefined;
+    parseInt(repeatCustomerRateResponse.analytics.current.returnCustomerRate) : undefined;
   const previousPercentage: number | undefined = repeatCustomerRateResponse.analytics.previous !== undefined ? 
-    parseInt(repeatCustomerRateResponse.analytics.previous) : undefined;
+    parseInt(repeatCustomerRateResponse.analytics.previous.returnCustomerRate) : undefined;
 
   return (
     <Grid container alignItems={'center'} spacing={2}>

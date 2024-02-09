@@ -103,7 +103,7 @@ export const ReturnedVariantsByCountCard = ({dateRange, dateRangeCompareTo} :
             </Grid>
             <Grid item>
               <Heading level="h2">
-                Returned variants by count
+                Top returned variants
               </Heading>
             </Grid>
           </Grid>

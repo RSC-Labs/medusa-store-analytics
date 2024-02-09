@@ -61,7 +61,7 @@ export const generateChartData = (data: ChartDataType, startFrom: Date, endAt: D
   const previousOrders = data.previous;
 
   const currentDate = new Date(startFrom);
-  const offsetTime = endAt.getTime() - startFrom.getTime() + 86400000;
+  const offsetTime = endAt.getTime() - startFrom.getTime();
 
   const dataPoints = [];
 

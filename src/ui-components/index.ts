@@ -22,6 +22,9 @@ export { CustomersOverviewCard } from './customers/customers-overview-card'
 export { CustomersRepeatCustomerRate } from './customers/customers-repeat-customer-rate';
 
 export { VariantsTopByCountCard } from './products/variants-top-by-count';
+export { ReturnedVariantsByCountCard } from './products/returned_variants/returned-variants-by-count';
+
+export { DiscountsTopCard } from './marketing/discounts-top-by-count';
 
 export { DateLasts, OrderStatus, DateRange } from './utils/types'
 export { convertDateLastsToComparedDateRange, convertDateLastsToDateRange } from './utils/helpers'

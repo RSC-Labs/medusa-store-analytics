@@ -10,19 +10,19 @@
  * limitations under the License.
  */
 
-type Distributions = {
-  returnCustomerRate: string,
-  orderOneTimeFrequency?: string,
-  orderRepeatFrequency?: string
+import { Container, Heading } from "@medusajs/ui"
+import { Grid } from "@mui/material";
+
+const OrdersTab = () => {
+  return (
+    <Grid container spacing={2} justifyContent={"center"} >
+      <Grid item xs={6} md={6} xl={6}>
+        <Container>
+          <Heading level='h1'>Coming soon... Stay tuned.</Heading>
+        </Container>
+      </Grid>
+    </Grid>
+  )
 }
 
-export type CustomersRepeatCustomerRateResponse = {
-  analytics: {
-    dateRangeFrom: number
-    dateRangeTo: number,
-    dateRangeFromCompareTo?: number,
-    dateRangeToCompareTo?: number,
-    current: Distributions,
-    previous: Distributions
-  }
-}
+export default OrdersTab

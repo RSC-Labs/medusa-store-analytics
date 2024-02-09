@@ -15,7 +15,7 @@ import type {
   MedusaResponse,
 } from "@medusajs/medusa"
 import { OrderStatus } from "@medusajs/medusa";
-import ProductsAnalyticsService from "../../../../services/productsAnalytics";
+import MarketingAnalyticsService from "../../../../services/marketingAnalytics";
 
 export const GET = async (
   req: MedusaRequest,
@@ -25,8 +25,6 @@ export const GET = async (
   const kind = req.params.kind;
   const dateRangeFrom = req.query.dateRangeFrom;
   const dateRangeTo = req.query.dateRangeTo;
-  const dateRangeFromCompareTo = req.query.dateRangeFromCompareTo;
-  const dateRangeToCompareTo = req.query.dateRangeToCompareTo;
   const orderStatusesFromQuery: string[] = req.query.orderStatuses as string[];
 
   const orderStatuses: OrderStatus[] = orderStatusesFromQuery !== undefined ? 
@@ -34,20 +32,12 @@ export const GET = async (
 
 
   let result: any;
-  const productsAnalyticsService: ProductsAnalyticsService = req.scope.resolve('productsAnalyticsService');
+  const marketingAnalyticsService: MarketingAnalyticsService = req.scope.resolve('marketingAnalyticsService');
 
   switch (kind) {
-    case 'popularity-by-count':
-      result = await productsAnalyticsService.getTopVariantsByCount(
+    case 'discounts-by-count':
+      result = await marketingAnalyticsService.getTopDiscountsByCount(
         orderStatuses,
-        dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
-        dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
-        dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
-        dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
-      );
-      break;
-    case 'returned-by-count':
-      result = await productsAnalyticsService.getTopReturnedVariantsByCount(
         dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
         dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
       );

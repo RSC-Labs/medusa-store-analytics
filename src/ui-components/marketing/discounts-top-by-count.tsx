@@ -16,9 +16,9 @@ import { CircularProgress, Grid } from "@mui/material";
 import { DateRange } from "../utils/types";
 import { useAdminCustomQuery } from "medusa-react"
 import { OrderStatus } from "../utils/types";
-import { VariantsTopTable, VariantsTopTableRow } from "./variants-top-table";
+import { DiscountsTopTable, DiscountsTopTableRow } from "./discounts-top-table";
 
-type AdminProductsStatisticsQuery = {
+type AdminMarketingStatisticsQuery = {
   orderStatuses: string[],
   dateRangeFrom: number
   dateRangeTo: number,
@@ -26,36 +26,32 @@ type AdminProductsStatisticsQuery = {
   dateRangeToCompareTo?: number,
 }
 
-type VariantsCountPopularity = {
+type DiscountsCountPopularity = {
   sum: string,
-  variantId: string,
-  productTitle: string,
-  variantTitle: string,
-  thumbnail: string,
+  discountId: string,
+  discountCode: string,
 }
 
-type VariantsCountPopularityResult = {
+type DiscountsCountPopularityResult = {
   dateRangeFrom?: number
   dateRangeTo?: number,
   dateRangeFromCompareTo?: number,
   dateRangeToCompareTo?: number,
-  current: VariantsCountPopularity[],
-  previous: VariantsCountPopularity[] | undefined
+  current: DiscountsCountPopularity[],
+  previous: DiscountsCountPopularity[] | undefined
 }
 
-type VariantsCountPopularityResponse = {
-  analytics: VariantsCountPopularityResult
+type DiscountsCountPopularityResponse = {
+  analytics: DiscountsCountPopularityResult
 }
 
-function transformToVariantTopTable(result: VariantsCountPopularityResult): VariantsTopTableRow[] {
-  const currentMap = new Map<string, VariantsTopTableRow>();
+function transformToDiscountsTopTable(result: DiscountsCountPopularityResult): DiscountsTopTableRow[] {
+  const currentMap = new Map<string, DiscountsTopTableRow>();
 
   result.current.forEach(currentItem => {
-    const currentCount = currentMap.get(currentItem.variantId) ? currentMap.get(currentItem.variantId).sum : '0';
-    currentMap.set(currentItem.variantId, {
-      productTitle: currentItem.productTitle,
-      variantTitle: currentItem.variantTitle,
-      thumbnail: currentItem.thumbnail,
+    const currentCount = currentMap.get(currentItem.discountId) ? currentMap.get(currentItem.discountId).sum : '0';
+    currentMap.set(currentItem.discountId, {
+      discountCode: currentItem.discountCode,
       sum: (parseInt(currentCount) + parseInt(currentItem.sum)).toString()
     });
   });
@@ -63,13 +59,13 @@ function transformToVariantTopTable(result: VariantsCountPopularityResult): Vari
   return Array.from(currentMap.values());
 }
 
-const VariantsTopByCount = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} : {
-  orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled?: boolean}) => {
+const DiscountsTopByCount = ({orderStatuses, dateRange, dateRangeCompareTo} : {
+  orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange}) => {
   const { data, isLoading } = useAdminCustomQuery<
-    AdminProductsStatisticsQuery,
-    VariantsCountPopularityResponse
+    AdminMarketingStatisticsQuery,
+    DiscountsCountPopularityResponse
   >(
-    `/products-analytics/popularity-by-count`,
+    `/marketing-analytics/discounts-by-count`,
     [orderStatuses, dateRange, dateRangeCompareTo],
     {
       orderStatuses: Object.values(orderStatuses),
@@ -85,18 +81,18 @@ const VariantsTopByCount = ({orderStatuses, dateRange, dateRangeCompareTo, compa
   }
 
   if (data.analytics == undefined) {
-    return <Heading level="h3">Cannot get orders or products</Heading>
+    return <Heading level="h3">Cannot get orders or discounts</Heading>
   }
 
   if (data.analytics.dateRangeFrom) {
-    return <VariantsTopTable tableRows={transformToVariantTopTable(data.analytics)}/>
+    return <DiscountsTopTable tableRows={transformToDiscountsTopTable(data.analytics)}/>
   } else {
-    return <Heading level="h3">No products for selected orders</Heading>
+    return <Heading level="h3">No discounts for selected orders</Heading>
   }
 }
 
-export const VariantsTopByCountCard = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} :
-  {orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled: boolean}) => {
+export const DiscountsTopCard = ({orderStatuses, dateRange, dateRangeCompareTo} :
+  {orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange}) => {
   return (
     <Grid container paddingBottom={2} spacing={3}>
       <Grid item xs={12} md={12}>
@@ -106,13 +102,13 @@ export const VariantsTopByCountCard = ({orderStatuses, dateRange, dateRangeCompa
             </Grid>
             <Grid item>
               <Heading level="h2">
-                Top variants
+                Top discounts
               </Heading>
             </Grid>
           </Grid>
       </Grid>
       <Grid item xs={12} md={12}>
-        <VariantsTopByCount orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
+        <DiscountsTopByCount orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo}/>
       </Grid>
     </Grid>
   )
