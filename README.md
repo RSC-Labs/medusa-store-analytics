@@ -109,6 +109,12 @@ No configuration is needed. Everything is done through UI. You can use such opti
 | Top variants | :white_check_mark: |
 | Top returned variants | :white_check_mark: |
 
+### Marketing
+
+| Name | Status |
+| --- | --- |
+| Top discounts | :white_check_mark: |
+
 ## License
 
 MIT
