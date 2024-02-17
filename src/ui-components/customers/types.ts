@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-type Distributions = {
+export type Distributions = {
   returnCustomerRate: string,
   orderOneTimeFrequency?: string,
   orderRepeatFrequency?: string

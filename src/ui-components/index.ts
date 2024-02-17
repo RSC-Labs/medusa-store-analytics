@@ -19,7 +19,7 @@ export { SalesChannelPopularityCard } from './sales/sales-channel-popularity-car
 export { RegionsPopularityCard } from './sales/regions-popularity-card'
 
 export { CustomersOverviewCard } from './customers/customers-overview-card'
-export { CustomersRepeatCustomerRate } from './customers/customers-repeat-customer-rate';
+export { CustomersRepeatCustomerRate } from './customers/repeat-customer-rate/customers-repeat-customer-rate';
 
 export { VariantsTopByCountCard } from './products/variants-top-by-count';
 export { ReturnedVariantsByCountCard } from './products/returned_variants/returned-variants-by-count';

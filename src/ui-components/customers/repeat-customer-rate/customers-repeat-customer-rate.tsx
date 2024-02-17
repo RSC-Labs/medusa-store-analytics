@@ -14,10 +14,11 @@ import { Heading } from "@medusajs/ui";
 import { ShoppingBag } from "@medusajs/icons";
 import { CircularProgress, Grid } from "@mui/material";
 import { useAdminCustomQuery } from "medusa-react"
-import { DateRange } from "../utils/types";
-import { CustomersRepeatCustomerRateResponse } from "./types";
+import { DateRange } from "../../utils/types";
+import { CustomersRepeatCustomerRateResponse } from "../types";
 import { RepeatCustomerRateNummber } from "./customers-repeat-customer-rate-number";
-import { OrderStatus } from "../utils/types";
+import { OrderStatus } from "../../utils/types";
+import { OrderFrequencyDistribution } from "./order-frequency-distribution";
 
 type AdminCustomersStatisticsQuery = {
   orderStatuses: string[],
@@ -54,11 +55,11 @@ const RepeatCustomerRateDetails = ({orderStatuses, dateRange, dateRangeCompareTo
 
   if (data.analytics.dateRangeFrom) {
     return (
-      <>
+      <Grid container>
         <Grid item xs={12} md={12}>
           <RepeatCustomerRateNummber repeatCustomerRateResponse={data} compareEnabled={compareEnabled}/>
         </Grid>
-      </>
+      </Grid>
     )
   } else {
     return <Heading level="h3">No orders or customers</Heading>

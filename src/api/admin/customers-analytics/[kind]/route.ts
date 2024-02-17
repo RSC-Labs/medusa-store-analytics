@@ -44,6 +44,14 @@ export const GET = async (
         dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
       );
       break;
+    case 'cummulative-history':
+      result = await customersAnalyticsService.getCummulativeHistory(
+        dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
+        dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
+        dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
+        dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
+      );
+      break;
     case 'count':
       result = await customersAnalyticsService.getNewCount(
         dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 

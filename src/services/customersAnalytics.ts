@@ -39,7 +39,7 @@ type CustomersCounts = {
 }
 
 type Distributions = {
-  returnCustomerRate: number,
+  returnCustomerRate?: number,
   orderOneTimeFrequency?: number,
   orderRepeatFrequency?: number
 }
@@ -65,8 +65,6 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
   }
 
   async getHistory(from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<CustomersHistoryResult> {
-    
-
     if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
         const resolution = calculateResolution(from);
         const customers = await this.activeManager_.getRepository(Customer)
@@ -282,16 +280,40 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
         const returnCustomerRateCurrentValue = totalCustomersForCurrentOrders > 0 ? returningCustomersForCurrentOrders * 100 / totalCustomersForCurrentOrders : undefined;
         const returnCustomerRatePreviousValue = totalCustomersForPreviousOrders > 0 ? returningCustomersForPreviousOrders * 100 / totalCustomersForPreviousOrders : undefined;
 
+        // Order frequency distribution
+        let currentOneTimeOrders = 0;
+        let currentRepeatOrders = 0;
+        for (const count of Object.values(currentOrderCountByCustomer)) {
+          if (parseInt(count) === 1) {
+            currentOneTimeOrders += count; 
+          } else if (parseInt(count) > 1) {
+            currentRepeatOrders += count;
+          }
+        }
+
+        let previousOneTimeOrders = 0;
+        let previousRepeatOrders = 0;
+        for (const count of Object.values(previousOrderCountByCustomer)) {
+          if (parseInt(count) === 1) {
+            previousOneTimeOrders += count; 
+          } else if (parseInt(count) > 1) {
+            previousRepeatOrders += count;
+          }
+        }
         return {
           dateRangeFrom: from.getTime(),
           dateRangeTo: to.getTime(),
           dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
           dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
           current: {
-            returnCustomerRate: returnCustomerRateCurrentValue
+            returnCustomerRate: returnCustomerRateCurrentValue,
+            orderOneTimeFrequency: currentOneTimeOrders * 100 / currentOrders.length,
+            orderRepeatFrequency: currentRepeatOrders * 100 / currentOrders.length
           },
           previous: {
-            returnCustomerRate: returnCustomerRatePreviousValue
+            returnCustomerRate: returnCustomerRatePreviousValue, 
+            orderOneTimeFrequency: previousOneTimeOrders * 100 / previousOrders.length,
+            orderRepeatFrequency: previousRepeatOrders * 100 / previousOrders.length
           }
         }
       }
@@ -307,13 +329,27 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
         const totalCustomersForCurrentOrders = Object.keys(orderCountByCustomer).length;
         // Return Customer Rate
         const returnCustomerRateCurrentValue = totalCustomersForCurrentOrders > 0 ? returningCustomersForCurrentOrders * 100 / totalCustomersForCurrentOrders : undefined;
+
+        // Order frequency distribution
+        let currentOneTimeOrders = 0;
+        let currentRepeatOrders = 0;
+        for (const count of Object.values(orderCountByCustomer)) {
+          if (parseInt(count) === 1) {
+            currentOneTimeOrders += count; 
+          } else if (parseInt(count) > 1) {
+            currentRepeatOrders += count;
+          }
+        }
+
         return {
           dateRangeFrom: startQueryFrom.getTime(),
           dateRangeTo: to ? to.getTime() : new Date(Date.now()).getTime(),
           dateRangeFromCompareTo: undefined,
           dateRangeToCompareTo: undefined,
           current: {
-            returnCustomerRate: returnCustomerRateCurrentValue
+            returnCustomerRate: returnCustomerRateCurrentValue,
+            orderOneTimeFrequency: currentOneTimeOrders * 100 / orders.length,
+            orderRepeatFrequency: currentRepeatOrders * 100 / orders.length
           },
           previous: undefined
         }
@@ -332,23 +368,95 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
       }
     }
   }
+
+  async getCummulativeHistory(from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<CustomersHistoryResult> {
+    if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
+        const resolution = calculateResolution(from);
+        const customers = await this.activeManager_.getRepository(Customer)
+        .createQueryBuilder('customer')
+        .select(`date_trunc('${resolution}', customer.created_at) AS date`)
+        .addSelect(
+          "COUNT(*) FILTER (WHERE customer.created_at <= :dateRangeFromCompareTo) + SUM(COUNT(*)) FILTER (WHERE customer.created_at >= :dateRangeFromCompareTo) OVER (ORDER BY DATE_TRUNC('day', customer.created_at) ASC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)",
+          "cumulative_count"
+        )
+        .setParameters({ dateRangeFromCompareTo: dateRangeFromCompareTo }) // Assuming dateRangeFromCompareTo is a variable containing the date
+        .groupBy('date')
+        .orderBy('date', 'ASC')
+        .getRawMany();
+
+        console.log(customers);
+
+        // const finalCustomers: CustomersHistoryResult = customers.reduce((acc, entry) => {
+        //   const type = entry.type;
+        //   const date = entry.date;
+        //   const customerCount = entry.customerCount;
+        //   if (!acc[type]) {
+        //     acc[type] = [];
+        //   }
+
+        //   acc[type].push({date, customerCount})
+
+        //   return acc;
+        // }, {})
+
+        // return {
+        //   dateRangeFrom: from.getTime(),
+        //   dateRangeTo: to.getTime(),
+        //   dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
+        //   dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
+        //   current: finalCustomers.current ? finalCustomers.current : [],
+        //   previous: finalCustomers.previous ? finalCustomers.previous : [],
+        // } 
+    }
+
+    // let startQueryFrom: Date | undefined;
+    // if (!dateRangeFromCompareTo) {
+    //   if (from) {
+    //     startQueryFrom = from;
+    //   } else {
+    //     // All time
+    //     const lastCustomer = await this.activeManager_.getRepository(Customer).find({
+    //       skip: 0,
+    //       take: 1,
+    //       order: { created_at: "ASC"},
+    //     })
+
+    //     if (lastCustomer.length > 0) {
+    //       startQueryFrom = lastCustomer[0].created_at;
+    //     }
+    //   }
+    // } else {
+    //   startQueryFrom = dateRangeFromCompareTo;
+    // }
+
+    // if (startQueryFrom) {
+    //   const resolution = calculateResolution(startQueryFrom);
+    //   const customers = await this.activeManager_.getRepository(Customer)
+    //   .createQueryBuilder('customer')
+    //   .select(`date_trunc('${resolution}', customer.created_at)`, 'date')
+    //   .addSelect('COUNT(customer.id)', 'customerCount')
+    //   .where(`created_at >= :startQueryFrom`, { startQueryFrom })
+    //   .groupBy('date')
+    //   .orderBy('date', 'ASC')
+    //   .getRawMany();
+
+    //   return {
+    //     dateRangeFrom: startQueryFrom.getTime(),
+    //     dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
+    //     dateRangeFromCompareTo: undefined,
+    //     dateRangeToCompareTo: undefined,
+    //     current: customers,
+    //     previous: []
+    //   };
+    // }
+
+    return {
+      dateRangeFrom: undefined,
+      dateRangeTo: undefined,
+      dateRangeFromCompareTo: undefined,
+      dateRangeToCompareTo: undefined,
+      current: [],
+      previous: []
+    }
+  }
 }
-
-/*
-Example Data:
-
-Total number of unique customers: 500
-Total number of orders placed: 750
-Number of customers who made more than one purchase (repeat customers): 150
-
-return customer rate = 150/500 ~ 30%
-
-customer order distribution
-
-one-time customrs = 350
-repeat customers = 150
-
-one time % = 350 / 500
-repeat % = 150 / 500
-
-*/

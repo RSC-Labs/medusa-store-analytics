@@ -12,15 +12,17 @@
 
 import { Heading } from "@medusajs/ui";
 import { Grid } from "@mui/material";
-import { PercentageComparison } from "../common/percentage-comparison";
-import { IconComparison } from "../common/icon-comparison";
-import { CustomersRepeatCustomerRateResponse } from "./types"
+import { PercentageComparison } from "../../common/percentage-comparison";
+import { IconComparison } from "../../common/icon-comparison";
+import { CustomersRepeatCustomerRateResponse } from "../types"
 
 export const RepeatCustomerRateNummber = ({repeatCustomerRateResponse, compareEnabled} : {repeatCustomerRateResponse: CustomersRepeatCustomerRateResponse, compareEnabled?: boolean}) => {
-  const currentPercentage: number | undefined =  repeatCustomerRateResponse.analytics.current !== undefined ? 
-    parseInt(repeatCustomerRateResponse.analytics.current.returnCustomerRate) : undefined;
-  const previousPercentage: number | undefined = repeatCustomerRateResponse.analytics.previous !== undefined ? 
-    parseInt(repeatCustomerRateResponse.analytics.previous.returnCustomerRate) : undefined;
+  const currentPercentage: number | undefined =  
+    repeatCustomerRateResponse.analytics.current !== undefined &&  repeatCustomerRateResponse.analytics.current.returnCustomerRate !== undefined ? 
+      parseInt(repeatCustomerRateResponse.analytics.current.returnCustomerRate) : undefined;
+  const previousPercentage: number | undefined = 
+    repeatCustomerRateResponse.analytics.previous !== undefined && repeatCustomerRateResponse.analytics.previous.returnCustomerRate !== undefined ? 
+      parseInt(repeatCustomerRateResponse.analytics.previous.returnCustomerRate) : undefined;
 
   return (
     <Grid container alignItems={'center'} spacing={2}>

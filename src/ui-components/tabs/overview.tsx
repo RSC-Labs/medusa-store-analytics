@@ -31,6 +31,7 @@ import {
   convertDateLastsToDateRange,
   convertDateLastsToComparedDateRange,
   ReturnedVariantsByCountCard,
+  DiscountsTopCard
 } from '..';
 
 const OverviewTab = () => {
@@ -150,6 +151,11 @@ const OverviewTab = () => {
       <Grid item xs={6} md={6} xl={6}>
         <Container>
           <ReturnedVariantsByCountCard dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo}/>
+        </Container>
+      </Grid>
+      <Grid item xs={6} md={6} xl={6}>
+        <Container>
+          <DiscountsTopCard orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo}/>
         </Container>
       </Grid>
     </Grid> 
