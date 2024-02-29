@@ -59,6 +59,9 @@ const RepeatCustomerRateDetails = ({orderStatuses, dateRange, dateRangeCompareTo
         <Grid item xs={12} md={12}>
           <RepeatCustomerRateNummber repeatCustomerRateResponse={data} compareEnabled={compareEnabled}/>
         </Grid>
+        <Grid item xs={12} md={12}>
+          <OrderFrequencyDistribution repeatCustomerRateResponse={data} compareEnabled={compareEnabled}/>
+        </Grid>
       </Grid>
     )
   } else {
