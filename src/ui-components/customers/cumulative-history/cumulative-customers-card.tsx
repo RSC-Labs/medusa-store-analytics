@@ -14,9 +14,9 @@ import { Heading } from "@medusajs/ui";
 import { Users } from "@medusajs/icons";
 import { Grid } from "@mui/material";
 import { DateRange } from "../../utils/types";
-import { CummulativeCustomersChart } from "./cummulative-customers-chart";
+import { CumulativeCustomersChart } from "./cumulative-customers-chart";
 
-export const CummulativeCustomersCard = ({dateRange, dateRangeCompareTo, compareEnabled} : 
+export const CumulativeCustomersCard = ({dateRange, dateRangeCompareTo, compareEnabled} : 
   {dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled: boolean}) => {
   return (
     <Grid container paddingBottom={2} spacing={3}>
@@ -27,13 +27,13 @@ export const CummulativeCustomersCard = ({dateRange, dateRangeCompareTo, compare
             </Grid>
             <Grid item>
               <Heading level="h2">
-                Cummulative customers
+              Cumulative customers
               </Heading>
             </Grid>
           </Grid>
       </Grid>
       <Grid item xs={12} md={12}>
-        <CummulativeCustomersChart dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
+        <CumulativeCustomersChart dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
       </Grid>
     </Grid>
   )

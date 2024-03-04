@@ -55,30 +55,66 @@ const incrementDate = (date: Date, resolutionType: ChartResolutionType) => {
   }
 };
 
-export const generateChartData = (data: ChartDataType, startFrom: Date, endAt: Date, chartResolutionType: ChartResolutionType) => {
+export const generateChartData = (data: ChartDataType, startFrom: Date, endAt: Date, chartResolutionType: ChartResolutionType, connectEmptyPointsUsingPreviousValue?: boolean) => {
 
-  const currentOrders = data.current;
-  const previousOrders = data.previous;
+  const currentData = data.current;
+  const previousData = data.previous;
 
   const currentDate = new Date(startFrom);
   const offsetTime = endAt.getTime() - startFrom.getTime();
 
   const dataPoints = [];
 
+  let currentDataValue: any;
+  let previousDataValue: any;
+
   while (currentDate.getTime() < endAt.getTime() || compareDatesBasedOnResolutionType(currentDate, endAt, chartResolutionType)) {
-    const currentOrder = currentOrders.find(order => compareDatesBasedOnResolutionType(new Date(order.date), currentDate, chartResolutionType));
+    const currentOrder = currentData.find(order => compareDatesBasedOnResolutionType(new Date(order.date), currentDate, chartResolutionType));
     const offsetDate = new Date(currentDate);
     offsetDate.setTime(offsetDate.getTime() - offsetTime);
-    const previousOrder = previousOrders.find(previous => compareDatesBasedOnResolutionType(new Date(previous.date), offsetDate, chartResolutionType));
-    
-    dataPoints.push({
-      date: new Date(currentDate),
-      current: currentOrder ? parseInt(currentOrder.value) : 0,
-      previous: previousOrder ? parseInt(previousOrder.value) : 0,
-    });
+    const previousOrder = previousData.find(previous => compareDatesBasedOnResolutionType(new Date(previous.date), offsetDate, chartResolutionType));
+
+    if (connectEmptyPointsUsingPreviousValue) {
+      if (currentOrder) {
+        currentDataValue = parseInt(currentOrder.value);
+      }
+      if (previousOrder) {
+        previousDataValue = parseInt(previousOrder.value);
+      }
+
+      dataPoints.push({
+        date: new Date(currentDate),
+        current: currentOrder ? parseInt(currentOrder.value) : (currentDataValue ? currentDataValue : undefined),
+        previous: previousOrder ? parseInt(previousOrder.value) : (previousDataValue ? previousDataValue : undefined),
+      });
+    } else {
+      dataPoints.push({
+        date: new Date(currentDate),
+        current: currentOrder ? parseInt(currentOrder.value) : 0,
+        previous: previousOrder ? parseInt(previousOrder.value) : 0,
+      });
+    }
 
     incrementDate(currentDate, chartResolutionType);
   }
+
+  if (connectEmptyPointsUsingPreviousValue) {
+    for (let i = dataPoints.length - 1; i >= 0; i--) {
+      if (dataPoints[i].current === undefined) {
+        if (dataPoints[dataPoints.length - 1].previous) {
+          dataPoints[i].current = dataPoints[dataPoints.length - 1].previous
+        } else {
+          dataPoints[i].current = 0;
+        }
+      }
+      if (dataPoints[i].previous) {
+        previousDataValue = dataPoints[i].previous
+      } else {
+        dataPoints[i].previous = previousDataValue;
+      }
+    }
+  }
+
 
   return dataPoints;
 }
@@ -131,8 +167,8 @@ export const ChartCustomTooltip = ({ active, payload, label, resolutionType }) =
   return null;
 };
 
-export const ChartCurrentPrevious = ({rawChartData, fromDate, toDate, fromCompareDate, toCompareDate, compareEnabled} : {
-  rawChartData: ChartDataType, fromDate: Date, toDate: Date, fromCompareDate?: Date, toCompareDate?: Date, compareEnabled?: boolean}) => {
+export const ChartCurrentPrevious = ({rawChartData, fromDate, toDate, fromCompareDate, toCompareDate, compareEnabled, connectEmptyPointsUsingPreviousValue} : {
+  rawChartData: ChartDataType, fromDate: Date, toDate: Date, fromCompareDate?: Date, toCompareDate?: Date, compareEnabled?: boolean, connectEmptyPointsUsingPreviousValue?: boolean}) => {
 
   const [chartData, setChartData] = useState([]);
 
@@ -143,7 +179,9 @@ export const ChartCurrentPrevious = ({rawChartData, fromDate, toDate, fromCompar
       rawChartData,
       fromDate, 
       toDate, 
-      resolutionType);
+      resolutionType,
+      connectEmptyPointsUsingPreviousValue
+    );
     setChartData(dataPoints);
       
   }, [rawChartData, fromDate, toDate]);

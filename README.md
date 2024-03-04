@@ -84,6 +84,7 @@ No configuration is needed. Everything is done through UI. You can use such opti
 | Orders chart | :white_check_mark: |
 | Regions popularity | :white_check_mark: |
 | Sales channel popularity | :white_check_mark: |
+| Orders frequency distribution | :white_check_mark: |
 
 ### Sales
 

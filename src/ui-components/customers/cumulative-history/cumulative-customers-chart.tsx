@@ -39,13 +39,13 @@ type CustomersHistoryResponse = {
   }
 }
 
-export const CummulativeCustomersChart = ({dateRange, dateRangeCompareTo, compareEnabled} : {dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled?: boolean}) => {
+export const CumulativeCustomersChart = ({dateRange, dateRangeCompareTo, compareEnabled} : {dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled?: boolean}) => {
 
   const { data, isLoading } = useAdminCustomQuery<
     AdminCustomersStatisticsQuery,
     CustomersHistoryResponse
   >(
-    `/customers-analytics/cummulative-history`,
+    `/customers-analytics/cumulative-history`,
     [dateRange, dateRangeCompareTo],
     {
       dateRangeFrom: dateRange ? dateRange.from.getTime() : undefined,
@@ -80,7 +80,7 @@ export const CummulativeCustomersChart = ({dateRange, dateRangeCompareTo, compar
     };
     return (
       <>
-        {/* <Heading level="h3">New customers by time</Heading>
+        <Heading level="h3">Cumulative customers by time</Heading>
         <ChartCurrentPrevious 
           rawChartData={rawChartData} 
           fromDate={new Date(data.analytics.dateRangeFrom)} 
@@ -88,7 +88,8 @@ export const CummulativeCustomersChart = ({dateRange, dateRangeCompareTo, compar
           fromCompareDate={data.analytics.dateRangeFromCompareTo ? new Date(data.analytics.dateRangeFromCompareTo) : undefined}
           toCompareDate={data.analytics.dateRangeToCompareTo ? new Date(data.analytics.dateRangeToCompareTo) : undefined}
           compareEnabled={compareEnabled}
-        /> */}
+          connectEmptyPointsUsingPreviousValue={true}
+        />
       </>
     )
   } else {

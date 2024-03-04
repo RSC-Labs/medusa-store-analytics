@@ -80,7 +80,7 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
             }
           )),
           previous: undefined
-        } 
+        }
       }
 
       let startQueryFrom: Date | undefined;
@@ -286,6 +286,91 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
       dateRangeFromCompareTo: undefined,
       dateRangeToCompareTo: undefined,
       current: [],
+      previous: undefined
+    }
+  }
+
+  async getProductsSoldCount(orderStatuses: OrderStatus[], from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<VariantsCountPopularityResult> {
+    const orderStatusesAsStrings = Object.values(orderStatuses);
+    if (orderStatusesAsStrings.length) {
+      if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
+        const productsSoldCurrently = await this.activeManager_
+        .getRepository(LineItem)
+        .createQueryBuilder('lineitem')
+        .select("SUM(lineItem.quantity)")
+        .innerJoin('lineitem.order', 'order')
+        .where('order.created_at >= :from', { from })
+        .andWhere(`order.status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings })
+        .getRawOne()
+
+        const productsSoldPreviously = await this.activeManager_
+        .getRepository(LineItem)
+        .createQueryBuilder('lineitem')
+        .select("SUM(lineItem.quantity)")
+        .innerJoin('lineitem.order', 'order')
+        .where('order.created_at >= :dateRangeFromCompareTo', { dateRangeFromCompareTo })
+        .andWhere('order.created_at < :from', { from })
+        .andWhere(`order.status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings })
+        .getRawOne()
+
+        return {
+          dateRangeFrom: from.getTime(),
+          dateRangeTo: to.getTime(),
+          dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
+          dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
+          current: productsSoldCurrently.sum,
+          previous: productsSoldPreviously.sum
+        }
+      }
+
+      let startQueryFrom: Date | undefined;
+      if (!dateRangeFromCompareTo) {
+        if (from) {
+          startQueryFrom = from;
+        } else {
+          // All time
+          const lastOrder = await this.activeManager_.getRepository(Order).find({
+            skip: 0,
+            take: 1,
+            order: { created_at: "ASC"},
+            where: { status: In(orderStatusesAsStrings) }
+          })
+  
+          if (lastOrder.length > 0) {
+            startQueryFrom = lastOrder[0].created_at;
+          }
+        }
+      } else {
+        startQueryFrom = dateRangeFromCompareTo;
+      }
+  
+      if (startQueryFrom) {
+        const productsSoldCurrently = await this.activeManager_
+        .getRepository(LineItem)
+        .createQueryBuilder('lineitem')
+        .select("SUM(lineItem.quantity)")
+        .innerJoin('lineitem.order', 'order')
+        .where('order.created_at >= :startQueryFrom', { startQueryFrom })
+        .andWhere(`order.status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings })
+        .getRawOne()
+
+        return {
+          dateRangeFrom: startQueryFrom.getTime(),
+          dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
+          dateRangeFromCompareTo: undefined,
+          dateRangeToCompareTo: undefined,
+          current: productsSoldCurrently.sum,
+          previous: undefined
+        }
+      }
+    }
+    
+    return {
+      dateRangeFrom: undefined,
+      dateRangeTo: undefined,
+      dateRangeFromCompareTo: undefined,
+      dateRangeToCompareTo: undefined,
+      current: undefined,
       previous: undefined
     }
   }

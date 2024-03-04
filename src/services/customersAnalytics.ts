@@ -368,87 +368,106 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
       }
     }
   }
-
-  async getCummulativeHistory(from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<CustomersHistoryResult> {
+  async getCumulativeHistory(from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<CustomersHistoryResult> {
     if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
         const resolution = calculateResolution(from);
-        const customers = await this.activeManager_.getRepository(Customer)
+        const afterCustomers = await this.activeManager_.getRepository(Customer)
         .createQueryBuilder('customer')
         .select(`date_trunc('${resolution}', customer.created_at) AS date`)
         .addSelect(
-          "COUNT(*) FILTER (WHERE customer.created_at <= :dateRangeFromCompareTo) + SUM(COUNT(*)) FILTER (WHERE customer.created_at >= :dateRangeFromCompareTo) OVER (ORDER BY DATE_TRUNC('day', customer.created_at) ASC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)",
-          "cumulative_count"
+          `SUM(COUNT(*)) OVER (ORDER BY date_trunc('${resolution}', customer.created_at) ASC) AS cumulative_count`
         )
-        .setParameters({ dateRangeFromCompareTo: dateRangeFromCompareTo }) // Assuming dateRangeFromCompareTo is a variable containing the date
+        .where(`date_trunc('${resolution}', customer.created_at) >= :dateRangeFromCompareTo`, { dateRangeFromCompareTo })
+        .setParameters({ dateRangeFromCompareTo: dateRangeFromCompareTo })
         .groupBy('date')
         .orderBy('date', 'ASC')
         .getRawMany();
 
-        console.log(customers);
+        const beforeCustomers = await this.activeManager_.getRepository(Customer)
+          .createQueryBuilder('customer')
+          .select(`COUNT(*) AS cumulative_count`)
+          .where(`customer.created_at < :dateRangeFromCompareTo`, { dateRangeFromCompareTo })
+          .getRawOne(); 
 
-        // const finalCustomers: CustomersHistoryResult = customers.reduce((acc, entry) => {
-        //   const type = entry.type;
-        //   const date = entry.date;
-        //   const customerCount = entry.customerCount;
-        //   if (!acc[type]) {
-        //     acc[type] = [];
-        //   }
+        for (const afterCustomer of afterCustomers) {
+          afterCustomer.cumulative_count = parseInt(afterCustomer.cumulative_count);
+          afterCustomer.cumulative_count += parseInt(beforeCustomers.cumulative_count);
+        }
 
-        //   acc[type].push({date, customerCount})
+        const previousCustomers = afterCustomers.filter(customer => customer.date < from);
+        const currentCustomers = afterCustomers.filter(customer => customer.date >= from);
 
-        //   return acc;
-        // }, {})
+        const finalCustomers: CustomersHistoryResult = {
+          dateRangeFrom: from.getTime(),
+          dateRangeTo: to.getTime(),
+          dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
+          dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
+          current: currentCustomers.map(currentCustomer => {
+            return {
+              date: currentCustomer.date,
+              customerCount: currentCustomer.cumulative_count.toString()
+            }
+          }),
+          previous: previousCustomers.map(previousCustomers => {
+            return {
+              date: previousCustomers.date,
+              customerCount: previousCustomers.cumulative_count.toString()
+            }
+          })
+        }
 
-        // return {
-        //   dateRangeFrom: from.getTime(),
-        //   dateRangeTo: to.getTime(),
-        //   dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
-        //   dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
-        //   current: finalCustomers.current ? finalCustomers.current : [],
-        //   previous: finalCustomers.previous ? finalCustomers.previous : [],
-        // } 
+        return finalCustomers;
     }
 
-    // let startQueryFrom: Date | undefined;
-    // if (!dateRangeFromCompareTo) {
-    //   if (from) {
-    //     startQueryFrom = from;
-    //   } else {
-    //     // All time
-    //     const lastCustomer = await this.activeManager_.getRepository(Customer).find({
-    //       skip: 0,
-    //       take: 1,
-    //       order: { created_at: "ASC"},
-    //     })
+    let startQueryFrom: Date | undefined;
+    if (!dateRangeFromCompareTo) {
+      if (from) {
+        startQueryFrom = from;
+      } else {
+        // All time
+        const lastCustomer = await this.activeManager_.getRepository(Customer).find({
+          skip: 0,
+          take: 1,
+          order: { created_at: "ASC"},
+        })
 
-    //     if (lastCustomer.length > 0) {
-    //       startQueryFrom = lastCustomer[0].created_at;
-    //     }
-    //   }
-    // } else {
-    //   startQueryFrom = dateRangeFromCompareTo;
-    // }
+        if (lastCustomer.length > 0) {
+          startQueryFrom = lastCustomer[0].created_at;
+        }
+      }
+    } else {
+      startQueryFrom = dateRangeFromCompareTo;
+    }
 
-    // if (startQueryFrom) {
-    //   const resolution = calculateResolution(startQueryFrom);
-    //   const customers = await this.activeManager_.getRepository(Customer)
-    //   .createQueryBuilder('customer')
-    //   .select(`date_trunc('${resolution}', customer.created_at)`, 'date')
-    //   .addSelect('COUNT(customer.id)', 'customerCount')
-    //   .where(`created_at >= :startQueryFrom`, { startQueryFrom })
-    //   .groupBy('date')
-    //   .orderBy('date', 'ASC')
-    //   .getRawMany();
+    if (startQueryFrom) {
+      const resolution = calculateResolution(startQueryFrom);
+      const allCustomers = await this.activeManager_.getRepository(Customer)
+        .createQueryBuilder('customer')
+        .select(`date_trunc('${resolution}', customer.created_at) AS date`)
+        .addSelect(
+          `SUM(COUNT(*)) OVER (ORDER BY date_trunc('${resolution}', customer.created_at) ASC) AS cumulative_count`
+        )
+        .setParameters({ startQueryFrom: startQueryFrom })
+        .groupBy('date')
+        .orderBy('date', 'ASC')
+        .getRawMany();
 
-    //   return {
-    //     dateRangeFrom: startQueryFrom.getTime(),
-    //     dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
-    //     dateRangeFromCompareTo: undefined,
-    //     dateRangeToCompareTo: undefined,
-    //     current: customers,
-    //     previous: []
-    //   };
-    // }
+      const finalCustomers: CustomersHistoryResult = {
+          dateRangeFrom: startQueryFrom.getTime(),
+          dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
+          dateRangeFromCompareTo: undefined,
+          dateRangeToCompareTo: undefined,
+          current: allCustomers.map(currentCustomer => {
+            return {
+              date: currentCustomer.date,
+              customerCount: currentCustomer.cumulative_count.toString()
+            }
+          }),
+          previous: []
+        }
+
+        return finalCustomers;
+    }
 
     return {
       dateRangeFrom: undefined,

@@ -11,8 +11,8 @@
  */
 
 import { useState } from 'react';
-import { Text, Switch, Label, DropdownMenu, IconButton, Checkbox, Button } from "@medusajs/ui";
-import { EllipsisHorizontal } from "@medusajs/icons"
+import { Text, Switch, Label, DropdownMenu, IconButton, Checkbox, Button, Heading } from "@medusajs/ui";
+import { Adjustments } from "@medusajs/icons"
 import { DateRange, OrderStatus } from "../utils/types";
 
 export const ComparedDate = ({compare, comparedToDateRange} : {compare: boolean, comparedToDateRange?: DateRange}) => {
@@ -72,10 +72,15 @@ export const DropdownOrderStatus = ({onOrderStatusChange, appliedStatuses} : {on
     }}>
     <DropdownMenu.Trigger asChild>
       <IconButton>
-        <EllipsisHorizontal />
+        <Adjustments />
       </IconButton>
     </DropdownMenu.Trigger>
     <DropdownMenu.Content>
+      <DropdownMenu.Label className="gap-x-2" style={ { paddingLeft: 8, paddingBottom: 8}}>
+        <Heading level='h3'>
+          Choose orders
+        </Heading>
+      </DropdownMenu.Label>
       {Object.values(OrderStatus).map(orderStatus => (
         <DropdownMenu.Item className="gap-x-2" onSelect={event => event.preventDefault()}>
           <Checkbox 

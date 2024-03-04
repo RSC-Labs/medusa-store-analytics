@@ -12,7 +12,7 @@
 
 import { useState } from 'react';
 import { useMemo } from "react"
-import { Button, Container, Tooltip, Text } from "@medusajs/ui"
+import { Container, Tooltip, Select } from "@medusajs/ui"
 import { ExclamationCircle } from "@medusajs/icons"
 import { Box, Grid } from "@mui/material";
 import { 
@@ -33,6 +33,8 @@ import {
   ReturnedVariantsByCountCard,
   DiscountsTopCard
 } from '..';
+// import { ProductsSoldCountCard } from '../products/products-sold-count';
+// import { CumulativeCustomersCard } from '../customers/cumulative-history/cumulative-customers-card';
 
 const OverviewTab = () => {
 
@@ -40,72 +42,76 @@ const OverviewTab = () => {
   const [compareEnabled, setCompare] = useState<boolean>(true)
   const [orderStatuses, setOrderStatuses] = useState<OrderStatus[]>([OrderStatus.COMPLETED, OrderStatus.PENDING])
 
-  const setLastWeek = () => setDateLasts(DateLasts.LastWeek); 
-  const setLastMonth = () => setDateLasts(DateLasts.LastMonth); 
-  const setLastYear = () => setDateLasts(DateLasts.LastYear); 
-  const setAlltime = () => setDateLasts(DateLasts.All);
-
   const dateRange = useMemo(() => convertDateLastsToDateRange(dateLast), [dateLast])
   const dateRangeComparedTo = useMemo(() => convertDateLastsToComparedDateRange(dateLast), [dateLast])
+
+  const dateLastsToSelect: DateLasts[] = [
+    DateLasts.LastWeek,
+    DateLasts.LastMonth,
+    DateLasts.LastYear,
+    DateLasts.All
+  ]
+
+  function setDateLastsString(select: string) {
+    switch (select) {
+      case DateLasts.LastWeek:
+        setDateLasts(DateLasts.LastWeek);
+        break;
+      case DateLasts.LastMonth:
+        setDateLasts(DateLasts.LastMonth);
+        break;
+      case DateLasts.LastYear:
+        setDateLasts(DateLasts.LastYear);
+        break;
+      case DateLasts.All:
+        setDateLasts(DateLasts.All);
+        break;
+    }
+  }
 
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} md={12}>
         <Grid container spacing={2}>
           <Grid item>
-            <Button size='small' variant={dateLast == DateLasts.LastWeek ? 'primary' : 'secondary'} onClick={setLastWeek}>
-              Last week
-            </Button>
+            <DropdownOrderStatus onOrderStatusChange={setOrderStatuses} appliedStatuses={orderStatuses}/>
           </Grid>
           <Grid item>
-            <Button size='small' variant={dateLast == DateLasts.LastMonth ? 'primary' : 'secondary'} onClick={setLastMonth}>
-              Last month
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button size='small' variant={dateLast == DateLasts.LastYear ? 'primary' : 'secondary'} onClick={setLastYear}>
-              Last year
-            </Button>
-          </Grid>
-          <Grid item>
-            <Grid container alignItems={'center'} spacing={1}>
-              <Grid item>
-                <Button size='small' variant={dateLast == DateLasts.All ? 'primary' : 'secondary'} onClick={setAlltime}>
-                  All time
-                </Button>
-              </Grid>
-              <Grid item>
-                <Tooltip content='If you have many orders, it might take a while to load statistics.'>
-                    <ExclamationCircle />
-                </Tooltip>
-              </Grid>
-            </Grid>
-          </Grid>
-          {/* Workaround to have Tooltip working */}
-          <Grid container>
-            <Grid item>
-              <Box minHeight={20}></Box>
-            </Grid>
+            <div className="w-[170px]">
+              <Select size="small" onValueChange={setDateLastsString} value={dateLast}>
+                <Select.Trigger style={ { height: '2rem'}}>
+                  <Select.Value placeholder="Select a date range" />
+                </Select.Trigger>
+                <Select.Content>
+                  {dateLastsToSelect.map((dateToSelect) => (
+                    <Select.Item key={dateToSelect} value={dateToSelect}>
+                      {dateToSelect == DateLasts.All ? (
+                        <Grid container spacing={1}>
+                          <Grid item>
+                            {dateToSelect}
+                          </Grid>
+                          <Grid item>
+                            <Tooltip content='If you have many orders, it might take a while to load statistics.'>
+                              <ExclamationCircle />
+                            </Tooltip>
+                          </Grid>
+                        </Grid>
+                      ) : dateToSelect}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+            </div>
           </Grid>
         </Grid>
       </Grid>
       <Grid item xs={12} md={12} xl={12}>
-        <Grid container alignItems='center' spacing={6}>
+        <Grid container alignItems='center' columnSpacing={6}>
           <Grid item>
             <SwitchComparison compareEnabled={compareEnabled} onCheckChange={setCompare} allTime={dateLast == DateLasts.All}/>
           </Grid>
           <Grid item>
             <ComparedDate compare={compareEnabled} comparedToDateRange={dateRangeComparedTo}/>
-          </Grid>
-        </Grid>
-      </Grid>
-      <Grid item xs={12} md={12} xl={12}>
-        <Grid container alignItems='center' spacing={1}>
-          <Grid item>
-            <DropdownOrderStatus onOrderStatusChange={setOrderStatuses} appliedStatuses={orderStatuses}/>
-          </Grid>
-          <Grid item>
-            <Text>Choose Orders</Text>
           </Grid>
         </Grid>
       </Grid>
@@ -124,6 +130,11 @@ const OverviewTab = () => {
           <CustomersOverviewCard dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
         </Container>
       </Grid>
+      {/* <Grid item xs={6} md={6} xl={6}>
+        <Container>
+          <CumulativeCustomersCard dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
+        </Container>
+      </Grid> */}
       <Grid item xs={6} md={6} xl={6}>
         <Grid container spacing={2}>
           <Grid item xs={12} md={12} xl={12}>
