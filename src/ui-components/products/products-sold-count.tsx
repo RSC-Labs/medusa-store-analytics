@@ -107,7 +107,7 @@ export const ProductsSoldCountCard = ({orderStatuses, dateRange, dateRangeCompar
             </Grid>
             <Grid item>
               <Heading level="h2">
-                Products sold count
+                Products sold
               </Heading>
             </Grid>
           </Grid>
