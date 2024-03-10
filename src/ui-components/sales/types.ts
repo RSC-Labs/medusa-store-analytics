@@ -14,3 +14,15 @@ export type SalesHistoryResponse = {
     previous: SalesHistory[];
   }
 }
+
+export type RefundsResponse = {
+  analytics: {
+    dateRangeFrom?: number
+    dateRangeTo?: number,
+    dateRangeFromCompareTo?: number,
+    dateRangeToCompareTo?: number,
+    currencyCode: string
+    current: string;
+    previous: string;
+  }
+}

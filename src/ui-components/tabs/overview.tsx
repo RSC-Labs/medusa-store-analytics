@@ -12,9 +12,8 @@
 
 import { useState } from 'react';
 import { useMemo } from "react"
-import { Container, Tooltip, Select } from "@medusajs/ui"
-import { ExclamationCircle } from "@medusajs/icons"
-import { Box, Grid } from "@mui/material";
+import { Container } from "@medusajs/ui"
+import { Grid } from "@mui/material";
 import { 
   ComparedDate,
   DropdownOrderStatus,
@@ -33,6 +32,8 @@ import {
   ReturnedVariantsByCountCard,
   DiscountsTopCard
 } from '..';
+import { SelectDateLasts } from '../common/overview-components';
+// import { RefundsOverviewCard } from '../sales/refunds/refunds-overview-card';
 // import { ProductsSoldCountCard } from '../products/products-sold-count';
 // import { CumulativeCustomersCard } from '../customers/cumulative-history/cumulative-customers-card';
 
@@ -44,13 +45,6 @@ const OverviewTab = () => {
 
   const dateRange = useMemo(() => convertDateLastsToDateRange(dateLast), [dateLast])
   const dateRangeComparedTo = useMemo(() => convertDateLastsToComparedDateRange(dateLast), [dateLast])
-
-  const dateLastsToSelect: DateLasts[] = [
-    DateLasts.LastWeek,
-    DateLasts.LastMonth,
-    DateLasts.LastYear,
-    DateLasts.All
-  ]
 
   function setDateLastsString(select: string) {
     switch (select) {
@@ -77,31 +71,7 @@ const OverviewTab = () => {
             <DropdownOrderStatus onOrderStatusChange={setOrderStatuses} appliedStatuses={orderStatuses}/>
           </Grid>
           <Grid item>
-            <div className="w-[170px]">
-              <Select size="small" onValueChange={setDateLastsString} value={dateLast}>
-                <Select.Trigger style={ { height: '2rem'}}>
-                  <Select.Value placeholder="Select a date range" />
-                </Select.Trigger>
-                <Select.Content>
-                  {dateLastsToSelect.map((dateToSelect) => (
-                    <Select.Item key={dateToSelect} value={dateToSelect}>
-                      {dateToSelect == DateLasts.All ? (
-                        <Grid container spacing={1}>
-                          <Grid item>
-                            {dateToSelect}
-                          </Grid>
-                          <Grid item>
-                            <Tooltip content='If you have many orders, it might take a while to load statistics.'>
-                              <ExclamationCircle />
-                            </Tooltip>
-                          </Grid>
-                        </Grid>
-                      ) : dateToSelect}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
-            </div>
+            <SelectDateLasts dateLast={dateLast} onSelectChange={setDateLastsString}/>
           </Grid>
         </Grid>
       </Grid>
@@ -130,29 +100,20 @@ const OverviewTab = () => {
           <CustomersOverviewCard dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
         </Container>
       </Grid>
-      {/* <Grid item xs={6} md={6} xl={6}>
-        <Container>
-          <CumulativeCustomersCard dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
-        </Container>
-      </Grid> */}
       <Grid item xs={6} md={6} xl={6}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={12} xl={12}>
-            <Container>
-              <CustomersRepeatCustomerRate orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
-            </Container>
-          </Grid>
-          <Grid item xs={12} md={12} xl={12}>
-            <Container>
-              <SalesChannelPopularityCard orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
-            </Container>
-          </Grid>
-          <Grid item xs={12} md={12} xl={12}>
-            <Container>
-              <RegionsPopularityCard orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
-            </Container>
-          </Grid>
-        </Grid>
+        <Container>
+          <CustomersRepeatCustomerRate orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
+        </Container>
+      </Grid>
+      <Grid item xs={6} md={6} xl={6}>
+        <Container>
+          <SalesChannelPopularityCard orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
+        </Container>
+      </Grid>
+      <Grid item xs={6} md={6} xl={6}>
+        <Container>
+          <RegionsPopularityCard orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
+        </Container>
       </Grid>
       <Grid item xs={6} md={6} xl={6}>
         <Container>

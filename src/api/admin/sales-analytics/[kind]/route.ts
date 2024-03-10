@@ -15,7 +15,7 @@ import type {
   MedusaResponse,
 } from "@medusajs/medusa"
 import { OrderStatus } from "@medusajs/medusa";
-import SalesAnalyticsService, { SalesHistoryResult } from "../../../../services/salesAnalytics";
+import SalesAnalyticsService from "../../../../services/salesAnalytics";
 
 export const GET = async (
   req: MedusaRequest,
@@ -67,6 +67,18 @@ export const GET = async (
         dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
         dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
       );
+      break;
+    case 'refunds':
+      const refundsCurrencyCode = req.query.currencyCode;
+      if (refundsCurrencyCode as string) {
+        result = await salesAnalyticsService.getRefunds(
+          refundsCurrencyCode as string, 
+          dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
+          dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
+          dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
+          dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
+        );
+      }
       break;
   }
   res.status(200).json({

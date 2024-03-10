@@ -11,9 +11,10 @@
  */
 
 import { useState } from 'react';
-import { Text, Switch, Label, DropdownMenu, IconButton, Checkbox, Button, Heading } from "@medusajs/ui";
-import { Adjustments } from "@medusajs/icons"
-import { DateRange, OrderStatus } from "../utils/types";
+import { Text, Switch, Label, DropdownMenu, IconButton, Checkbox, Button, Heading, Select, Tooltip } from "@medusajs/ui";
+import { Adjustments, ExclamationCircle } from "@medusajs/icons"
+import { Grid } from "@mui/material";
+import { DateLasts, DateRange, OrderStatus } from "../utils/types";
 
 export const ComparedDate = ({compare, comparedToDateRange} : {compare: boolean, comparedToDateRange?: DateRange}) => {
   if (comparedToDateRange && compare) {
@@ -98,5 +99,45 @@ export const DropdownOrderStatus = ({onOrderStatusChange, appliedStatuses} : {on
       </DropdownMenu.Label>
     </DropdownMenu.Content> 
     </DropdownMenu>
+  )
+}
+
+type StringCallback = (value: string) => void;
+
+export const SelectDateLasts = ({dateLast, onSelectChange} : {dateLast: DateLasts, onSelectChange: StringCallback}) => {
+
+  const dateLastsToSelect: DateLasts[] = [
+    DateLasts.LastWeek,
+    DateLasts.LastMonth,
+    DateLasts.LastYear,
+    DateLasts.All
+  ]
+
+  return (
+    <div className="w-[170px]">
+      <Select size="small" onValueChange={onSelectChange} value={dateLast}>
+        <Select.Trigger style={ { height: '2rem'}}>
+          <Select.Value placeholder="Select a date range" />
+        </Select.Trigger>
+        <Select.Content>
+          {dateLastsToSelect.map((dateToSelect) => (
+            <Select.Item key={dateToSelect} value={dateToSelect}>
+              {dateToSelect == DateLasts.All ? (
+                <Grid container spacing={1}>
+                  <Grid item>
+                    {dateToSelect}
+                  </Grid>
+                  <Grid item>
+                    <Tooltip content='If you have many orders, it might take a while to load statistics.'>
+                      <ExclamationCircle />
+                    </Tooltip>
+                  </Grid>
+                </Grid>
+              ) : dateToSelect}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
+    </div>
   )
 }

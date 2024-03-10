@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import { OrderStatus, TransactionBaseService } from "@medusajs/medusa"
+import { OrderStatus, Refund, TransactionBaseService } from "@medusajs/medusa"
 import { Order, OrderService } from "@medusajs/medusa"
 import { DateResolutionType, calculateResolution, getTruncateFunction } from "./utils/dateTransformations"
 import { In } from "typeorm"
@@ -52,7 +52,7 @@ type SalesHistory = {
   total: string
 }
 
-export type SalesHistoryResult = {
+type SalesHistoryResult = {
   currencyCode: string,
   dateRangeFrom?: number
   dateRangeTo?: number,
@@ -60,6 +60,16 @@ export type SalesHistoryResult = {
   dateRangeToCompareTo?: number,
   current: SalesHistory[]
   previous: SalesHistory[]
+}
+
+type RefundsResult = {
+  currencyCode: string,
+  dateRangeFrom?: number
+  dateRangeTo?: number,
+  dateRangeFromCompareTo?: number,
+  dateRangeToCompareTo?: number,
+  current: string
+  previous: string
 }
 
 function groupPerDate(orders: Order[], resolution: DateResolutionType) {
@@ -418,4 +428,188 @@ export default class SalesAnalyticsService extends TransactionBaseService {
       previous: []
     }
   }
+
+  async getRefunds(currencyCode: string, from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<RefundsResult> {
+    if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
+        const query = this.activeManager_.getRepository(Refund)
+        .createQueryBuilder('refund')
+        .select(`
+          CASE
+            WHEN refund.created_at < :from AND refund.created_at >= :dateRangeFromCompareTo THEN 'previous'
+            ELSE 'current'
+          END AS type
+        `)
+        .setParameters({ from, dateRangeFromCompareTo })
+        .addSelect("SUM(refund.amount)", "sum")
+        .innerJoin('refund.order', 'order')
+        .where(`refund.created_at >= :dateRangeFromCompareTo`, { dateRangeFromCompareTo })
+        .andWhere(`order.currency_code = :currencyCode`, { currencyCode })
+
+        const refunds: {
+          type: string
+          sum: string
+        }[] = await query.groupBy('type').getRawMany();
+
+        const currentRefunds = refunds.find(refund => refund.type == 'current');
+        const previousRefunds = refunds.find(refund => refund.type == 'previous');
+
+        return {
+          currencyCode: currencyCode,
+          dateRangeFrom: from.getTime(),
+          dateRangeTo: to.getTime(),
+          dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
+          dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
+          current: currentRefunds.sum,
+          previous: previousRefunds !== undefined ? previousRefunds.sum : '0'
+        }
+    }
+
+    let startQueryFrom: Date | undefined;
+    if (!dateRangeFromCompareTo) {
+      if (from) {
+        startQueryFrom = from;
+      } else {
+        // All time
+        const lastRefund = await this.activeManager_.getRepository(Refund).find({
+          skip: 0,
+          take: 1,
+          order: { created_at: "ASC"},
+        })
+
+        if (lastRefund.length > 0) {
+          startQueryFrom = lastRefund[0].created_at;
+        }
+      }
+    } else {
+      startQueryFrom = dateRangeFromCompareTo;
+    }
+
+    if (startQueryFrom) {
+      const query = this.activeManager_.getRepository(Refund)
+        .createQueryBuilder('refund')
+        .select("SUM(refund.amount)", "sum")
+        .innerJoin('refund.order', 'order')
+        .where(`refund.created_at >= :startQueryFrom`, { startQueryFrom })
+        .andWhere(`order.currency_code = :currencyCode`, { currencyCode })
+
+      const refunds = await query.getRawOne();
+
+      return {
+        currencyCode: currencyCode,
+        dateRangeFrom: startQueryFrom.getTime(),
+        dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
+        dateRangeFromCompareTo: undefined,
+        dateRangeToCompareTo: undefined,
+        current: refunds.sum,
+        previous: undefined
+      }
+    }
+
+    return {
+      currencyCode: undefined,
+      dateRangeFrom: undefined,
+      dateRangeTo: undefined,
+      dateRangeFromCompareTo: undefined,
+      dateRangeToCompareTo: undefined,
+      current: undefined,
+      previous: undefined
+    }
+  }
+
+  // async getRefundsHistory(currencyCode: string, from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<RefundsHistoryResult> {
+  //   if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
+  //       const resolution = calculateResolution(from);
+  //       const query = this.activeManager_.getRepository(Refund)
+  //       .createQueryBuilder('refund')
+  //       .select(`
+  //         CASE
+  //           WHEN refund.created_at < :from AND refund.created_at >= :dateRangeFromCompareTo THEN 'previous'
+  //           ELSE 'current'
+  //         END AS type,
+  //         date_trunc('${resolution}', refund.created_at) AS date
+  //       `)
+  //       .setParameters({ from, dateRangeFromCompareTo })
+  //       .addSelect("SUM(refund.amount)", "sum")
+  //       .innerJoin('refund.order', 'order')
+  //       .where(`refund.created_at >= :dateRangeFromCompareTo`, { dateRangeFromCompareTo })
+  //       .andWhere(`order.currency_code = :currencyCode`, { currencyCode })
+
+  //       const refunds = await query
+  //       .groupBy('type, date')
+  //       .orderBy('date, type',  'ASC')
+  //       .getRawMany();
+
+  //       console.log(refunds);
+
+  //       return {
+  //         currencyCode: undefined,
+  //         dateRangeFrom: undefined,
+  //         dateRangeTo: undefined,
+  //         dateRangeFromCompareTo: undefined,
+  //         dateRangeToCompareTo: undefined,
+  //         current: undefined,
+  //         previous: undefined
+  //       }
+  //   }
+
+    // let startQueryFrom: Date | undefined;
+    // if (!dateRangeFromCompareTo) {
+    //   if (from) {
+    //     startQueryFrom = from;
+    //   } else {
+    //     // All time
+    //     const lastCustomer = await this.activeManager_.getRepository(Customer).find({
+    //       skip: 0,
+    //       take: 1,
+    //       order: { created_at: "ASC"},
+    //     })
+
+    //     if (lastCustomer.length > 0) {
+    //       startQueryFrom = lastCustomer[0].created_at;
+    //     }
+    //   }
+    // } else {
+    //   startQueryFrom = dateRangeFromCompareTo;
+    // }
+
+    // if (startQueryFrom) {
+    //   const resolution = calculateResolution(startQueryFrom);
+    //   const allCustomers = await this.activeManager_.getRepository(Customer)
+    //     .createQueryBuilder('customer')
+    //     .select(`date_trunc('${resolution}', customer.created_at) AS date`)
+    //     .addSelect(
+    //       `SUM(COUNT(*)) OVER (ORDER BY date_trunc('${resolution}', customer.created_at) ASC) AS cumulative_count`
+    //     )
+    //     .setParameters({ startQueryFrom: startQueryFrom })
+    //     .groupBy('date')
+    //     .orderBy('date', 'ASC')
+    //     .getRawMany();
+
+    //   const finalCustomers: CustomersHistoryResult = {
+    //       dateRangeFrom: startQueryFrom.getTime(),
+    //       dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
+    //       dateRangeFromCompareTo: undefined,
+    //       dateRangeToCompareTo: undefined,
+    //       current: allCustomers.map(currentCustomer => {
+    //         return {
+    //           date: currentCustomer.date,
+    //           customerCount: currentCustomer.cumulative_count.toString()
+    //         }
+    //       }),
+    //       previous: []
+    //     }
+
+    //     return finalCustomers;
+    // }
+
+  //   return {
+  //     currencyCode: undefined,
+  //     dateRangeFrom: undefined,
+  //     dateRangeTo: undefined,
+  //     dateRangeFromCompareTo: undefined,
+  //     dateRangeToCompareTo: undefined,
+  //     current: undefined,
+  //     previous: undefined
+  //   }
+  // }
 }

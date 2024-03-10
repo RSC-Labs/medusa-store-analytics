@@ -26,7 +26,7 @@ export const SalesNumber = ({salesHistoryResponse, compareEnabled} : {salesHisto
     <Grid container alignItems={'center'} spacing={2}>
       <Grid item>
         <Heading level="h1">
-          {overallCurrentSum.toFixed(2)} {salesHistoryResponse.analytics.currencyCode}
+          {overallCurrentSum.toFixed(2)} {salesHistoryResponse.analytics.currencyCode.toUpperCase()}
         </Heading>
       </Grid>
       {compareEnabled && salesHistoryResponse.analytics.dateRangeFromCompareTo && 
@@ -36,7 +36,7 @@ export const SalesNumber = ({salesHistoryResponse, compareEnabled} : {salesHisto
             <IconComparison current={overallCurrentSum} previous={overallPreviousSum ? overallPreviousSum : undefined}/>
           </Grid>
           {overallPreviousSum !== undefined && <Grid item>
-            <PercentageComparison current={overallCurrentSum.toFixed(2)} label={salesHistoryResponse.analytics.currencyCode} previous={overallPreviousSum.toFixed(2)}/>
+            <PercentageComparison current={overallCurrentSum.toFixed(2)} label={salesHistoryResponse.analytics.currencyCode.toUpperCase()} previous={overallPreviousSum.toFixed(2)}/>
           </Grid>}
         </Grid>
       </Grid>
