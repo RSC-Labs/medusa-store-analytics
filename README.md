@@ -109,6 +109,7 @@ No configuration is needed. Everything is done through UI. You can use such opti
 | --- | --- |
 | Top variants | :white_check_mark: |
 | Top returned variants | :white_check_mark: |
+| Products sold count | :white_check_mark: |
 
 ### Marketing
 
