@@ -10,30 +10,82 @@
  * limitations under the License.
  */
 
+import { useState } from 'react';
+import { useMemo } from "react"
 import { RouteConfig } from "@medusajs/admin"
 import { Tabs } from "@medusajs/ui"
 import { LightBulb } from "@medusajs/icons"
 import { Box } from "@mui/material";
 import OverviewTab from "../../../ui-components/tabs/overview";
 import OrdersTab from "../../../ui-components/tabs/orders";
+import { DateLasts, DropdownOrderStatus, OrderStatus, convertDateLastsToComparedDateRange, convertDateLastsToDateRange } from '../../../ui-components';
+import { Grid } from "@mui/material";
+import { ComparedDate, SelectDateLasts, SwitchComparison } from '../../../ui-components/common/overview-components';
 
 const AnalyticsPage = () => {
+  const [dateLast, setDateLasts] = useState<DateLasts>(DateLasts.LastWeek);
+  const [compareEnabled, setCompare] = useState<boolean>(true)
+  const [orderStatuses, setOrderStatuses] = useState<OrderStatus[]>([OrderStatus.COMPLETED, OrderStatus.PENDING])
+
+  const dateRange = useMemo(() => convertDateLastsToDateRange(dateLast), [dateLast])
+  const dateRangeComparedTo = useMemo(() => convertDateLastsToComparedDateRange(dateLast), [dateLast])
+
+  function setDateLastsString(select: string) {
+    switch (select) {
+      case DateLasts.LastWeek:
+        setDateLasts(DateLasts.LastWeek);
+        break;
+      case DateLasts.LastMonth:
+        setDateLasts(DateLasts.LastMonth);
+        break;
+      case DateLasts.LastYear:
+        setDateLasts(DateLasts.LastYear);
+        break;
+      case DateLasts.All:
+        setDateLasts(DateLasts.All);
+        break;
+    }
+  }
   return (
-    <Tabs defaultValue='overview'>
-      <Tabs.List style={ { justifyContent: 'center' } }>
-        <Tabs.Trigger value='overview'>Overview</Tabs.Trigger>
-        <Tabs.Trigger value='orders'>Orders</Tabs.Trigger>
-      </Tabs.List>
-      <Tabs.Content value='overview'>
-        <Box height={20}></Box>
-        <OverviewTab/>
-      </Tabs.Content>
-      <Tabs.Content value='orders'>
-        <Box height={20}></Box>
-        <OrdersTab/>
-      </Tabs.Content>
-    </Tabs>
-  )
+    <Grid container spacing={2}>
+      <Grid item xs={12} md={12}>
+        <Grid container spacing={2}>
+          <Grid item>
+            <DropdownOrderStatus onOrderStatusChange={setOrderStatuses} appliedStatuses={orderStatuses}/>
+          </Grid>
+          <Grid item>
+            <SelectDateLasts dateLast={dateLast} onSelectChange={setDateLastsString}/>
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item xs={12} md={12} xl={12}>
+        <Grid container alignItems='center' columnSpacing={6}>
+          <Grid item>
+            <SwitchComparison compareEnabled={compareEnabled} onCheckChange={setCompare} allTime={dateLast == DateLasts.All}/>
+          </Grid>
+          <Grid item>
+            <ComparedDate compare={compareEnabled} comparedToDateRange={dateRangeComparedTo}/>
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item xs={12} md={12}>
+        <Tabs defaultValue='overview'>
+          <Tabs.List style={ { justifyContent: 'center' } }>
+            <Tabs.Trigger value='overview'>Overview</Tabs.Trigger>
+            <Tabs.Trigger value='orders'>Orders</Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value='overview'>
+            <Box height={20}></Box>
+            <OverviewTab orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
+          </Tabs.Content>
+          <Tabs.Content value='orders'>
+            <Box height={20}></Box>
+            <OrdersTab/>
+          </Tabs.Content>
+        </Tabs>
+      </Grid>
+    </Grid>
+  );
 }
 export const config: RouteConfig = {
   link: {
