@@ -25,7 +25,7 @@ import {
   DiscountsTopCard,
   DateRange
 } from '..';
-// import { RefundsOverviewCard } from '../sales/refunds/refunds-overview-card';
+import { RefundsOverviewCard } from '../sales/refunds/refunds-overview-card';
 import { ProductsSoldCountCard } from '../products/products-sold-count';
 // import { CumulativeCustomersCard } from '../customers/cumulative-history/cumulative-customers-card';
 
@@ -77,6 +77,11 @@ const OverviewTab = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabl
       <Grid item xs={6} md={6} xl={6}>
         <Container>
           <ReturnedVariantsByCountCard dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo}/>
+        </Container>
+      </Grid>
+      <Grid item xs={6} md={6} xl={6}>
+        <Container>
+          <RefundsOverviewCard dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
         </Container>
       </Grid>
       <Grid item xs={6} md={6} xl={6}>

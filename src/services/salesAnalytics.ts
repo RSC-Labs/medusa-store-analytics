@@ -459,7 +459,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
           dateRangeTo: to.getTime(),
           dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
           dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
-          current: currentRefunds.sum,
+          current: currentRefunds !== undefined ? currentRefunds.sum : '0',
           previous: previousRefunds !== undefined ? previousRefunds.sum : '0'
         }
     }
@@ -500,7 +500,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
         dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
         dateRangeFromCompareTo: undefined,
         dateRangeToCompareTo: undefined,
-        current: refunds.sum,
+        current: refunds !== undefined ? refunds.sum : '0',
         previous: undefined
       }
     }

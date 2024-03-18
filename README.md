@@ -93,6 +93,7 @@ No configuration is needed. Everything is done through UI. You can use such opti
 | Sales by time | :white_check_mark: |
 | Sales by currency code | :white_check_mark: |
 | Sales chart | :white_check_mark: |
+| Refunds | :white_check_mark: |
 
 ### Customers
 
