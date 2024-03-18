@@ -10,20 +10,16 @@
  * limitations under the License.
  */
 
-import { Heading, Tooltip } from "@medusajs/ui";
 import { ArrowUpMini, ArrowDownMini, MinusMini } from "@medusajs/icons"
-import { calculatePercentage } from "../utils/helpers";
 
-export const IconComparison = ({current, previous} : {current: number, previous?: number}) => {
+export const IconComparison = ({current, previous, switchArrow} : {current: number, previous?: number, switchArrow?: boolean}) => {
   if (current == previous) {
     return <MinusMini color="black"/>
   }
   if (current > previous) {
-    return <ArrowUpMini color="green"/>
-
+    return <ArrowUpMini color={switchArrow ? "red" : "green"}/>
   }
   if (current < previous) {
-    return <ArrowDownMini color="red"/>
-    
+    return <ArrowDownMini color={switchArrow ? "green" : "red"}/>
   }
 }

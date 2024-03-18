@@ -32,7 +32,7 @@ export const RefundsNumber = ({refundsResponse, compareEnabled} : {refundsRespon
       <Grid item>
         <Grid container alignItems={'center'}>
           <Grid item>
-            <IconComparison current={overallCurrentSum} previous={overallPreviousSum ? overallPreviousSum : undefined}/>
+            <IconComparison current={overallCurrentSum} previous={overallPreviousSum ? overallPreviousSum : undefined} switchArrow={true}/>
           </Grid>
           {overallPreviousSum !== undefined && <Grid item>
             <PercentageComparison current={overallCurrentSum.toFixed(2)} label={refundsResponse.analytics.currencyCode.toUpperCase()} previous={overallPreviousSum.toFixed(2)}/>
