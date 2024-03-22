@@ -181,7 +181,7 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
       .addSelect('lineItem.thumbnail', 'thumbnail')
       .addSelect('SUM(returnItem.quantity)', 'sum')
       .where('return.created_at >= :from', { from })
-      .groupBy('lineItem.title, variant_title, thumbnail, lineItem.variant_id')
+      .groupBy('lineItem.title, variant_title, lineItem.thumbnail, lineItem.variant_id')
 
       const variantsReturnedSum = await query
       .orderBy('sum', 'DESC')
@@ -254,7 +254,7 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
       .addSelect('lineItem.thumbnail', 'thumbnail')
       .addSelect('SUM(returnItem.quantity)', 'sum')
       .where('return.created_at >= :startQueryFrom', { startQueryFrom })
-      .groupBy('lineItem.title, variant_title, thumbnail, lineItem.variant_id')
+      .groupBy('lineItem.title, variant_title, lineItem.thumbnail, lineItem.variant_id')
 
       const variantsReturnedSum = await query
       .orderBy('sum', 'DESC')
