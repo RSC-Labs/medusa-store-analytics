@@ -201,14 +201,26 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
       }
     }
 
+    if (startQueryFrom && customers.length > 0) {
+      return {
+        dateRangeFrom: startQueryFrom.getTime(),
+        dateRangeTo: to ? to.getTime() : new Date(Date.now()).getTime(),
+        dateRangeFromCompareTo: undefined,
+        dateRangeToCompareTo: undefined,
+        current: customers[1],
+        previous: 0
+      }
+    }
+
     return {
-      dateRangeFrom: startQueryFrom.getTime(),
-      dateRangeTo: to ? to.getTime() : new Date(Date.now()).getTime(),
+      dateRangeFrom: undefined,
+      dateRangeTo: undefined,
       dateRangeFromCompareTo: undefined,
       dateRangeToCompareTo: undefined,
-      current: customers[1],
+      current: 0,
       previous: 0
     }
+    
   }
 
   async getNumberOfReturningCustomers() : Promise<number> {

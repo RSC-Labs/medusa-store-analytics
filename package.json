@@ -1,6 +1,6 @@
 {
   "name": "@rsc-labs/medusa-store-analytics",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "Get analytics data about your store",
   "author": "RSC Labs (https://rsoftcon.com)",
   "main": "dist/index.js",
