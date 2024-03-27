@@ -25,8 +25,8 @@
     "prepare": "cross-env NODE_ENV=production npm run build:server && medusa-admin bundle"
   },
   "dependencies": {
-    "@medusajs/admin": "7.1.11",
-    "@medusajs/ui": "2.4.2",
+    "@medusajs/admin": "7.1.12",
+    "@medusajs/ui": "2.4.3",
     "@medusajs/icons": "1.2.1",
     "@tanstack/react-query": "4.22",
     "medusa-interfaces": "^1.3.7",
