@@ -15,6 +15,7 @@ import type {
   MedusaResponse,
 } from "@medusajs/medusa"
 import { OrderStatus } from "@medusajs/medusa";
+import { MedusaError, MedusaErrorTypes } from "@medusajs/utils"
 import MarketingAnalyticsService from "../../../../services/marketingAnalytics";
 
 export const GET = async (
@@ -34,16 +35,23 @@ export const GET = async (
   let result: any;
   const marketingAnalyticsService: MarketingAnalyticsService = req.scope.resolve('marketingAnalyticsService');
 
-  switch (kind) {
-    case 'discounts-by-count':
-      result = await marketingAnalyticsService.getTopDiscountsByCount(
-        orderStatuses,
-        dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
-        dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
-      );
-      break;
+  try {
+    switch (kind) {
+      case 'discounts-by-count':
+        result = await marketingAnalyticsService.getTopDiscountsByCount(
+          orderStatuses,
+          dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
+          dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
+        );
+        break;
+    }
+    res.status(200).json({
+      analytics: result
+    });
+  } catch (error) {
+    throw new MedusaError(
+      MedusaErrorTypes.DB_ERROR,
+      error.message
+    )
   }
-  res.status(200).json({
-    analytics: result
-  });
 }

@@ -15,6 +15,7 @@ import type {
   MedusaResponse,
 } from "@medusajs/medusa"
 import { OrderStatus } from "@medusajs/medusa";
+import { MedusaError, MedusaErrorTypes } from "@medusajs/utils"
 import ProductsAnalyticsService from "../../../../services/productsAnalytics";
 
 export const GET = async (
@@ -36,33 +37,40 @@ export const GET = async (
   let result: any;
   const productsAnalyticsService: ProductsAnalyticsService = req.scope.resolve('productsAnalyticsService');
 
-  switch (kind) {
-    case 'popularity-by-count':
-      result = await productsAnalyticsService.getTopVariantsByCount(
-        orderStatuses,
-        dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
-        dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
-        dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
-        dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
-      );
-      break;
-    case 'returned-by-count':
-      result = await productsAnalyticsService.getTopReturnedVariantsByCount(
-        dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
-        dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
-      );
-      break;
-    case 'sold-count':
-      result = await productsAnalyticsService.getProductsSoldCount(
-        orderStatuses,
-        dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
-        dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
-        dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
-        dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
-      );
-      break;
+  try {
+    switch (kind) {
+      case 'popularity-by-count':
+        result = await productsAnalyticsService.getTopVariantsByCount(
+          orderStatuses,
+          dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
+          dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
+          dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
+          dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
+        );
+        break;
+      case 'returned-by-count':
+        result = await productsAnalyticsService.getTopReturnedVariantsByCount(
+          dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
+          dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
+        );
+        break;
+      case 'sold-count':
+        result = await productsAnalyticsService.getProductsSoldCount(
+          orderStatuses,
+          dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
+          dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
+          dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
+          dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
+        );
+        break;
+    }
+    res.status(200).json({
+      analytics: result
+    });
+  } catch (error) {
+    throw new MedusaError(
+      MedusaErrorTypes.DB_ERROR,
+      error.message
+    )
   }
-  res.status(200).json({
-    analytics: result
-  });
 }

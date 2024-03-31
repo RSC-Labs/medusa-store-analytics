@@ -15,6 +15,7 @@ import type {
   MedusaResponse,
 } from "@medusajs/medusa"
 import { OrderStatus } from "@medusajs/medusa";
+import { MedusaError, MedusaErrorTypes } from "@medusajs/utils"
 import OrdersAnalyticsService from "../../../../services/ordersAnalytics";
 
 export const GET = async (
@@ -36,27 +37,34 @@ export const GET = async (
   let result;
   const ordersAnalyticsService: OrdersAnalyticsService = req.scope.resolve('ordersAnalyticsService');
 
-  switch (kind) {
-    case 'history':
-      result = await ordersAnalyticsService.getOrdersHistory(
-        orderStatuses,
-        dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
-        dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
-        dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
-        dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
-      );
-      break;
-    case 'count':
-      result = await ordersAnalyticsService.getOrdersCount(
-        orderStatuses,
-        dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
-        dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
-        dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
-        dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
-      );
-      break;
+  try {
+    switch (kind) {
+      case 'history':
+        result = await ordersAnalyticsService.getOrdersHistory(
+          orderStatuses,
+          dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
+          dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
+          dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
+          dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
+        );
+        break;
+      case 'count':
+        result = await ordersAnalyticsService.getOrdersCount(
+          orderStatuses,
+          dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
+          dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
+          dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
+          dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
+        );
+        break;
+    }
+    res.status(200).json({
+      analytics: result
+    });
+  } catch (error) {
+    throw new MedusaError(
+      MedusaErrorTypes.DB_ERROR,
+      error.message
+    )
   }
-  res.status(200).json({
-    analytics: result
-  });
 }

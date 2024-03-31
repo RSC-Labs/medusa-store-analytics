@@ -11,7 +11,7 @@
  */
 
 import { useAdminCustomQuery } from "medusa-react"
-import { Heading } from "@medusajs/ui";
+import { Heading, Alert } from "@medusajs/ui";
 import { CircularProgress } from "@mui/material";
 import { DateRange } from "../utils/types";
 import { ChartCurrentPrevious } from "../common/chart-components";
@@ -44,7 +44,7 @@ type OrdersHistoryResponse = {
 export const OrdersByNewChart = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} : 
   {orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled: boolean}) => {
 
-  const { data, isLoading } = useAdminCustomQuery<
+  const { data, isLoading, isError, error } = useAdminCustomQuery<
     AdminOrdersStatisticsQuery,
     OrdersHistoryResponse
   >(
@@ -61,6 +61,12 @@ export const OrdersByNewChart = ({orderStatuses, dateRange, dateRangeCompareTo, 
 
   if (isLoading) {
     return <CircularProgress size={12}/>
+  }
+
+  if (isError) {
+    const trueError = error as any;
+    const errorText = `Error when loading data. It shouldn't have happened - please raise an issue. For developer: ${trueError?.response?.data?.message}`
+    return <Alert variant="error">{errorText}</Alert>
   }
 
   if (data.analytics == undefined) {

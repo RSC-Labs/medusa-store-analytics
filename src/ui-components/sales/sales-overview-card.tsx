@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import { Heading, Select, Text } from "@medusajs/ui";
+import { Heading, Select, Text, Alert } from "@medusajs/ui";
 import { CurrencyDollar } from "@medusajs/icons";
 import { CircularProgress, Grid } from "@mui/material";
 import { DateRange, OrderStatus } from "../utils/types";
@@ -32,7 +32,7 @@ type AdminSalesStatisticsQuery = {
 
 const SalesDetails = ({orderStatuses, currencyCode, dateRange, dateRangeCompareTo, compareEnabled} : 
   {orderStatuses: OrderStatus[], currencyCode: string, dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled?: boolean}) => {
-  const { data, isLoading } = useAdminCustomQuery<
+  const { data, isLoading, isError, error } = useAdminCustomQuery<
     AdminSalesStatisticsQuery,
     SalesHistoryResponse
   >(
@@ -50,6 +50,12 @@ const SalesDetails = ({orderStatuses, currencyCode, dateRange, dateRangeCompareT
 
   if (isLoading) {
     return <CircularProgress size={12}/>
+  }
+
+  if (isError) {
+    const trueError = error as any;
+    const errorText = `Error when loading data. It shouldn't have happened - please raise an issue. For developer: ${trueError?.response?.data?.message}`
+    return <Alert variant="error">{errorText}</Alert>
   }
 
   if (data.analytics == undefined) {

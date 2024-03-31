@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import { Heading } from "@medusajs/ui";
+import { Heading, Alert } from "@medusajs/ui";
 import { ShoppingBag } from "@medusajs/icons";
 import { CircularProgress, Grid } from "@mui/material";
 import { DateRange } from "../utils/types";
@@ -65,7 +65,7 @@ function transformToVariantTopTable(result: VariantsCountPopularityResult): Vari
 
 const VariantsTopByCount = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} : {
   orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled?: boolean}) => {
-  const { data, isLoading } = useAdminCustomQuery<
+  const { data, isLoading, isError, error } = useAdminCustomQuery<
     AdminProductsStatisticsQuery,
     VariantsCountPopularityResponse
   >(
@@ -82,6 +82,12 @@ const VariantsTopByCount = ({orderStatuses, dateRange, dateRangeCompareTo, compa
 
   if (isLoading) {
     return <CircularProgress size={12}/>
+  }
+
+  if (isError) {
+    const trueError = error as any;
+    const errorText = `Error when loading data. It shouldn't have happened - please raise an issue. For developer: ${trueError?.response?.data?.message}`
+    return <Alert variant="error">{errorText}</Alert>
   }
 
   if (data.analytics == undefined) {
