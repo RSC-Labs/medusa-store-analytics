@@ -15,17 +15,18 @@ import { Grid } from "@mui/material";
 import { PercentageComparison } from "../../common/percentage-comparison";
 import { IconComparison } from "../../common/icon-comparison";
 import { RefundsResponse } from "../types";
+import { amountToDisplay } from "../../utils/helpers";
 
 export const RefundsNumber = ({refundsResponse, compareEnabled} : {refundsResponse: RefundsResponse, compareEnabled?: boolean}) => {
-  const overallCurrentSum: number = parseInt(refundsResponse.analytics.current) / 100;
+  const overallCurrentSum: number = parseInt(refundsResponse.analytics.current);
   const overallPreviousSum: number | undefined  = refundsResponse.analytics.previous !== undefined ? 
-    parseInt(refundsResponse.analytics.previous) / 100 : undefined;
+    parseInt(refundsResponse.analytics.previous) : undefined;
 
   return (
     <Grid container alignItems={'center'} spacing={2}>
       <Grid item>
         <Heading level="h1">
-          {overallCurrentSum.toFixed(2)} {refundsResponse.analytics.currencyCode.toUpperCase()}
+          {amountToDisplay(overallCurrentSum, refundsResponse.analytics.currencyDecimalDigits)} {refundsResponse.analytics.currencyCode.toUpperCase()}
         </Heading>
       </Grid>
       {compareEnabled && refundsResponse.analytics.dateRangeFromCompareTo && 
@@ -35,7 +36,7 @@ export const RefundsNumber = ({refundsResponse, compareEnabled} : {refundsRespon
             <IconComparison current={overallCurrentSum} previous={overallPreviousSum ? overallPreviousSum : undefined} switchArrow={true}/>
           </Grid>
           {overallPreviousSum !== undefined && <Grid item>
-            <PercentageComparison current={overallCurrentSum.toFixed(2)} label={refundsResponse.analytics.currencyCode.toUpperCase()} previous={overallPreviousSum.toFixed(2)}/>
+            <PercentageComparison current={amountToDisplay(overallCurrentSum, refundsResponse.analytics.currencyDecimalDigits)} label={refundsResponse.analytics.currencyCode.toUpperCase()} previous={amountToDisplay(overallPreviousSum, refundsResponse.analytics.currencyDecimalDigits)}/>
           </Grid>}
         </Grid>
       </Grid>

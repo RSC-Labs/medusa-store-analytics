@@ -23,11 +23,11 @@ import {
   OrderStatus,
   ReturnedVariantsByCountCard,
   DiscountsTopCard,
-  DateRange
+  DateRange,
+  RefundsOverviewCard,
+  ProductsSoldCountCard,
+  CumulativeCustomersCard
 } from '..';
-import { RefundsOverviewCard } from '../sales/refunds/refunds-overview-card';
-import { ProductsSoldCountCard } from '../products/products-sold-count';
-// import { CumulativeCustomersCard } from '../customers/cumulative-history/cumulative-customers-card';
 
 const OverviewTab = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} : 
   {orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled: boolean}) => {
@@ -52,6 +52,11 @@ const OverviewTab = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabl
       <Grid item xs={6} md={6} xl={6}>
         <Container>
           <CustomersRepeatCustomerRate orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
+        </Container>
+      </Grid>
+      <Grid item xs={6} md={6} xl={6}>
+        <Container>
+          <CumulativeCustomersCard dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
         </Container>
       </Grid>
       <Grid item xs={6} md={6} xl={6}>

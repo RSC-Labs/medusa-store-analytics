@@ -13,19 +13,20 @@
 import { Heading } from "@medusajs/ui";
 import { ChartCurrentPrevious } from "../common/chart-components";
 import { SalesHistoryResponse } from "./types";
+import { amountToDisplay } from "../utils/helpers";
 
 export const SalesByNewChart = ({salesHistoryResponse, compareEnabled} : {salesHistoryResponse: SalesHistoryResponse, compareEnabled?: boolean}) => {
   const rawChartData = {
     current: salesHistoryResponse.analytics.current.map(currentData => {
       return {
         date: new Date(currentData.date),
-        value: parseInt(currentData.total) / 100
+        value: amountToDisplay(parseInt(currentData.total), salesHistoryResponse.analytics.currencyDecimalDigits)
       };
     }),
     previous: salesHistoryResponse.analytics.previous.map(previousData => {
       return {
         date: new Date(previousData.date),
-        value: parseInt(previousData.total) / 100
+        value: amountToDisplay(parseInt(previousData.total), salesHistoryResponse.analytics.currencyDecimalDigits)
       };
     }),
   };

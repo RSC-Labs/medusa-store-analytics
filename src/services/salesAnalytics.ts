@@ -14,6 +14,7 @@ import { OrderStatus, Refund, TransactionBaseService } from "@medusajs/medusa"
 import { Order, OrderService } from "@medusajs/medusa"
 import { DateResolutionType, calculateResolution, getTruncateFunction } from "./utils/dateTransformations"
 import { In } from "typeorm"
+import { getDecimalDigits } from "./utils/currency"
 
 type OrdersRegionsPopularity = {
   date: string,
@@ -54,6 +55,7 @@ type SalesHistory = {
 
 type SalesHistoryResult = {
   currencyCode: string,
+  currencyDecimalDigits: number,
   dateRangeFrom?: number
   dateRangeTo?: number,
   dateRangeFromCompareTo?: number,
@@ -64,6 +66,7 @@ type SalesHistoryResult = {
 
 type RefundsResult = {
   currencyCode: string,
+  currencyDecimalDigits: number,
   dateRangeFrom?: number
   dateRangeTo?: number,
   dateRangeFromCompareTo?: number,
@@ -153,6 +156,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
             dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
             dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
             currencyCode: currencyCode,
+            currencyDecimalDigits: getDecimalDigits(currencyCode),
             current: currentSales.sort((a, b) => a.date.getTime() - b.date.getTime()),
             previous: previousSales.sort((a, b) => a.date.getTime() - b.date.getTime())
           }
@@ -168,6 +172,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
           dateRangeFromCompareTo: undefined,
           dateRangeToCompareTo: undefined,
           currencyCode: currencyCode,
+          currencyDecimalDigits: getDecimalDigits(currencyCode),
           current: currentSales.sort((a, b) => a.date.getTime() - b.date.getTime()),
           previous: []
         }
@@ -180,6 +185,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
       dateRangeFromCompareTo: undefined,
       dateRangeToCompareTo: undefined,
       currencyCode: currencyCode,
+      currencyDecimalDigits: getDecimalDigits(currencyCode),
       current: [],
       previous: []
     }
@@ -455,6 +461,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
 
         return {
           currencyCode: currencyCode,
+          currencyDecimalDigits: getDecimalDigits(currencyCode),
           dateRangeFrom: from.getTime(),
           dateRangeTo: to.getTime(),
           dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
@@ -496,6 +503,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
 
       return {
         currencyCode: currencyCode,
+        currencyDecimalDigits: getDecimalDigits(currencyCode),
         dateRangeFrom: startQueryFrom.getTime(),
         dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
         dateRangeFromCompareTo: undefined,
@@ -507,6 +515,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
 
     return {
       currencyCode: undefined,
+      currencyDecimalDigits: getDecimalDigits(currencyCode),
       dateRangeFrom: undefined,
       dateRangeTo: undefined,
       dateRangeFromCompareTo: undefined,

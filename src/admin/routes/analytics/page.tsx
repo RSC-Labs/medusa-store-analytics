@@ -18,9 +18,13 @@ import { LightBulb } from "@medusajs/icons"
 import { Box } from "@mui/material";
 import OverviewTab from "../../../ui-components/tabs/overview";
 import OrdersTab from "../../../ui-components/tabs/orders";
+import ProductsTab from '../../../ui-components/tabs/products';
+import SalesTab from '../../../ui-components/tabs/sales';
+import CustomersTab from '../../../ui-components/tabs/customers';
 import { DateLasts, DropdownOrderStatus, OrderStatus, convertDateLastsToComparedDateRange, convertDateLastsToDateRange } from '../../../ui-components';
 import { Grid } from "@mui/material";
 import { ComparedDate, SelectDateLasts, SwitchComparison } from '../../../ui-components/common/overview-components';
+// import ProTab from './ui-components/tabs/pro';
 
 const AnalyticsPage = () => {
   const [dateLast, setDateLasts] = useState<DateLasts>(DateLasts.LastWeek);
@@ -72,15 +76,30 @@ const AnalyticsPage = () => {
         <Tabs defaultValue='overview'>
           <Tabs.List style={ { justifyContent: 'center' } }>
             <Tabs.Trigger value='overview'>Overview</Tabs.Trigger>
+            <Tabs.Trigger value='sales'>Sales</Tabs.Trigger>
             <Tabs.Trigger value='orders'>Orders</Tabs.Trigger>
+            <Tabs.Trigger value='customers'>Customers</Tabs.Trigger>
+            <Tabs.Trigger value='products'>Products</Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content value='overview'>
             <Box height={20}></Box>
             <OverviewTab orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
           </Tabs.Content>
+          <Tabs.Content value='sales'>
+            <Box height={20}></Box>
+            <SalesTab orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
+          </Tabs.Content>
           <Tabs.Content value='orders'>
             <Box height={20}></Box>
-            <OrdersTab/>
+            <OrdersTab orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
+          </Tabs.Content>
+          <Tabs.Content value='customers'>
+            <Box height={20}></Box>
+            <CustomersTab orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
+          </Tabs.Content>
+          <Tabs.Content value='products'>
+            <Box height={20}></Box>
+            <ProductsTab orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
           </Tabs.Content>
         </Tabs>
       </Grid>

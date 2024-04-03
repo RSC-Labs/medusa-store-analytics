@@ -12,6 +12,10 @@
 
 import { DateLasts, DateRange } from "./types";
 
+export function amountToDisplay(amount: number, decimalDigits: number) : string {
+  return (amount / Math.pow(10, decimalDigits)).toFixed(decimalDigits);
+}
+
 export function calculatePercentage(current: number, previous: number) : number | undefined {
   if (current == previous) {
     return 0;

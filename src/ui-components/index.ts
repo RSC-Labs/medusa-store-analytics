@@ -16,15 +16,19 @@ export { OrdersOverviewCard } from './orders/orders-overview-card'
 
 export { SalesOverviewCard } from './sales/sales-overview-card'
 export { SalesChannelPopularityCard } from './sales/sales-channel-popularity-card'
+export { RefundsOverviewCard } from './sales/refunds/refunds-overview-card'
 export { RegionsPopularityCard } from './sales/regions-popularity-card'
 
 export { CustomersOverviewCard } from './customers/customers-overview-card'
 export { CustomersRepeatCustomerRate } from './customers/repeat-customer-rate/customers-repeat-customer-rate';
+export { CumulativeCustomersCard } from './customers/cumulative-history/cumulative-customers-card';
 
 export { VariantsTopByCountCard } from './products/variants-top-by-count';
 export { ReturnedVariantsByCountCard } from './products/returned_variants/returned-variants-by-count';
+export { ProductsSoldCountCard } from './products/products-sold-count';
 
 export { DiscountsTopCard } from './marketing/discounts-top-by-count';
 
-export { DateLasts, OrderStatus, DateRange } from './utils/types'
+export { DateLasts, OrderStatus } from './utils/types'
+export type { DateRange } from './utils/types'
 export { convertDateLastsToComparedDateRange, convertDateLastsToDateRange } from './utils/helpers'

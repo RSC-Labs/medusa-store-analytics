@@ -15,18 +15,19 @@ import { Grid } from "@mui/material";
 import { PercentageComparison } from "../common/percentage-comparison";
 import { IconComparison } from "../common/icon-comparison";
 import { SalesHistoryResponse } from "./types";
+import { amountToDisplay } from "../utils/helpers";
 
 export const SalesNumber = ({salesHistoryResponse, compareEnabled} : {salesHistoryResponse: SalesHistoryResponse, compareEnabled?: boolean}) => {
-  const overallCurrentSum: number = salesHistoryResponse.analytics.current.reduce((sum, order) => sum + parseInt(order.total), 0) / 100;
+  const overallCurrentSum: number = salesHistoryResponse.analytics.current.reduce((sum, order) => sum + parseInt(order.total), 0);
   const overallPreviousSum: number | undefined  = salesHistoryResponse.analytics.previous.length > 0 ? 
-  salesHistoryResponse.analytics.previous.reduce((sum, order) => sum + parseInt(order.total), 0) / 100 : 
+  salesHistoryResponse.analytics.previous.reduce((sum, order) => sum + parseInt(order.total), 0) : 
     undefined;
 
   return (
     <Grid container alignItems={'center'} spacing={2}>
       <Grid item>
         <Heading level="h1">
-          {overallCurrentSum.toFixed(2)} {salesHistoryResponse.analytics.currencyCode.toUpperCase()}
+          {amountToDisplay(overallCurrentSum, salesHistoryResponse.analytics.currencyDecimalDigits)} {salesHistoryResponse.analytics.currencyCode.toUpperCase()}
         </Heading>
       </Grid>
       {compareEnabled && salesHistoryResponse.analytics.dateRangeFromCompareTo && 
@@ -36,7 +37,7 @@ export const SalesNumber = ({salesHistoryResponse, compareEnabled} : {salesHisto
             <IconComparison current={overallCurrentSum} previous={overallPreviousSum ? overallPreviousSum : undefined}/>
           </Grid>
           {overallPreviousSum !== undefined && <Grid item>
-            <PercentageComparison current={overallCurrentSum.toFixed(2)} label={salesHistoryResponse.analytics.currencyCode.toUpperCase()} previous={overallPreviousSum.toFixed(2)}/>
+            <PercentageComparison current={amountToDisplay(overallCurrentSum, salesHistoryResponse.analytics.currencyDecimalDigits)} label={salesHistoryResponse.analytics.currencyCode.toUpperCase()} previous={amountToDisplay(overallPreviousSum, salesHistoryResponse.analytics.currencyDecimalDigits)}/>
           </Grid>}
         </Grid>
       </Grid>

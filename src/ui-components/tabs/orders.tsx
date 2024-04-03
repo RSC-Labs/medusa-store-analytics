@@ -10,18 +10,24 @@
  * limitations under the License.
  */
 
-import { Container, Heading } from "@medusajs/ui"
+import { Container } from "@medusajs/ui"
+import { 
+  OrdersOverviewCard,
+  OrderStatus,
+  DateRange
+} from '..';
 import { Grid } from "@mui/material";
 
-const OrdersTab = () => {
+const OrdersTab = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} : 
+  {orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled: boolean}) => {
   return (
-    <Grid container spacing={2} justifyContent={"center"} >
+    <Grid container spacing={2}>
       <Grid item xs={6} md={6} xl={6}>
         <Container>
-          <Heading level='h1'>Coming soon... Stay tuned.</Heading>
+          <OrdersOverviewCard orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
         </Container>
       </Grid>
-    </Grid>
+    </Grid> 
   )
 }
 

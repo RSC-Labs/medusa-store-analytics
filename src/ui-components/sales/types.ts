@@ -9,7 +9,8 @@ export type SalesHistoryResponse = {
     dateRangeTo?: number,
     dateRangeFromCompareTo?: number,
     dateRangeToCompareTo?: number,
-    currencyCode: string
+    currencyCode: string,
+    currencyDecimalDigits: number,
     current: SalesHistory[];
     previous: SalesHistory[];
   }
@@ -22,6 +23,7 @@ export type RefundsResponse = {
     dateRangeFromCompareTo?: number,
     dateRangeToCompareTo?: number,
     currencyCode: string
+    currencyDecimalDigits: number,
     current: string;
     previous: string;
   }
