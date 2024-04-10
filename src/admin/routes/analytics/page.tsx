@@ -24,7 +24,7 @@ import CustomersTab from '../../../ui-components/tabs/customers';
 import { DateLasts, DropdownOrderStatus, OrderStatus, convertDateLastsToComparedDateRange, convertDateLastsToDateRange } from '../../../ui-components';
 import { Grid } from "@mui/material";
 import { ComparedDate, SelectDateLasts, SwitchComparison } from '../../../ui-components/common/overview-components';
-// import ProTab from './ui-components/tabs/pro';
+import ProTab from '../../../ui-components/tabs/pro';
 
 const AnalyticsPage = () => {
   const [dateLast, setDateLasts] = useState<DateLasts>(DateLasts.LastWeek);
@@ -80,6 +80,7 @@ const AnalyticsPage = () => {
             <Tabs.Trigger value='orders'>Orders</Tabs.Trigger>
             <Tabs.Trigger value='customers'>Customers</Tabs.Trigger>
             <Tabs.Trigger value='products'>Products</Tabs.Trigger>
+            <Tabs.Trigger value='pro' style={ { color: 'purple' }}>Pro version</Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content value='overview'>
             <Box height={20}></Box>
@@ -100,6 +101,10 @@ const AnalyticsPage = () => {
           <Tabs.Content value='products'>
             <Box height={20}></Box>
             <ProductsTab orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
+          </Tabs.Content>
+          <Tabs.Content value='pro'>
+            <Box height={20}></Box>
+            <ProTab/>
           </Tabs.Content>
         </Tabs>
       </Grid>

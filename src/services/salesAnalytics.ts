@@ -548,8 +548,6 @@ export default class SalesAnalyticsService extends TransactionBaseService {
   //       .orderBy('date, type',  'ASC')
   //       .getRawMany();
 
-  //       console.log(refunds);
-
   //       return {
   //         currencyCode: undefined,
   //         dateRangeFrom: undefined,

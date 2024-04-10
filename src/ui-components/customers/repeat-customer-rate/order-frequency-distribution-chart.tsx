@@ -26,12 +26,12 @@ function convertToChartData(distributions: Distributions) {
         {
           name: ONE_TIME_LABEL_NAME,
           value: oneTimeValue,
-          displayValue: `${oneTimeValue}%`
+          displayValue: ONE_TIME_LABEL_NAME
         },
         {
           name: REPEAT_LABEL_NAME,
           value: repeatValue,
-          displayValue: `${repeatValue}%`
+          displayValue: REPEAT_LABEL_NAME
         }
       ]
     }
@@ -51,7 +51,7 @@ export const OrderFrequencyDistributionPieChart = ({repeatCustomerRateResponse, 
   }
 
   return (
-    <PieChart width={300} height={300}>
+    <PieChart width={500} height={300}>
       <Pie data={currentData} dataKey="value" cx="50%" cy="50%" innerRadius={40} outerRadius={90} fill="#82ca9d" label={renderLabel} />
       {compareEnabled && repeatCustomerRateResponse.analytics.dateRangeFromCompareTo && currentData !== undefined &&
         <Pie data={previousData} dataKey="value" cx="50%" cy="50%" outerRadius={30} fill="#8884d8"/>

@@ -20,7 +20,7 @@ const ProTab = () => {
     <Grid container spacing={2} justifyContent={"center"} >
       <Grid container justifyContent={"center"} marginTop={6}>
         <Grid item>
-          <Heading level='h1'>
+          <Heading level='h1' style={ { color: 'purple'}}>
             Take your store analytics to the next level
           </Heading>
         </Grid>
@@ -79,7 +79,7 @@ const ProTab = () => {
               <Grid item>
                 <ul style={ { listStyleType: 'circle'}}>
                   <li>
-                    <Text>Over +15 new statistics</Text>
+                    <Text>Over 15 professional statistics</Text>
                   </li>
                   <li style={ { marginTop: 3}}>
                     <Text>Check funnels related to carts and checkouts, how they change into purchases</Text>
@@ -107,7 +107,7 @@ const ProTab = () => {
                     <Text>Priority for bugs</Text>
                   </li>
                   <li style={ { marginTop: 3}}>
-                    <Text>Send your feature requests for evaluation</Text>
+                    <Text>Dedicated channel for your feature requests for evaluation</Text>
                   </li>
                   <li style={ { marginTop: 3}}>
                     <Text>Establish long-term cooperation also for other plugins</Text>

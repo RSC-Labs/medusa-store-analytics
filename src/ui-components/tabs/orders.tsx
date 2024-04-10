@@ -17,6 +17,7 @@ import {
   DateRange
 } from '..';
 import { Grid } from "@mui/material";
+import { OrdersPaymentProviderCard } from "../orders/orders-payment-provider-card";
 
 const OrdersTab = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} : 
   {orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled: boolean}) => {
@@ -25,6 +26,11 @@ const OrdersTab = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled
       <Grid item xs={6} md={6} xl={6}>
         <Container>
           <OrdersOverviewCard orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
+        </Container>
+      </Grid>
+      <Grid item xs={6} md={6} xl={6}>
+        <Container>
+          <OrdersPaymentProviderCard dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
         </Container>
       </Grid>
     </Grid> 

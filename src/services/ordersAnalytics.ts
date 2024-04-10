@@ -25,6 +25,27 @@ type OrdersCounts = {
   previous: number
 }
 
+type InitialOrdersPaymentProvider = {
+  orderCount: string,
+  paymentProviderId: string
+}
+
+type OrdersPaymentProvider = {
+  orderCount: string,
+  percentage: string,
+  paymentProviderId: string
+}
+
+type OrdersPaymentProviderPopularityResult = {
+  dateRangeFrom?: number
+  dateRangeTo?: number,
+  dateRangeFromCompareTo?: number,
+  dateRangeToCompareTo?: number,
+  current: OrdersPaymentProvider[]
+  previous: OrdersPaymentProvider[]
+}
+
+
 export default class OrdersAnalyticsService extends TransactionBaseService {
 
   private readonly orderService: OrderService;
@@ -207,6 +228,152 @@ export default class OrdersAnalyticsService extends TransactionBaseService {
       dateRangeToCompareTo: undefined,
       current: 0,
       previous: 0
+    }
+  }
+
+  async getPaymentProviderPopularity(from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<OrdersPaymentProviderPopularityResult> {
+    function calculateSumAndPercentageOfResults(results: InitialOrdersPaymentProvider[]): OrdersPaymentProvider[] {
+
+        const orderMap: Map<string, string> = new Map();
+
+        let allSum: number = 0;
+
+        results.forEach(result => {
+            const { orderCount, paymentProviderId } = result;
+            if (orderMap.has(paymentProviderId)) {
+              const sum: number = parseInt(orderMap.get(paymentProviderId)) + parseInt(orderCount);
+              orderMap.set(paymentProviderId, sum.toFixed());
+            } else {
+              orderMap.set(paymentProviderId, orderCount);
+            }
+        });
+
+        const newArray: OrdersPaymentProvider[] =  [];
+        orderMap.forEach(( value: string) => {
+          allSum += parseInt(value);
+        })
+
+        orderMap.forEach(( value: string, key: string) => {
+          newArray.push({
+            orderCount: value,
+            percentage: (parseInt(value) * 100 / allSum).toFixed(2),
+            paymentProviderId: key
+          })
+        })
+
+        return newArray;
+    }
+    if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
+      const resolution = calculateResolution(from);
+      const query = this.activeManager_
+      .getRepository(Order)
+      .createQueryBuilder('order')
+      .select(`
+        CASE
+          WHEN order.created_at < :from AND order.created_at >= :dateRangeFromCompareTo THEN 'previous'
+          ELSE 'current'
+        END AS type`)
+      .addSelect(`date_trunc('${resolution}', order.created_at)`, 'date')
+      .addSelect('COUNT(order.id)', 'orderCount')
+      .leftJoinAndSelect('order.payments', 'payments')
+      .where('order.created_at >= :dateRangeFromCompareTo', { dateRangeFromCompareTo })
+      
+      const ordersCountWithPayments = await query
+      .groupBy('date, type, payments.id')
+      .orderBy('date', 'ASC')
+      .setParameters({from, dateRangeFromCompareTo})
+      .getRawMany()
+
+      const finalOrders: OrdersPaymentProviderPopularityResult = ordersCountWithPayments.reduce((acc, entry) => {
+        const type = entry.type;
+        const orderCount = entry.orderCount;
+        const paymentProviderId = entry.payments_provider_id;
+        if (!acc[type]) {
+          acc[type] = [];
+        }
+
+        acc[type].push({
+          orderCount,
+          paymentProviderId,
+        })
+
+        return acc;
+      }, {})
+
+      const finalOrdersCurrentGrouped = calculateSumAndPercentageOfResults(finalOrders.current ? finalOrders.current : []);
+      const finalOrdersPreviousGrouped = calculateSumAndPercentageOfResults(finalOrders.previous ? finalOrders.previous : []);
+
+      return {
+        dateRangeFrom: from.getTime(),
+        dateRangeTo: to.getTime(),
+        dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
+        dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
+        current: finalOrdersCurrentGrouped ? finalOrdersCurrentGrouped : [],
+        previous: finalOrdersPreviousGrouped ? finalOrdersPreviousGrouped : [],
+      }
+    }
+
+    let startQueryFrom: Date | undefined;
+    if (!dateRangeFromCompareTo) {
+      if (from) {
+        startQueryFrom = from;
+      } else {
+        // All time
+        const lastOrder = await this.activeManager_.getRepository(Order).find({
+          skip: 0,
+          take: 1,
+          order: { created_at: "ASC"},
+        })
+
+        if (lastOrder.length > 0) {
+          startQueryFrom = lastOrder[0].created_at;
+        }
+      }
+    } else {
+        startQueryFrom = dateRangeFromCompareTo;
+    }
+    
+    if (startQueryFrom) {
+      const resolution = calculateResolution(startQueryFrom);
+      const query = this.activeManager_
+      .getRepository(Order)
+      .createQueryBuilder('order')
+      .select(`date_trunc('${resolution}', order.created_at)`, 'date')
+      .addSelect('COUNT(order.id)', 'orderCount')
+      .leftJoinAndSelect('order.payments', 'payments')
+      .where('order.created_at >= :startQueryFrom', { startQueryFrom })
+
+      const ordersCountWithPayments = await query
+      .groupBy('date, payments.id')
+      .orderBy('date', 'ASC')
+      .getRawMany()
+
+      const initialOrders: InitialOrdersPaymentProvider[] = ordersCountWithPayments.map(order => {
+        return {
+          orderCount: order.orderCount,
+          paymentProviderId: order.payments_provider_id,
+        }
+      });
+
+      const finalOrdersGrouped = calculateSumAndPercentageOfResults(initialOrders ? initialOrders : []);
+
+      return {
+        dateRangeFrom: startQueryFrom.getTime(),
+        dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
+        dateRangeFromCompareTo: undefined,
+        dateRangeToCompareTo: undefined,
+        current: finalOrdersGrouped,
+        previous: []
+      }
+    }
+
+    return {
+      dateRangeFrom: undefined,
+      dateRangeTo: undefined,
+      dateRangeFromCompareTo: undefined,
+      dateRangeToCompareTo: undefined,
+      current: [],
+      previous: []
     }
   }
 }
