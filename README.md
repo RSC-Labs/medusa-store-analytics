@@ -124,6 +124,15 @@ No configuration is needed. Everything is done through UI. You can use such opti
 
 MIT
 
+## Pro version
+
+The Pro version of medusa-store-analytics expands on the features of the free version with more advanced capabilities such as 
+- customizable dashboard - you can create your own dashboard with chosen statistics
+- date range picker - choose whatever date range to see statistics exactly for this range
+- more than 15 new, advanced statistics - funnels, deep insights about promotions or granular statistics per sales channels.
+
+The Pro version is available under commercial licence - contact labs@rsoftcon.com for more information.
+
 ---
 
 © 2024 RSC https://rsoftcon.com/
