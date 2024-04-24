@@ -13,6 +13,7 @@
 export { ComparedDate, SwitchComparison, DropdownOrderStatus } from './common/overview-components';
 
 export { OrdersOverviewCard } from './orders/orders-overview-card'
+export { OrdersPaymentProviderCard } from './orders/orders-payment-provider-card'
 
 export { SalesOverviewCard } from './sales/sales-overview-card'
 export { SalesChannelPopularityCard } from './sales/sales-channel-popularity-card'
@@ -26,9 +27,10 @@ export { CumulativeCustomersCard } from './customers/cumulative-history/cumulati
 export { VariantsTopByCountCard } from './products/variants-top-by-count';
 export { ReturnedVariantsByCountCard } from './products/returned_variants/returned-variants-by-count';
 export { ProductsSoldCountCard } from './products/products-sold-count';
+export { OutOfTheStockVariantsCard } from './products/out_of_the_stock_variants/out-of-the-stock-variants-by-count';
 
 export { DiscountsTopCard } from './marketing/discounts-top-by-count';
 
 export { DateLasts, OrderStatus } from './utils/types'
 export type { DateRange } from './utils/types'
-export { convertDateLastsToComparedDateRange, convertDateLastsToDateRange } from './utils/helpers'
+export { convertDateLastsToComparedDateRange, convertDateLastsToDateRange, amountToDisplay } from './utils/helpers'

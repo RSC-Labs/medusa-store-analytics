@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import { Heading } from "@medusajs/ui";
+import { Heading, Alert } from "@medusajs/ui";
 import { ShoppingBag } from "@medusajs/icons";
 import { CircularProgress, Grid } from "@mui/material";
 import { DateRange } from "../../utils/types";
@@ -26,6 +26,7 @@ type AdminProductsStatisticsQuery = {
 
 type VariantsCountPopularity = {
   sum: string,
+  productId: string,
   variantId: string,
   productTitle: string,
   variantTitle: string,
@@ -51,6 +52,7 @@ function transformToVariantTopTable(result: VariantsCountPopularityResult): Vari
   result.current.forEach(currentItem => {
     const currentCount = currentMap.get(currentItem.variantId) ? currentMap.get(currentItem.variantId).sum : '0';
     currentMap.set(currentItem.variantId, {
+      productId: currentItem.productId,
       productTitle: currentItem.productTitle,
       variantTitle: currentItem.variantTitle,
       thumbnail: currentItem.thumbnail,
@@ -63,7 +65,7 @@ function transformToVariantTopTable(result: VariantsCountPopularityResult): Vari
 
 const ReturnedVariantsByCount = ({dateRange, dateRangeCompareTo} : {
   dateRange?: DateRange, dateRangeCompareTo?: DateRange}) => {
-  const { data, isLoading } = useAdminCustomQuery<
+  const { data, isError, isLoading, error } = useAdminCustomQuery<
     AdminProductsStatisticsQuery,
     VariantsCountPopularityResponse
   >(
@@ -79,6 +81,12 @@ const ReturnedVariantsByCount = ({dateRange, dateRangeCompareTo} : {
 
   if (isLoading) {
     return <CircularProgress size={12}/>
+  }
+
+  if (isError) {
+    const trueError = error as any;
+    const errorText = `Error when loading data. It shouldn't have happened - please raise an issue. For developer: ${trueError?.response?.data?.message}`
+    return <Alert variant="error">{errorText}</Alert>
   }
 
   if (data.analytics == undefined) {
@@ -97,7 +105,7 @@ export const ReturnedVariantsByCountCard = ({dateRange, dateRangeCompareTo} :
   return (
     <Grid container paddingBottom={2} spacing={3}>
       <Grid item xs={12} md={12}>
-          <Grid container spacing={2}>
+          <Grid container spacing={2} alignItems={'center'}>
             <Grid item>
               <ShoppingBag/>
             </Grid>

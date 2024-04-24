@@ -12,9 +12,11 @@
 
 import { Heading, Text } from "@medusajs/ui";
 import { Box, Divider, Grid } from "@mui/material";
+import { Link } from "react-router-dom"
 
 export type VariantsTopTableRow = {
   sum: string,
+  productId: string,
   productTitle: string,
   variantTitle: string,
   thumbnail: string,
@@ -44,22 +46,24 @@ export const ReturnedVariantsTable = ({tableRows} : {tableRows: VariantsTopTable
         <Grid item xs={12}>
           <Grid container justifyContent={'space-between'}>
             <Grid item>
-              <Grid container alignItems={'center'} spacing={2}>
-                {tableRow.thumbnail && <Grid item>
-                  <Box
-                    sx={{
-                      width: 30,
-                      height: 40
-                    }}
-                    component="img"
-                    alt={`Thumbnail for ${tableRow.productTitle}`}
-                    src={tableRow.thumbnail}
-                  />
-                </Grid>}
-                <Grid item>
-                  {tableRow.productTitle} - {tableRow.variantTitle}
+              <Link to={`../products/${tableRow.productId}`}>
+                <Grid container alignItems={'center'} spacing={2}>
+                  {tableRow.thumbnail && <Grid item>
+                    <Box
+                      sx={{
+                        width: 30,
+                        height: 40
+                      }}
+                      component="img"
+                      alt={`Thumbnail for ${tableRow.productTitle}`}
+                      src={tableRow.thumbnail}
+                    />
+                  </Grid>}
+                  <Grid item>
+                    {tableRow.productTitle} - {tableRow.variantTitle}
+                  </Grid>
                 </Grid>
-              </Grid>
+              </Link>
             </Grid>
             <Grid item>
               <Text>

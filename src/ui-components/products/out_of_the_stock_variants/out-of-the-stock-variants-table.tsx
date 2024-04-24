@@ -14,15 +14,14 @@ import { Heading, Text } from "@medusajs/ui";
 import { Box, Divider, Grid } from "@mui/material";
 import { Link } from "react-router-dom"
 
-export type VariantsTopTableRow = {
-  sum: string,
+export type OutOfTheStockVariantsTableRow = {
   productId: string,
   productTitle: string,
   variantTitle: string,
   thumbnail: string,
 }
 
-export const VariantsTopTable = ({tableRows} : {tableRows: VariantsTopTableRow[]}) => {
+export const OutOfTheStockVariantsTable = ({tableRows} : {tableRows: OutOfTheStockVariantsTableRow[]}) => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
@@ -33,11 +32,6 @@ export const VariantsTopTable = ({tableRows} : {tableRows: VariantsTopTableRow[]
           <Grid item>
             <Heading level="h3"> 
               Variant
-            </Heading>
-          </Grid>
-          <Grid item>
-            <Heading level="h3"> 
-              Count
             </Heading>
           </Grid>
         </Grid>
@@ -65,21 +59,11 @@ export const VariantsTopTable = ({tableRows} : {tableRows: VariantsTopTableRow[]
                 </Grid>
               </Link>
             </Grid>
-            <Grid item>
-              <Text>
-                {tableRow.sum}
-              </Text>
-            </Grid>
           </Grid>
         </Grid>
       )) : 
         <Grid item xs={12}>
           <Grid container justifyContent={'space-between'}>
-            <Grid item>
-              <Text> 
-                None
-              </Text>
-            </Grid>
             <Grid item>
               <Text> 
                 None

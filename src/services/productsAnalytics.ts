@@ -10,12 +10,13 @@
  * limitations under the License.
  */
 
-import { LineItem, OrderStatus, Return, ReturnItem, TransactionBaseService } from "@medusajs/medusa"
+import { LineItem, OrderStatus, ProductVariant, Return, ReturnItem, TransactionBaseService } from "@medusajs/medusa"
 import { Order } from "@medusajs/medusa"
 import { In } from "typeorm"
 
 type VariantsCountPopularity = {
   sum: string,
+  productId: string,
   variantId: string,
   productTitle: string,
   variantTitle: string,
@@ -29,6 +30,22 @@ type VariantsCountPopularityResult = {
   dateRangeToCompareTo?: number,
   current: VariantsCountPopularity[],
   previous: VariantsCountPopularity[]
+}
+
+type OutOfTheStockVariantsCount = {
+  productId: string,
+  variantId: string,
+  productTitle: string,
+  variantTitle: string,
+  thumbnail: string,
+}
+
+type OutOfTheStockVariantsCountResult = {
+  dateRangeFrom?: number
+  dateRangeTo?: number,
+  dateRangeFromCompareTo?: number,
+  dateRangeToCompareTo?: number,
+  current: OutOfTheStockVariantsCount[],
 }
 
 export default class ProductsAnalyticsService extends TransactionBaseService {
@@ -59,11 +76,11 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
         .andWhere(`order.status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings });
 
         const variantsSumInLinteItemsInOrders = await query
-        .groupBy('lineitem.variant_id, variant.id, lineitem.title, lineitem.thumbnail')
-        .orderBy('sum', 'DESC')
-        .setParameters({from, dateRangeFromCompareTo})
-        .limit(this.TOP_LIMIT)
-        .getRawMany()
+          .groupBy('lineitem.variant_id, variant.id, variant.product_id, lineitem.title, lineitem.thumbnail')
+          .orderBy('sum', 'DESC')
+          .setParameters({from, dateRangeFromCompareTo})
+          .limit(this.TOP_LIMIT)
+          .getRawMany()
 
         return {
           dateRangeFrom: from.getTime(),
@@ -72,6 +89,7 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
           dateRangeToCompareTo: undefined,
           current: variantsSumInLinteItemsInOrders.map(result => (
             {
+              productId: result.variant_product_id,
               variantId: result.variant_id,
               sum: result.sum,
               variantTitle: result.variant_title,
@@ -118,11 +136,11 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
         .andWhere(`order.status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings });
 
         const variantsSumInLinteItemsInOrders = await query
-        .groupBy('lineitem.variant_id, variant.id, lineitem.title, lineitem.thumbnail')
-        .orderBy('sum', 'DESC')
-        .setParameters({startQueryFrom, dateRangeFromCompareTo})
-        .limit(this.TOP_LIMIT)
-        .getRawMany()
+          .groupBy('lineitem.variant_id, variant.id, variant.product_id, lineitem.title, lineitem.thumbnail')
+          .orderBy('sum', 'DESC')
+          .setParameters({startQueryFrom, dateRangeFromCompareTo})
+          .limit(this.TOP_LIMIT)
+          .getRawMany()
 
         return {
           dateRangeFrom: startQueryFrom.getTime(),
@@ -131,6 +149,7 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
           dateRangeToCompareTo: undefined,
           current: variantsSumInLinteItemsInOrders.map(result => (
             {
+              productId: result.variant_product_id,
               variantId: result.variant_id,
               sum: result.sum,
               variantTitle: result.variant_title,
@@ -178,10 +197,11 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
       .select('lineItem.variant_id', 'variant_id')
       .addSelect('lineItem.title', 'title')
       .addSelect('variant.title', 'variant_title')
+      .addSelect('variant.product_id', 'product_id')
       .addSelect('lineItem.thumbnail', 'thumbnail')
       .addSelect('SUM(returnItem.quantity)', 'sum')
       .where('return.created_at >= :from', { from })
-      .groupBy('lineItem.title, variant_title, lineItem.thumbnail, lineItem.variant_id')
+      .groupBy('lineItem.title, variant_title, variant.product_id, lineItem.thumbnail, lineItem.variant_id')
 
       const variantsReturnedSum = await query
       .orderBy('sum', 'DESC')
@@ -196,6 +216,7 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
         dateRangeToCompareTo: undefined,
         current: variantsReturnedSum.map(result => (
           {
+            productId: result.product_id,
             variantId: result.variant_id,
             sum: result.sum,
             variantTitle: result.variant_title,
@@ -251,10 +272,11 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
       .select('lineItem.variant_id', 'variant_id')
       .addSelect('lineItem.title', 'title')
       .addSelect('variant.title', 'variant_title')
+      .addSelect('variant.product_id', 'product_id')
       .addSelect('lineItem.thumbnail', 'thumbnail')
       .addSelect('SUM(returnItem.quantity)', 'sum')
       .where('return.created_at >= :startQueryFrom', { startQueryFrom })
-      .groupBy('lineItem.title, variant_title, lineItem.thumbnail, lineItem.variant_id')
+      .groupBy('lineItem.title, variant_title, variant.product_id, lineItem.thumbnail, lineItem.variant_id')
 
       const variantsReturnedSum = await query
       .orderBy('sum', 'DESC')
@@ -269,6 +291,7 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
         dateRangeToCompareTo: undefined,
         current: variantsReturnedSum.map(result => (
           {
+            productId: result.product_id,
             variantId: result.variant_id,
             sum: result.sum,
             variantTitle: result.variant_title,
@@ -372,6 +395,45 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
       dateRangeToCompareTo: undefined,
       current: undefined,
       previous: undefined
+    }
+  }
+
+  async getOutOfTheStockVariants(limit?: number) : Promise<OutOfTheStockVariantsCountResult> {
+    const productStatusesAsStrings = ['published']
+    const query = this.activeManager_
+      .getRepository(ProductVariant)
+      .createQueryBuilder('productVariant')
+      .select("productVariant.id", "variant_id")
+      .addSelect("productVariant.updated_at", "updated_at")
+      .addSelect("productVariant.title", "variant_title")
+      .innerJoinAndSelect('productVariant.product', 'product')
+      .addSelect("product.thumbnail", "thumbnail")
+      .addSelect("product.title", "product_title")
+      .where(`product.status IN(:...productStatusesAsStrings)`, { productStatusesAsStrings })
+      .andWhere('productVariant.inventory_quantity = :expectedQuantity', { expectedQuantity: 0})
+      .andWhere('product.is_giftcard = :isGiftCard', { isGiftCard: false});
+
+    const outOfTheStockVariants = await query
+      .groupBy('productVariant.id, variant_title,  product.id, product.thumbnail, product_title')
+      .orderBy('productVariant.updated_at', 'DESC')
+      .limit(limit !== undefined ? limit : this.TOP_LIMIT)
+      .getRawMany()
+
+    return {
+      dateRangeFrom: undefined,
+      dateRangeTo: undefined,
+      dateRangeFromCompareTo: undefined,
+      dateRangeToCompareTo: undefined,
+      current: outOfTheStockVariants.map(result => (
+        {
+          productId: result.product_id,
+          variantId: result.variant_id,
+          sum: result.sum,
+          variantTitle: result.variant_title,
+          productTitle: result.product_title,
+          thumbnail: result.thumbnail
+        }
+      )),
     }
   }
 }

@@ -28,6 +28,7 @@ type AdminProductsStatisticsQuery = {
 
 type VariantsCountPopularity = {
   sum: string,
+  productId: string,
   variantId: string,
   productTitle: string,
   variantTitle: string,
@@ -53,6 +54,7 @@ function transformToVariantTopTable(result: VariantsCountPopularityResult): Vari
   result.current.forEach(currentItem => {
     const currentCount = currentMap.get(currentItem.variantId) ? currentMap.get(currentItem.variantId).sum : '0';
     currentMap.set(currentItem.variantId, {
+      productId: currentItem.productId,
       productTitle: currentItem.productTitle,
       variantTitle: currentItem.variantTitle,
       thumbnail: currentItem.thumbnail,
@@ -106,7 +108,7 @@ export const VariantsTopByCountCard = ({orderStatuses, dateRange, dateRangeCompa
   return (
     <Grid container paddingBottom={2} spacing={3}>
       <Grid item xs={12} md={12}>
-          <Grid container spacing={2}>
+          <Grid container spacing={2} alignItems={'center'}>
             <Grid item>
               <ShoppingBag/>
             </Grid>

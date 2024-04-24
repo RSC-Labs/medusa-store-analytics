@@ -33,7 +33,6 @@ export const GET = async (
   const orderStatuses: OrderStatus[] = orderStatusesFromQuery !== undefined ? 
     orderStatusesFromQuery.map(status => OrderStatus[status.toUpperCase()]).filter(orderStatus => orderStatus !== undefined): [];
 
-
   let result: any;
   const productsAnalyticsService: ProductsAnalyticsService = req.scope.resolve('productsAnalyticsService');
 
@@ -62,6 +61,9 @@ export const GET = async (
           dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
           dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
         );
+        break;
+      case 'out-of-the-stock-variants':
+        result = await productsAnalyticsService.getOutOfTheStockVariants();
         break;
     }
     res.status(200).json({
