@@ -113,6 +113,7 @@ No configuration is needed. Everything is done through UI. You can use such opti
 | Top variants | :white_check_mark: |
 | Top returned variants | :white_check_mark: |
 | Products sold count | :white_check_mark: |
+| Out of the stock variants | BETA |
 
 ### Marketing
 
@@ -132,6 +133,13 @@ The Pro version of medusa-store-analytics expands on the features of the free ve
 - more than 15 new, advanced statistics - funnels, deep insights about promotions or granular statistics per sales channels.
 
 The Pro version is available under commercial licence - contact labs@rsoftcon.com for more information.
+
+### Hide Pro version tab
+
+We show what advanced features we offer in "Pro version" tab. We try to keep it non-intruisive, but if you feel it differently, you can always hide this tab by setting following environment variable:
+`MEDUSA_ADMIN_MEDUSA_STORE_ANALYTICS_HIDE_PRO=true`
+
+After restarting your admin application, you shall have this tab hidden.
 
 ---
 

@@ -80,7 +80,7 @@ const AnalyticsPage = () => {
             <Tabs.Trigger value='orders'>Orders</Tabs.Trigger>
             <Tabs.Trigger value='customers'>Customers</Tabs.Trigger>
             <Tabs.Trigger value='products'>Products</Tabs.Trigger>
-            <Tabs.Trigger value='pro' style={ { color: 'purple' }}>Pro version</Tabs.Trigger>
+            {process.env.MEDUSA_ADMIN_MEDUSA_STORE_ANALYTICS_HIDE_PRO === undefined && <Tabs.Trigger value='pro' style={ { color: 'purple' }}>Pro version</Tabs.Trigger>} 
           </Tabs.List>
           <Tabs.Content value='overview'>
             <Box height={20}></Box>
@@ -102,10 +102,10 @@ const AnalyticsPage = () => {
             <Box height={20}></Box>
             <ProductsTab orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
           </Tabs.Content>
-          <Tabs.Content value='pro'>
+          {process.env.MEDUSA_ADMIN_MEDUSA_STORE_ANALYTICS_HIDE_PRO === undefined && <Tabs.Content value='pro'>
             <Box height={20}></Box>
             <ProTab/>
-          </Tabs.Content>
+          </Tabs.Content>}
         </Tabs>
       </Grid>
     </Grid>
