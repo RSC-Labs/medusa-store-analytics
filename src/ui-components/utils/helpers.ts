@@ -40,14 +40,14 @@ export function convertDateLastsToDateRange(dateLasts: DateLasts): DateRange | u
   switch (dateLasts) {
     case DateLasts.LastMonth:
       result = {
-        // 86400000 - alignment for taking last  6 days, as the current day is 7th
-        from: new Date(new Date(new Date().setMonth(new Date().getMonth() - 1) + 86400000).setHours(0,0,0,0)),
+        // 86400000 - alignment for taking last 29 days, as the current day is 30
+        from: new Date(new Date(new Date().setDate(new Date().getDate() - 29)).setHours(0,0,0,0)),
         to: new Date(Date.now())
       }
       break;
     case DateLasts.LastWeek: 
       result = {
-        // 86400000 - alignment for taking last  6 days, as the current day is 7th
+        // 86400000 - alignment for taking last 6 days, as the current day is 7th
         from: new Date(new Date(new Date(Date.now() - 604800000 + 86400000)).setHours(0,0,0,0)),
         to: new Date(Date.now())
       }
@@ -56,7 +56,7 @@ export function convertDateLastsToDateRange(dateLasts: DateLasts): DateRange | u
       const lastYearAgo = new Date(new Date().setFullYear(new Date().getFullYear() - 1));
       result = {
         // + 1 - alignment for taking last 11 months, as the current month is 12th
-        from: new Date(new Date(new Date(lastYearAgo).setMonth(lastYearAgo.getMonth() + 1)).setHours(0,0,0,0) + 86400000),
+        from: new Date(new Date(new Date().setDate(new Date().getDate() - 364)).setHours(0,0,0,0)),
         to: new Date(Date.now())
       }
       break;
@@ -69,8 +69,8 @@ export function convertDateLastsToComparedDateRange(dateLasts: DateLasts): DateR
   switch (dateLasts) {
     case DateLasts.LastMonth: 
       result = {
-        from: new Date(new Date(new Date().setMonth(new Date().getMonth() - 2)).setHours(0,0,0,0) + 86400000),
-        to: new Date(new Date(new Date().setMonth(new Date().getMonth() - 1)).setHours(0,0,0,0) + 86400000),
+        from: new Date(new Date(new Date().setDate(new Date().getDate() - 59)).setHours(0,0,0,0)),
+        to: new Date(new Date(new Date().setDate(new Date().getDate() - 29)).setHours(0,0,0,0)),
       }
       break;
     case DateLasts.LastWeek: 
@@ -81,8 +81,8 @@ export function convertDateLastsToComparedDateRange(dateLasts: DateLasts): DateR
       break;
     case DateLasts.LastYear:
       result = {
-        from: new Date(new Date(new Date().setFullYear(new Date().getFullYear() - 2)).setHours(0,0,0,0) + 86400000),
-        to: new Date(new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setHours(0,0,0,0) + + 86400000)
+        from: new Date(new Date(new Date().setDate(new Date().getDate() - 729)).setHours(0,0,0,0)),
+        to: new Date(new Date(new Date().setDate(new Date().getDate() - 364)).setHours(0,0,0,0)),
       }
       break;
   }

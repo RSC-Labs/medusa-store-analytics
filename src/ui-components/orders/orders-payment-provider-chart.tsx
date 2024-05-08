@@ -46,8 +46,6 @@ export const OrdersPaymentProviderPieChart = ({ordersPaymentProviderResponse, co
   const currentData = convertToChartData(ordersPaymentProviderResponse.analytics.current);
   const previousData = convertToChartData(ordersPaymentProviderResponse.analytics.previous);
 
-  const resolutionType = calculateResolution(new Date(ordersPaymentProviderResponse.analytics.dateRangeFrom));
-
   const renderLabel = function(entry) {
     return entry.displayValue;
   }
@@ -60,11 +58,11 @@ export const OrdersPaymentProviderPieChart = ({ordersPaymentProviderResponse, co
       }
       {(compareEnabled && ordersPaymentProviderResponse.analytics.dateRangeFromCompareTo) && <Legend payload={[
         {
-          value: getLegendName(resolutionType, true),
+          value: getLegendName(true),
           color: "#82ca9d"
         },
         {
-          value: getLegendName(resolutionType, false),
+          value: getLegendName(false),
           color: "#8884d8"
         }
       ]} iconType="circle"/>}

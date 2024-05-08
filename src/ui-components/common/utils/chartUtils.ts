@@ -11,38 +11,53 @@
  */
 
 export enum ChartResolutionType {
-  DayWeek,
   DayMonth,
   Month
 }
 
-export function calculateResolution(date?: Date) : ChartResolutionType {
-  if (!date) return undefined;
+export function calculateResolution(fromDate?: Date, toDate?: Date) : ChartResolutionType {
+  if (!fromDate) return undefined;
 
-  const weekAgoTruncated = new Date(new Date(Date.now() - 604800000).setHours(0,0,0,0)); 
-  if (date >= weekAgoTruncated) {
-    return ChartResolutionType.DayWeek;
-  }
+  const calculateToDate = toDate ? new Date(toDate) : new Date(Date.now());
+  const diffTime = calculateToDate.getTime() - fromDate.getTime();
 
-  const monthAgoTruncated = new Date(new Date(new Date().setMonth(new Date().getMonth() - 1)).setHours(0,0,0,0));
-  if (date >= monthAgoTruncated) {
+  const weekTime = 604800000;
+  const monthTime = weekTime * 4;
+  const twoMonthsTime = monthTime * 2;
+  if (diffTime <= twoMonthsTime) {
     return ChartResolutionType.DayMonth;
   }
 
-  const yearAgoTruncated = new Date(new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setHours(0,0,0,0));
-  if (date > yearAgoTruncated) {
+  const yearTime = monthTime * 12;
+  if (diffTime < yearTime) {
     return ChartResolutionType.Month;
   }
   return ChartResolutionType.Month
 }
 
-export const getChartDateName = (date: Date, resolutionType: ChartResolutionType): string => {
+export const compareDatesBasedOnResolutionType = (date1: Date, date2: Date, resolutionType: ChartResolutionType): boolean => {
   switch (resolutionType) {
-    case ChartResolutionType.DayWeek:
-      return getShortDayName(date);
     case ChartResolutionType.DayMonth:
+      return new Date(new Date(date1).setHours(0,0,0,0)).getTime() == new Date(new Date(date2).setHours(0,0,0,0)).getTime();
+    case ChartResolutionType.Month:
+      return new Date(new Date(new Date(date1).setDate(0)).setHours(0,0,0,0)).getTime() == new Date(new Date(new Date(date2).setDate(0)).setHours(0,0,0,0)).getTime();
+    default:
+      return new Date(new Date(date1).setHours(0,0,0,0)).getTime() == new Date(new Date(date2).setHours(0,0,0,0)).getTime();
+  }
+}
+
+export const getChartDateName = (date: Date, resolutionType: ChartResolutionType, startDate: Date, endDate: Date): string => {
+  
+  switch (resolutionType) {
+    case ChartResolutionType.DayMonth:
+      if (compareDatesBasedOnResolutionType(date, startDate, resolutionType) || compareDatesBasedOnResolutionType(date, endDate, resolutionType)) {
+        return `${date.getDate().toString()} ${getShortMonthName(date)}`;
+      }
       return date.getDate().toString();
     case ChartResolutionType.Month:
+      if (compareDatesBasedOnResolutionType(date, startDate, resolutionType) || compareDatesBasedOnResolutionType(date, endDate, resolutionType)) {
+        return `${getShortMonthName(date)} ${date.getFullYear().toString()}`;
+      }
       return getShortMonthName(date);
     default:
       return date.getFullYear().toString()
@@ -51,8 +66,6 @@ export const getChartDateName = (date: Date, resolutionType: ChartResolutionType
 
 export const getChartTooltipDate = (date: Date, resolutionType: ChartResolutionType): string => {
   switch (resolutionType) {
-    case ChartResolutionType.DayWeek:
-      return getFullDayName(date);
     case ChartResolutionType.DayMonth:
       return `${date.getDate().toString()}-${getShortMonthName(date)}`;
     case ChartResolutionType.Month:
@@ -62,25 +75,8 @@ export const getChartTooltipDate = (date: Date, resolutionType: ChartResolutionT
   }
 }
 
-export const getLegendName = (resolutionType: ChartResolutionType, current: boolean): string => {
-  switch (resolutionType) {
-    case ChartResolutionType.DayWeek:
-      return current ? `Current week` : `Previous week`;
-    case ChartResolutionType.DayMonth:
-      return current ? `Current month` : `Previous month`;
-    case ChartResolutionType.Month:
-      return current ? `Current year` : `Previous year`;
-  }
-}
-
-const getFullDayName = (date: Date) => {
-  let days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  return days[date.getDay()];
-}
-
-const getShortDayName = (date: Date) => {
-  let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  return days[date.getDay()];
+export const getLegendName = (current: boolean): string => {
+  return current ? `Current` : `Preceding`;
 }
 
 const getShortMonthName = (date: Date) => {

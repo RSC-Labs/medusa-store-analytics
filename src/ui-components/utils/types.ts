@@ -37,9 +37,9 @@ export enum OrderStatus {
 
 export enum DateLasts {
   All = "All time",
-  LastMonth = "Last month",
-  LastWeek = "Last week",
-  LastYear = "Last year"
+  LastMonth = "Last 30 days",
+  LastWeek = "Last 7 days",
+  LastYear = "Last 365 days"
 }
 export type DateRange = {
   from: Date,

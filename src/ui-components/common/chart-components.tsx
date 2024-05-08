@@ -10,11 +10,22 @@
  * limitations under the License.
  */
 
-import { Heading, Container } from "@medusajs/ui";
-import { calculateResolution, getChartDateName, getChartTooltipDate, getLegendName } from "./utils/chartUtils";
-import { ChartResolutionType } from "./utils/chartUtils";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { Heading, Container, Text } from "@medusajs/ui";
+import { calculateResolution, getChartDateName, getChartTooltipDate, getLegendName, ChartResolutionType, compareDatesBasedOnResolutionType } from "./utils/chartUtils";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
 import { useEffect, useState } from 'react';
+import { Box, Grid } from "@mui/material";
+
+type ChartDataPoint = {
+  current: {
+    date: Date,
+    value: any
+  },
+  previous: {
+    date: Date,
+    value: any
+  }
+}
 
 export type ChartDataType = {
   current: {
@@ -27,23 +38,8 @@ export type ChartDataType = {
   }[]
 }
 
-const compareDatesBasedOnResolutionType = (date1: Date, date2: Date, resolutionType: ChartResolutionType): boolean => {
-  switch (resolutionType) {
-    case ChartResolutionType.DayWeek:
-    case ChartResolutionType.DayMonth:
-      return new Date(new Date(date1).setHours(0,0,0,0)).getTime() == new Date(new Date(date2).setHours(0,0,0,0)).getTime();
-    case ChartResolutionType.Month:
-      return new Date(new Date(new Date(date1).setDate(0)).setHours(0,0,0,0)).getTime() == new Date(new Date(new Date(date2).setDate(0)).setHours(0,0,0,0)).getTime();
-    default:
-      return new Date(new Date(date1).setHours(0,0,0,0)).getTime() == new Date(new Date(date2).setHours(0,0,0,0)).getTime();
-  }
-}
-
 const incrementDate = (date: Date, resolutionType: ChartResolutionType) => {
   switch (resolutionType) {
-    case ChartResolutionType.DayWeek:
-      date.setDate(date.getDate() + 1);
-      break;
     case ChartResolutionType.DayMonth:
       date.setDate(date.getDate() + 1);
       break;
@@ -55,22 +51,28 @@ const incrementDate = (date: Date, resolutionType: ChartResolutionType) => {
   }
 };
 
-export const generateChartData = (data: ChartDataType, startFrom: Date, endAt: Date, chartResolutionType: ChartResolutionType, connectEmptyPointsUsingPreviousValue?: boolean) => {
+const generateChartData = (
+  data: ChartDataType,
+  fromDate: Date,
+  toDate: Date,
+  chartResolutionType: ChartResolutionType, 
+  toCompareDate?: Date,
+  connectEmptyPointsUsingPreviousValue?: boolean) 
+  : ChartDataPoint[] => {
 
   const currentData = data.current;
   const previousData = data.previous;
 
-  const currentDate = new Date(startFrom);
-  const offsetTime = endAt.getTime() - startFrom.getTime();
+  const startFromDate = new Date(fromDate);
+  const offsetTime = toDate.getTime() - (toCompareDate ? toCompareDate.getTime() : fromDate.getTime());
 
-  const dataPoints = [];
-
+  const dataPoints: ChartDataPoint[] = [];
   let currentDataValue: any;
   let previousDataValue: any;
 
-  while (currentDate.getTime() < endAt.getTime() || compareDatesBasedOnResolutionType(currentDate, endAt, chartResolutionType)) {
-    const currentOrder = currentData.find(order => compareDatesBasedOnResolutionType(new Date(order.date), currentDate, chartResolutionType));
-    const offsetDate = new Date(currentDate);
+  while (startFromDate.getTime() < toDate.getTime() || compareDatesBasedOnResolutionType(startFromDate, toDate, chartResolutionType)) {
+    const currentOrder = currentData.find(order => compareDatesBasedOnResolutionType(new Date(order.date), startFromDate, chartResolutionType));
+    const offsetDate = new Date(startFromDate);
     offsetDate.setTime(offsetDate.getTime() - offsetTime);
     const previousOrder = previousData.find(previous => compareDatesBasedOnResolutionType(new Date(previous.date), offsetDate, chartResolutionType));
 
@@ -83,38 +85,47 @@ export const generateChartData = (data: ChartDataType, startFrom: Date, endAt: D
       }
 
       dataPoints.push({
-        date: new Date(currentDate),
-        current: currentOrder ? parseInt(currentOrder.value) : (currentDataValue ? currentDataValue : undefined),
-        previous: previousOrder ? parseInt(previousOrder.value) : (previousDataValue ? previousDataValue : undefined),
+        current: {
+          date: new Date(startFromDate),
+          value: currentOrder ? parseInt(currentOrder.value) : (currentDataValue ? currentDataValue : undefined),
+        },
+        previous: {
+          date: new Date(offsetDate),
+          value: previousOrder ? parseInt(previousOrder.value) : (previousDataValue ? previousDataValue : undefined),
+        }
       });
     } else {
       dataPoints.push({
-        date: new Date(currentDate),
-        current: currentOrder ? parseInt(currentOrder.value) : 0,
-        previous: previousOrder ? parseInt(previousOrder.value) : 0,
+        current: {
+          date: new Date(startFromDate),
+          value: currentOrder ? parseInt(currentOrder.value) : 0
+        },
+        previous: {
+          date: new Date(offsetDate),
+          value: previousOrder ? parseInt(previousOrder.value) : 0,
+        }
       });
     }
 
-    incrementDate(currentDate, chartResolutionType);
+    incrementDate(startFromDate, chartResolutionType);
   }
 
   if (connectEmptyPointsUsingPreviousValue) {
     for (let i = dataPoints.length - 1; i >= 0; i--) {
-      if (dataPoints[i].current === undefined) {
-        if (dataPoints[dataPoints.length - 1].previous) {
-          dataPoints[i].current = dataPoints[dataPoints.length - 1].previous
+      if (dataPoints[i].current.value === undefined) {
+        if (dataPoints[dataPoints.length - 1].previous.value) {
+          dataPoints[i].current.value = dataPoints[dataPoints.length - 1].previous.value
         } else {
-          dataPoints[i].current = 0;
+          dataPoints[i].current.value = 0;
         }
       }
-      if (dataPoints[i].previous) {
-        previousDataValue = dataPoints[i].previous
+      if (dataPoints[i].previous.value) {
+        previousDataValue = dataPoints[i].previous.value
       } else {
-        dataPoints[i].previous = previousDataValue;
+        dataPoints[i].previous.value = previousDataValue;
       }
     }
   }
-
 
   return dataPoints;
 }
@@ -122,28 +133,15 @@ export const generateChartData = (data: ChartDataType, startFrom: Date, endAt: D
 export const ChartCustomTooltip = ({ active, payload, label, resolutionType }) => {
   if (active && payload && payload.length) {
     switch (resolutionType) {
-      case ChartResolutionType.DayWeek:
-        return (
-          <Container>
-            <Heading level="h3" style={ { color: payload[0].color}}>
-              {`Current ${getChartTooltipDate(payload[0].payload.date, resolutionType)}`} : {payload[0].value}
-            </Heading>
-            {payload[1] !== undefined && 
-              <Heading level="h3" style={ { color: payload[1].color}}>
-                {`Previous ${getChartTooltipDate(payload[1].payload.date, resolutionType)}`} : {payload[1].value}
-              </Heading>
-            }
-          </Container>
-        )
       case ChartResolutionType.DayMonth:
         return (
           <Container>
             <Heading level="h3" style={ { color: payload[0].color}}>
-              {`${getChartTooltipDate(payload[0].payload.date, resolutionType)}`} : {payload[0].value}
+              {`${getChartTooltipDate(payload[0].payload.current.date, resolutionType)}`} : {payload[0].payload.current.value}
             </Heading>
             {payload[1] !== undefined && 
               <Heading level="h3" style={ { color: payload[1].color}}>
-                {`${getChartTooltipDate(new Date(new Date(payload[1].payload.date).setMonth(payload[1].payload.date.getMonth() - 1)), resolutionType)}`} : {payload[1].value}
+                {`${getChartTooltipDate(payload[1].payload.previous.date, resolutionType)}`} : {payload[1].payload.previous.value}
               </Heading>
             }
             </Container>
@@ -152,11 +150,11 @@ export const ChartCustomTooltip = ({ active, payload, label, resolutionType }) =
         return (
           <Container>
             <Heading level="h3" style={ { color: payload[0].color}}>
-              {`${getChartTooltipDate(payload[0].payload.date, resolutionType)}`} : {payload[0].value}
+              {`${getChartTooltipDate(payload[0].payload.current.date, resolutionType)}`} : {payload[0].payload.current.value}
             </Heading>
             {payload[1] !== undefined && 
               <Heading level="h3" style={ { color: payload[1].color}}>
-                {`${getChartTooltipDate(new Date(new Date(payload[1].payload.date).setFullYear(payload[1].payload.date.getFullYear() - 1)), resolutionType)}`} : {payload[1].value}
+                {`${getChartTooltipDate(payload[1].payload.previous.date, resolutionType)}`} : {payload[1].payload.previous.value}
               </Heading>
             }
             </Container>
@@ -167,30 +165,96 @@ export const ChartCustomTooltip = ({ active, payload, label, resolutionType }) =
   return null;
 };
 
+/* 
+
+toDate is inclusive. It means that:
+  fromDate: "2024-04-24"
+  toDate: "2024-04-30"
+
+  Analytics shall include `toDate` so it takes 7 days (including 2024-04-30)
+
+  fromCompareDate: "2024-04-17"
+  toCompareDate: "2024-04-24"
+
+  Analytics shall compare to 7 days excluding 2024-04-24 (e.g. 2024-04-30 is compared to 2024-04-23, not 2024-04-24).
+
+  toDate is inclusive to cover "today" date - so we need to cover situation when someone wants to see everything until now.
+  We cannot use 2024-05-01 because then it is taken as day to show, while we want to show maximum 2024-04-30.
+
+  toCompareDate is exclusive because backend is using fetches like created_at < toCompareDate, so it does not cover data at toCompareDate
+
+  Comparison then we will have following algorithm:
+  1) Take "toDate", remove "time" part and add whole day.
+  2) Take times in milis from every date and compare.
+*/
+
+const areRangesTheSame = (fromDate: Date, toDate: Date, fromCompareDate?: Date, toCompareDate?: Date) : boolean => {
+
+  if (fromCompareDate) {
+    const oneDay = 24 * 60 * 60 * 1000;
+    if (toCompareDate) {
+      // Math.ceil is used to round the day to larger value for taking the whole day for comparison
+      const diffBase = Math.ceil(Math.abs((toDate.getTime() - fromDate.getTime()) / oneDay));
+      const diffCompare = Math.ceil(Math.abs((toCompareDate.getTime() - fromCompareDate.getTime()) / oneDay));
+      return (diffBase == diffCompare);
+    }
+
+    const diffBase = Math.ceil(Math.abs((toDate.getTime() - fromDate.getTime()) / oneDay));
+    const diffCompare = Math.ceil(Math.abs((Date.now() - fromCompareDate.getTime()) / oneDay));
+
+    return (diffBase == diffCompare);
+  }
+  return true;
+};
+
 export const ChartCurrentPrevious = ({rawChartData, fromDate, toDate, fromCompareDate, toCompareDate, compareEnabled, connectEmptyPointsUsingPreviousValue} : {
   rawChartData: ChartDataType, fromDate: Date, toDate: Date, fromCompareDate?: Date, toCompareDate?: Date, compareEnabled?: boolean, connectEmptyPointsUsingPreviousValue?: boolean}) => {
 
-  const [chartData, setChartData] = useState([]);
+  const [chartDataPoints, setChartData] = useState<ChartDataPoint[]>([]);
 
-  const resolutionType = calculateResolution(fromDate);
+  const resolutionType = calculateResolution(fromDate, toDate);
 
   useEffect(() => {
-    const dataPoints =  generateChartData(
+    const chartDataPoints: ChartDataPoint[] = generateChartData(
       rawChartData,
       fromDate, 
       toDate, 
       resolutionType,
+      toCompareDate,
       connectEmptyPointsUsingPreviousValue
     );
-    setChartData(dataPoints);
-      
+    setChartData(chartDataPoints);
+
   }, [rawChartData, fromDate, toDate]);
+
+  if (!areRangesTheSame(fromDate, toDate, fromCompareDate, toCompareDate)) {
+    const currentPeriodInDays = Math.ceil((toDate.getTime() - fromDate.getTime()) / (24*60*60*1000));
+    const precedingPeriodInDays = Math.ceil((toCompareDate.getTime() - fromCompareDate.getTime()) / (24*60*60*1000));
+    return (
+      <Box 
+        width={500} 
+        height={400}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Grid container direction={'column'} justifyContent={'center'} alignItems={'center'}>
+          <Grid item>
+            <Text>Chart can be shown only for the same length of ranges.</Text>
+          </Grid>
+          <Grid item>
+            <Text>{`You are comparing ${currentPeriodInDays} days to ${precedingPeriodInDays} days`}</Text>
+          </Grid>
+        </Grid>
+      </Box>
+    )
+  }
 
   return (
     <AreaChart
       width={500}
       height={400}
-      data={chartData}
+      data={chartDataPoints}
       margin={{
         top: 20,
         right: 0,
@@ -209,11 +273,11 @@ export const ChartCurrentPrevious = ({rawChartData, fromDate, toDate, fromCompar
             <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
           </linearGradient>
         </defs>
-        <XAxis dataKey={(value) => getChartDateName(value.date, resolutionType)}/>
+        <XAxis dataKey={(value: ChartDataPoint) => getChartDateName(value.current.date, resolutionType, fromDate, toDate)} minTickGap={15} interval={'preserveStartEnd'}/>
         <YAxis/>
         <Tooltip content={<ChartCustomTooltip active={false} payload={[]} label={""} resolutionType={resolutionType}/>} />
-        {<Area name={(compareEnabled && fromCompareDate) ? getLegendName(resolutionType, true) : undefined} type="monotone" dataKey="current" stroke="#82ca9d" fillOpacity={1} fill="url(#colorCurrent)" />}
-        {(compareEnabled && fromCompareDate) && <Area name={getLegendName(resolutionType, false)} type="monotone" dataKey="previous" stroke="#8884d8" fillOpacity={1} fill="url(#colorPrevious)" />}
+        {<Area name={(compareEnabled && fromCompareDate) ? getLegendName(true) : undefined} type="monotone" dataKey="current.value" stroke="#82ca9d" fillOpacity={1} fill="url(#colorCurrent)" />}
+        {(compareEnabled && fromCompareDate) && <Area name={getLegendName(false)} type="monotone" dataKey="previous.value" stroke="#8884d8" fillOpacity={1} fill="url(#colorPrevious)" />}
         {(compareEnabled && fromCompareDate) && <Legend verticalAlign="bottom" height={36} iconType="circle"/>}
     </AreaChart>
   )

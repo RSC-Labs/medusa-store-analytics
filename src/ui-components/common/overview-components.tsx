@@ -83,7 +83,7 @@ export const DropdownOrderStatus = ({onOrderStatusChange, appliedStatuses} : {on
         </Heading>
       </DropdownMenu.Label>
       {Object.values(OrderStatus).map(orderStatus => (
-        <DropdownMenu.Item className="gap-x-2" onSelect={event => event.preventDefault()}>
+        <DropdownMenu.Item className="gap-x-2" onSelect={event => event.preventDefault()} key={orderStatus.toString()}>
           <Checkbox 
             id={`order-status-${orderStatus}`}
             checked={selectedStatuses.includes(orderStatus)}

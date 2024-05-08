@@ -13,7 +13,7 @@
 import { useState } from 'react';
 import { useMemo } from "react"
 import { RouteConfig } from "@medusajs/admin"
-import { Tabs } from "@medusajs/ui"
+import { Tabs, Text } from "@medusajs/ui"
 import { LightBulb } from "@medusajs/icons"
 import { Box } from "@mui/material";
 import OverviewTab from "../../../ui-components/tabs/overview";

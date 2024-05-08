@@ -44,8 +44,6 @@ export const OrderFrequencyDistributionPieChart = ({repeatCustomerRateResponse, 
   const currentData = convertToChartData(repeatCustomerRateResponse.analytics.current);
   const previousData = convertToChartData(repeatCustomerRateResponse.analytics.previous);
 
-  const resolutionType = calculateResolution(new Date(repeatCustomerRateResponse.analytics.dateRangeFrom));
-
   const renderLabel = function(entry) {
     return entry.displayValue;
   }
@@ -58,11 +56,11 @@ export const OrderFrequencyDistributionPieChart = ({repeatCustomerRateResponse, 
       }
       {(compareEnabled && repeatCustomerRateResponse.analytics.dateRangeFromCompareTo) && <Legend payload={[
         {
-          value: getLegendName(resolutionType, true),
+          value: getLegendName(true),
           color: "#82ca9d"
         },
         {
-          value: getLegendName(resolutionType, false),
+          value: getLegendName(false),
           color: "#8884d8"
         }
       ]} iconType="circle"/>}
