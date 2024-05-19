@@ -43,7 +43,7 @@ export const VariantsTopTable = ({tableRows} : {tableRows: VariantsTopTableRow[]
         </Grid>
       </Grid>
       {tableRows.length > 0 ? tableRows.map(tableRow => (
-        <Grid item xs={12}>
+        <Grid item xs={12} key={tableRow.productId}>
           <Grid container justifyContent={'space-between'}>
             <Grid item>
               <Link to={`../products/${tableRow.productId}`}>

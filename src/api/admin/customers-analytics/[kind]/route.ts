@@ -71,6 +71,15 @@ export const GET = async (
           dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
         );
         break;
+      case 'retention-customer-rate':
+        result = await customersAnalyticsService.getRetentionRate(
+          orderStatuses,
+          dateRangeFrom ? new Date(Number(dateRangeFrom)) : undefined, 
+          dateRangeTo ? new Date(Number(dateRangeTo)) : undefined, 
+          dateRangeFromCompareTo ? new Date(Number(dateRangeFromCompareTo)) : undefined, 
+          dateRangeToCompareTo ? new Date(Number(dateRangeToCompareTo)) : undefined, 
+        );
+        break;
     }
     res.status(200).json({
       analytics: result

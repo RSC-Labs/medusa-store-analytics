@@ -22,6 +22,7 @@ function transformToVariantTopTable(result: OutOfTheStockVariantsCountResult): O
 
   result.current.forEach(currentItem => {
     currentMap.set(currentItem.variantId, {
+      variantId: currentItem.variantId,
       productId: currentItem.productId,
       productTitle: currentItem.productTitle,
       variantTitle: currentItem.variantTitle,

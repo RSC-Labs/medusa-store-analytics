@@ -15,6 +15,7 @@ import { Box, Divider, Grid } from "@mui/material";
 import { Link } from "react-router-dom"
 
 export type OutOfTheStockVariantsTableRow = {
+  variantId: string,
   productId: string,
   productTitle: string,
   variantTitle: string,
@@ -37,7 +38,7 @@ export const OutOfTheStockVariantsTable = ({tableRows} : {tableRows: OutOfTheSto
         </Grid>
       </Grid>
       {tableRows.length > 0 ? tableRows.map(tableRow => (
-        <Grid item xs={12}>
+        <Grid item xs={12} key={tableRow.variantId}>
           <Grid container justifyContent={'space-between'}>
             <Grid item>
               <Link to={`../products/${tableRow.productId}`}>

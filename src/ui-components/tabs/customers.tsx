@@ -15,6 +15,7 @@ import {
   CustomersOverviewCard,
   CustomersRepeatCustomerRate,
   CumulativeCustomersCard,
+  CustomersRetentionCustomerRate,
   OrderStatus,
   DateRange
 } from '..';
@@ -37,6 +38,11 @@ const CustomersTab = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnab
         <Grid item xs={6} md={6} xl={6}>
           <Container>
             <CustomersRepeatCustomerRate orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
+          </Container>
+        </Grid>
+        <Grid item xs={6} md={6} xl={6}>
+          <Container>
+            <CustomersRetentionCustomerRate orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
           </Container>
         </Grid>
       </Grid> 

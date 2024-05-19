@@ -26,3 +26,14 @@ export type CustomersRepeatCustomerRateResponse = {
     previous: Distributions
   }
 }
+
+export type CustomersRetentionCustomerRateResponse = {
+  analytics: {
+    dateRangeFrom: number
+    dateRangeTo: number,
+    dateRangeFromCompareTo?: number,
+    dateRangeToCompareTo?: number,
+    current?: string,
+    previous?: string
+  }
+}

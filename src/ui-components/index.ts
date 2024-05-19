@@ -22,6 +22,7 @@ export { RegionsPopularityCard } from './sales/regions-popularity-card'
 
 export { CustomersOverviewCard } from './customers/customers-overview-card'
 export { CustomersRepeatCustomerRate } from './customers/repeat-customer-rate/customers-repeat-customer-rate';
+export { CustomersRetentionCustomerRate } from './customers/retention-customer-rate/customers-retention-customer-rate';
 export { CumulativeCustomersCard } from './customers/cumulative-history/cumulative-customers-card';
 
 export { VariantsTopByCountCard } from './products/variants-top-by-count';

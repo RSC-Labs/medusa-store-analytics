@@ -73,7 +73,7 @@ export const PopularityTable = ({valueColumnName, tableRows, enableComparing} : 
         </Grid>
       </Grid>
       {tableRows.length > 0 ? tableRows.map(tableRow => (
-        <Grid item xs={12}>
+        <Grid item xs={12} key={tableRow.name}>
           <Grid container justifyContent={'space-between'}>
             <Grid item>
               <Text> 

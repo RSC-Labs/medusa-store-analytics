@@ -53,6 +53,15 @@ type CustomersOrdersDistribution = {
   previous: Distributions
 }
 
+type CustomersRetentionRate = {
+  dateRangeFrom?: number
+  dateRangeTo?: number,
+  dateRangeFromCompareTo?: number,
+  dateRangeToCompareTo?: number,
+  current: number,
+  previous: number
+}
+
 export default class CustomersAnalyticsService extends TransactionBaseService {
 
   private readonly customerService: CustomerService;
@@ -395,11 +404,18 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
         .orderBy('date', 'ASC')
         .getRawMany();
 
+
         const beforeCustomers = await this.activeManager_.getRepository(Customer)
           .createQueryBuilder('customer')
           .select(`COUNT(*) AS cumulative_count`)
           .where(`customer.created_at < :dateRangeFromCompareTo`, { dateRangeFromCompareTo })
           .getRawOne(); 
+
+        // Start from 0 as customer count will be added from beforeCustomers, so first entry will include past count
+        afterCustomers.push({
+          date: dateRangeFromCompareTo,
+          cumulative_count: '0'
+        });
 
         for (const afterCustomer of afterCustomers) {
           afterCustomer.cumulative_count = parseInt(afterCustomer.cumulative_count);
@@ -488,6 +504,103 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
       dateRangeToCompareTo: undefined,
       current: [],
       previous: []
+    }
+  }
+
+  // Customers which purchased something in the time period / Total customers
+  async getRetentionRate(orderStatuses: OrderStatus[], from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<CustomersRetentionRate> {
+    
+    // Use the same query like finding for Orders, but include Customers
+    let startQueryFrom: Date | undefined;
+    const orderStatusesAsStrings = Object.values(orderStatuses);
+    if (orderStatusesAsStrings.length) {
+
+      const totalNumberCustomers = await this.customerService.count();
+
+      if (!dateRangeFromCompareTo) {
+        if (from) {
+          startQueryFrom = from;
+        } else {
+          // All time
+          const lastOrder = await this.activeManager_.getRepository(Order).find({
+            skip: 0,
+            take: 1,
+            order: { created_at: "ASC"},
+            where: { status: In(orderStatusesAsStrings) }
+          })
+
+          if (lastOrder.length > 0) {
+            startQueryFrom = lastOrder[0].created_at;
+          }
+        }
+      } else {
+          startQueryFrom = dateRangeFromCompareTo;
+      }
+      const orders: Order[] = await this.orderService.list({
+        created_at: startQueryFrom ? { gte: startQueryFrom } : undefined,
+        status: In(orderStatusesAsStrings)
+      }, {
+        select: [
+          "id",
+          "created_at",
+          "updated_at",
+          "customer_id",
+        ],
+        order: { created_at: "DESC" },
+      })
+
+      if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
+        const previousOrders = orders.filter(order => order.created_at < from);
+        const currentOrders = orders.filter(order => order.created_at >= from);
+
+        const previousCustomersSet: Set<string> = previousOrders.reduce((acc, order) => {
+          acc.add(order.customer_id);
+          return acc;
+        }, new Set<string>());
+
+        const currentCustomersSet: Set<string> = currentOrders.reduce((acc, order) => {
+          acc.add(order.customer_id);
+          return acc;
+        }, new Set<string>());
+
+        const retentionCustomerRatePreviousValue = previousCustomersSet.size * 100 / totalNumberCustomers;
+        const retentionCustomerRateCurrentValue = currentCustomersSet.size * 100 / totalNumberCustomers;
+
+        return {
+          dateRangeFrom: from.getTime(),
+          dateRangeTo: to.getTime(),
+          dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
+          dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
+          current: retentionCustomerRateCurrentValue,
+          previous: retentionCustomerRatePreviousValue
+        }
+      }
+
+      if (startQueryFrom) {
+        const currentCustomersSet: Set<string> = orders.reduce((acc, order) => {
+          acc.add(order.customer_id);
+          return acc;
+        }, new Set<string>());
+    
+        const retentionCustomerRateCurrentValue = currentCustomersSet.size * 100 / totalNumberCustomers;
+
+        return {
+          dateRangeFrom: startQueryFrom.getTime(),
+          dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
+          dateRangeFromCompareTo: undefined,
+          dateRangeToCompareTo: undefined,
+          current: retentionCustomerRateCurrentValue,
+          previous: undefined
+        }
+      }
+    }
+    return {
+      dateRangeFrom: undefined,
+      dateRangeTo: undefined,
+      dateRangeFromCompareTo: undefined,
+      dateRangeToCompareTo: undefined,
+      current: undefined,
+      previous: undefined
     }
   }
 }
