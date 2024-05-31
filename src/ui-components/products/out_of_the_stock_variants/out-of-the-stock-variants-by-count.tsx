@@ -14,24 +14,9 @@ import { Heading, Alert, Tooltip, Badge } from "@medusajs/ui";
 import { ArrowRightOnRectangle, InformationCircle } from "@medusajs/icons";
 import { CircularProgress, Grid } from "@mui/material";
 import { useAdminCustomQuery } from "medusa-react"
-import { OutOfTheStockVariantsTable, OutOfTheStockVariantsTableRow } from "./out-of-the-stock-variants-table";
-import { AdminOutOfTheStockVariantsStatisticsQuery, OutOfTheStockVariantsCountResponse, OutOfTheStockVariantsCountResult } from "./types";
-
-function transformToVariantTopTable(result: OutOfTheStockVariantsCountResult): OutOfTheStockVariantsTableRow[] {
-  const currentMap = new Map<string, OutOfTheStockVariantsTableRow>();
-
-  result.current.forEach(currentItem => {
-    currentMap.set(currentItem.variantId, {
-      variantId: currentItem.variantId,
-      productId: currentItem.productId,
-      productTitle: currentItem.productTitle,
-      variantTitle: currentItem.variantTitle,
-      thumbnail: currentItem.thumbnail,
-    });
-  });
-
-  return Array.from(currentMap.values());
-}
+import { OutOfTheStockVariantsTable } from "./out-of-the-stock-variants-table";
+import { OutOfTheStockVariantsModal } from "./out-of-the-stock-variants-all";
+import { AdminOutOfTheStockVariantsStatisticsQuery, OutOfTheStockVariantsCountResponse, transformToVariantTopTable } from "./helpers";
 
 const OutOfTheStockVariants = () => {
   const { data, isError, isLoading, error } = useAdminCustomQuery<
@@ -40,7 +25,9 @@ const OutOfTheStockVariants = () => {
   >(
     `/products-analytics/out-of-the-stock-variants`,
     [],
-    {}
+    {
+      limit: 5
+    }
   )
 
   if (isLoading) {
@@ -63,7 +50,7 @@ const OutOfTheStockVariants = () => {
 export const OutOfTheStockVariantsCard = () => {
   return (
     <Grid container paddingBottom={2} spacing={3}>
-      <Grid item>
+      <Grid item xs={12} md={12}>
           <Grid container spacing={2} alignItems={'center'}>
             <Grid item>
               <ArrowRightOnRectangle/>
@@ -78,17 +65,19 @@ export const OutOfTheStockVariantsCard = () => {
                 <InformationCircle />
               </Tooltip>
             </Grid>
-            <Grid item>
-              <Tooltip content='This feature might be changed or improved in the future'>
-                <Badge rounded="full" size="small" color="green">Beta</Badge>
-              </Tooltip>
-            </Grid>
           </Grid>
       </Grid>
       <Grid item xs={12} md={12}>
-        <Heading level="h3">
-          Showing last 5 variants
-        </Heading>
+        <Grid container direction="row" spacing={2} alignItems="center">
+          <Grid item>
+            <Heading level="h3">
+              Last 5 variants
+            </Heading>
+          </Grid>
+          <Grid item>
+            <OutOfTheStockVariantsModal/>
+          </Grid>
+        </Grid>
       </Grid>
       <Grid item xs={12} md={12}>
         <OutOfTheStockVariants/>

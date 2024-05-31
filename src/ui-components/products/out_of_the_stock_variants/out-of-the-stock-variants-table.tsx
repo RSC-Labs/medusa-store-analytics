@@ -13,14 +13,7 @@
 import { Heading, Text } from "@medusajs/ui";
 import { Box, Divider, Grid } from "@mui/material";
 import { Link } from "react-router-dom"
-
-export type OutOfTheStockVariantsTableRow = {
-  variantId: string,
-  productId: string,
-  productTitle: string,
-  variantTitle: string,
-  thumbnail: string,
-}
+import { OutOfTheStockVariantsTableRow } from "./helpers";
 
 export const OutOfTheStockVariantsTable = ({tableRows} : {tableRows: OutOfTheStockVariantsTableRow[]}) => {
   return (

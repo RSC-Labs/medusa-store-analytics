@@ -63,7 +63,8 @@ export const GET = async (
         );
         break;
       case 'out-of-the-stock-variants':
-        result = await productsAnalyticsService.getOutOfTheStockVariants();
+        const limit = req.query.limit as string;
+        result = await productsAnalyticsService.getOutOfTheStockVariants(limit ? parseInt(limit) : undefined);
         break;
     }
     res.status(200).json({

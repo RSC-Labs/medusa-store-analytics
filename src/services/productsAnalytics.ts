@@ -413,11 +413,21 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
       .andWhere('productVariant.inventory_quantity = :expectedQuantity', { expectedQuantity: 0})
       .andWhere('product.is_giftcard = :isGiftCard', { isGiftCard: false});
 
-    const outOfTheStockVariants = await query
+    let outOfTheStockVariants;
+
+    if (limit !== undefined && limit === 0) {
+      outOfTheStockVariants = await query
+        .groupBy('productVariant.id, variant_title,  product.id, product.thumbnail, product_title')
+        .orderBy('productVariant.updated_at', 'DESC')
+        .getRawMany()
+
+    } else {
+      outOfTheStockVariants = await query
       .groupBy('productVariant.id, variant_title,  product.id, product.thumbnail, product_title')
       .orderBy('productVariant.updated_at', 'DESC')
       .limit(limit !== undefined ? limit : this.TOP_LIMIT)
       .getRawMany()
+    }
 
     return {
       dateRangeFrom: undefined,
