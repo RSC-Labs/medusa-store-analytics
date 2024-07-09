@@ -10,24 +10,26 @@
  * limitations under the License.
  */
 
-import { Container } from "@medusajs/ui"
+import { Alert, Container } from "@medusajs/ui"
 import { Grid } from "@mui/material";
 import { 
   OrdersOverviewCard,
   SalesOverviewCard,
   CustomersOverviewCard,
-  CustomersRepeatCustomerRate,
   SalesChannelPopularityCard,
   RegionsPopularityCard,
   VariantsTopByCountCard,
   OrderStatus,
-  ReturnedVariantsByCountCard,
-  DiscountsTopCard,
   DateRange,
-  RefundsOverviewCard,
   ProductsSoldCountCard,
   CumulativeCustomersCard
 } from '..';
+
+const InfoBox = () => {
+  return (
+    <Alert variant="info">Click on other tabs to see more statistics.</Alert>
+  )
+}
 
 const OverviewTab = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} : 
   {orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled: boolean}) => {
@@ -51,12 +53,12 @@ const OverviewTab = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabl
       </Grid>
       <Grid item xs={6} md={6} xl={6}>
         <Container>
-          <CustomersRepeatCustomerRate orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
+          <CumulativeCustomersCard dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
         </Container>
       </Grid>
       <Grid item xs={6} md={6} xl={6}>
         <Container>
-          <CumulativeCustomersCard dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
+          <VariantsTopByCountCard orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
         </Container>
       </Grid>
       <Grid item xs={6} md={6} xl={6}>
@@ -74,27 +76,14 @@ const OverviewTab = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabl
           <ProductsSoldCountCard orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
         </Container>
       </Grid>
-      <Grid item xs={6} md={6} xl={6}>
-        <Container>
-          <VariantsTopByCountCard orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
-        </Container>
+      <Grid item xs={12} md={12} xl={12} marginTop={3} marginBottom={10}>
+        <Grid container justifyContent={'center'}>
+          <Grid item>
+            <InfoBox/>
+          </Grid>
+        </Grid>
       </Grid>
-      <Grid item xs={6} md={6} xl={6}>
-        <Container>
-          <ReturnedVariantsByCountCard dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo}/>
-        </Container>
-      </Grid>
-      <Grid item xs={6} md={6} xl={6}>
-        <Container>
-          <RefundsOverviewCard dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
-        </Container>
-      </Grid>
-      <Grid item xs={6} md={6} xl={6}>
-        <Container>
-          <DiscountsTopCard orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo}/>
-        </Container>
-      </Grid>
-    </Grid> 
+    </Grid>
   )
 }
 

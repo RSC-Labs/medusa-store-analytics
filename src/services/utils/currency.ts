@@ -13,3 +13,8 @@ export function getDecimalDigits(currencyCode: string): number {
   }
   return DEFAULT_DECIMAL_DIGITS;
 }
+
+export function amountToDisplay(amount: number, currencyCode: string) : string {
+  const decimalDigits = getDecimalDigits(currencyCode);
+  return `${(amount / Math.pow(10, decimalDigits)).toFixed(decimalDigits)} ${currencyCode.toUpperCase()}`;
+}

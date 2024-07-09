@@ -53,7 +53,7 @@ type SalesHistory = {
   total: string
 }
 
-type SalesHistoryResult = {
+export type SalesHistoryResult = {
   currencyCode: string,
   currencyDecimalDigits: number,
   dateRangeFrom?: number

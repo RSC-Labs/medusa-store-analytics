@@ -20,7 +20,7 @@ type CustomersHistory = {
   date: string
 }
 
-type CustomersHistoryResult = {
+export type CustomersHistoryResult = {
   dateRangeFrom?: number
   dateRangeTo?: number,
   dateRangeFromCompareTo?: number,

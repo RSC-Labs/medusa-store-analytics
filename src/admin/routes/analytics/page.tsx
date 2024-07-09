@@ -13,7 +13,7 @@
 import { useState } from 'react';
 import { useMemo } from "react"
 import { RouteConfig } from "@medusajs/admin"
-import { Tabs, Text } from "@medusajs/ui"
+import { Tabs } from "@medusajs/ui"
 import { LightBulb } from "@medusajs/icons"
 import { Box } from "@mui/material";
 import OverviewTab from "../../../ui-components/tabs/overview";
@@ -23,7 +23,7 @@ import SalesTab from '../../../ui-components/tabs/sales';
 import CustomersTab from '../../../ui-components/tabs/customers';
 import { DateLasts, DropdownOrderStatus, OrderStatus, convertDateLastsToComparedDateRange, convertDateLastsToDateRange } from '../../../ui-components';
 import { Grid } from "@mui/material";
-import { ComparedDate, SelectDateLasts, SwitchComparison } from '../../../ui-components/common/overview-components';
+import { ComparedDate, GenerateReportButton, SelectDateLasts, SwitchComparison } from '../../../ui-components/common/overview-components';
 import ProTab from '../../../ui-components/tabs/pro';
 
 const AnalyticsPage = () => {
@@ -59,6 +59,9 @@ const AnalyticsPage = () => {
           </Grid>
           <Grid item>
             <SelectDateLasts dateLast={dateLast} onSelectChange={setDateLastsString}/>
+          </Grid>
+          <Grid item>
+            <GenerateReportButton orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
           </Grid>
         </Grid>
       </Grid>

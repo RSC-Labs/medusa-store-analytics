@@ -1,6 +1,6 @@
 {
   "name": "@rsc-labs/medusa-store-analytics",
-  "version": "0.13.2",
+  "version": "0.14.0",
   "description": "Get analytics data about your store",
   "author": "RSC Labs (https://rsoftcon.com)",
   "main": "dist/index.js",
@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@medusajs/admin": "7.1.14",
-    "@medusajs/ui": "2.4.3",
+    "@medusajs/ui": "^3.0.0",
     "@medusajs/icons": "1.2.1",
     "@medusajs/utils": "1.11.9",
     "@tanstack/react-query": "4.22",
@@ -37,12 +37,13 @@
     "react-hook-form": "^7.49.2",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "11.11.5",
-    "recharts": "^2.10.3"
+    "recharts": "^2.10.3",
+    "pdfkit": "^0.15.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
     "@babel/core": "^7.14.3",
-    "@medusajs/medusa": "1.19.0",
+    "@medusajs/medusa": "^1.20.7",
     "@types/express": "^4.17.13",
     "babel-preset-medusa-package": "^1.1.19",
     "cross-env": "^7.0.3",
@@ -51,7 +52,7 @@
     "typescript": "^4.5.2"
   },
   "peerDependencies": {
-    "@medusajs/medusa": "^1.20.6",
+    "@medusajs/medusa": "^1.20.7",
     "react": "^18.2.0",
     "react-router-dom": "^6.13.0"
   },
