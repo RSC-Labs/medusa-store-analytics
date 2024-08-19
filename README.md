@@ -8,6 +8,11 @@
   Medusa store-analytics
 </h1>
 
+<h2>
+  Note: This plugin will be migrated to Medusa v2, when v2 will reach production readiness.
+</h2>
+
+
 Medusa "store-analytics" is a plugin which shows analytics data of your store, including orders, sales and other useful information.
 
 ### Why?
