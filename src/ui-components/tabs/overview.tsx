@@ -20,10 +20,10 @@ import {
   RegionsPopularityCard,
   VariantsTopByCountCard,
   OrderStatus,
-  DateRange,
   ProductsSoldCountCard,
   CumulativeCustomersCard
 } from '..';
+import type { DateRange } from '..';
 
 const InfoBox = () => {
   return (

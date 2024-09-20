@@ -10,7 +10,8 @@
  * limitations under the License.
  */
 
-import { DateLasts, DateRange } from "./types";
+import { DateLasts } from "./types";
+import type { DateRange } from "./types"
 
 export function amountToDisplay(amount: number, decimalDigits: number) : string {
   return (amount / Math.pow(10, decimalDigits)).toFixed(decimalDigits);

@@ -13,7 +13,7 @@
 import { Heading, Alert } from "@medusajs/ui";
 import { ShoppingBag } from "@medusajs/icons";
 import { CircularProgress, Grid } from "@mui/material";
-import { DateRange } from "../utils/types";
+import type { DateRange } from "../utils/types";
 import { useAdminCustomQuery } from "medusa-react"
 import { OrderStatus } from "../utils/types";
 import { VariantsTopTable, VariantsTopTableRow } from "./variants-top-table";

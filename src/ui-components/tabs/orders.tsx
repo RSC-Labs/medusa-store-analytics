@@ -14,8 +14,8 @@ import { Container } from "@medusajs/ui"
 import { 
   OrdersOverviewCard,
   OrderStatus,
-  DateRange
 } from '..';
+import type { DateRange } from '..';
 import { Grid } from "@mui/material";
 import { OrdersPaymentProviderCard } from "../orders/orders-payment-provider-card";
 

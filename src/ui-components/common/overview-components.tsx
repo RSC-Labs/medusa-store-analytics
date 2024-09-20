@@ -13,8 +13,9 @@
 import { useState } from 'react';
 import { Text, Switch, Label, Button, IconButton, Checkbox, Heading, Select, Tooltip, Badge } from "@medusajs/ui";
 import { Adjustments, ExclamationCircle } from "@medusajs/icons"
-import { CircularProgress, Grid } from "@mui/material";
-import { DateLasts, DateRange, OrderStatus } from "../utils/types";
+import { Grid } from "@mui/material";
+import { DateLasts, OrderStatus } from "../utils/types";
+import type { DateRange } from "../utils/types";
 
 /*
  * Copyright 2024 RSC-Labs, https://rsoftcon.com/

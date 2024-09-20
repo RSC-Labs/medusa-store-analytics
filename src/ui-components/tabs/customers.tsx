@@ -17,8 +17,8 @@ import {
   CumulativeCustomersCard,
   CustomersRetentionCustomerRate,
   OrderStatus,
-  DateRange
 } from '..';
+import type { DateRange } from '..';
 import { Grid } from "@mui/material";
 
 const CustomersTab = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} : 

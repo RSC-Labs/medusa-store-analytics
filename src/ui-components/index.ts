@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-export { ComparedDate, SwitchComparison, DropdownOrderStatus, SelectDateLasts } from './common/overview-components';
+export { ComparedDate, SwitchComparison, DropdownOrderStatus, SelectDateLasts, GenerateReportButton } from './common/overview-components';
 
 export { OrdersOverviewCard } from './orders/orders-overview-card'
 export { OrdersPaymentProviderCard } from './orders/orders-payment-provider-card'
@@ -34,4 +34,4 @@ export { DiscountsTopCard } from './marketing/discounts-top-by-count';
 
 export { DateLasts, OrderStatus } from './utils/types'
 export type { DateRange } from './utils/types'
-export { convertDateLastsToComparedDateRange, convertDateLastsToDateRange, amountToDisplay } from './utils/helpers'
+export { convertDateLastsToComparedDateRange, convertDateLastsToDateRange, amountToDisplay, calculatePercentage } from './utils/helpers'

@@ -14,7 +14,7 @@ import { Heading, Alert } from "@medusajs/ui";
 import { ShoppingBag } from "@medusajs/icons";
 import { CircularProgress, Grid } from "@mui/material";
 import { useAdminCustomQuery } from "medusa-react"
-import { DateRange } from "../../utils/types";
+import type { DateRange } from "../../utils/types";
 import { CustomersRepeatCustomerRateResponse } from "../types";
 import { RepeatCustomerRateNummber } from "./customers-repeat-customer-rate-number";
 import { OrderStatus } from "../../utils/types";

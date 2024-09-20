@@ -13,7 +13,7 @@
 import { Heading, Alert } from "@medusajs/ui";
 import { CircularProgress, Grid } from "@mui/material";
 import { useAdminCustomQuery } from "medusa-react"
-import { DateRange } from "../utils/types";
+import type { DateRange } from "../utils/types";
 import { Cash } from "@medusajs/icons";
 import { OrdersPaymentProviderResponse } from "./types";
 import { OrdersPaymentProviderPieChart } from "./orders-payment-provider-chart";
