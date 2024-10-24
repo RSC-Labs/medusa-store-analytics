@@ -15,10 +15,10 @@ import {
   DiscountsTopCard,
   SalesChannelPopularityCard,
   OrderStatus,
+  DateRange,
   SalesOverviewCard,
   RefundsOverviewCard
 } from '..';
-import type { DateRange } from '..';
 import { Grid } from "@mui/material";
 
 const SalesTab = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} : 

@@ -14,17 +14,19 @@ import { Heading, Alert } from "@medusajs/ui";
 import { CircularProgress, Grid } from "@mui/material";
 import { useAdminCustomQuery } from "medusa-react"
 import { DateRange } from "../utils/types";
-import { PercentageComparison } from "../common/percentage-comparison";
 import { IconComparison } from "../common/icon-comparison";
+import { PercentageComparison } from "../common/percentage-comparison";
+import { OrderStatus } from "../utils/types";
 
-type AdminCustomersStatisticsQuery = {
-  dateRangeFrom: number
-  dateRangeTo: number,
+type AdminOrdersStatisticsQuery = {
+  orderStatuses: string[],
+  dateRangeFrom?: number
+  dateRangeTo?: number,
   dateRangeFromCompareTo?: number,
   dateRangeToCompareTo?: number,
 }
 
-export type CustomersCountResponse = {
+export type OrdersCountResponse = {
   analytics: {
     dateRangeFrom: number
     dateRangeTo: number,
@@ -35,21 +37,23 @@ export type CustomersCountResponse = {
   }
 }
 
-export const CustomersNumber = ({dateRange, dateRangeCompareTo, compareEnabled} : {dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled?: boolean}) => {
+export const TabValueNumber = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} : 
+  {orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled: boolean}) => {
   const { data, isLoading, isError, error } = useAdminCustomQuery<
-  AdminCustomersStatisticsQuery,
-  CustomersCountResponse
-  >(
-    `/customers-analytics/count`,
-    [dateRange, dateRangeCompareTo],
-    {
-      dateRangeFrom: dateRange ? dateRange.from.getTime() : undefined,
-      dateRangeTo: dateRange ? dateRange.to.getTime() : undefined,
-      dateRangeFromCompareTo: dateRangeCompareTo ? dateRangeCompareTo.from.getTime() : undefined,
-      dateRangeToCompareTo: dateRangeCompareTo ? dateRangeCompareTo.to.getTime() : undefined
-    }
-  )
-
+    AdminOrdersStatisticsQuery,
+    OrdersCountResponse
+    >(
+      `/orders-analytics/count`,
+      [orderStatuses, dateRange, dateRangeCompareTo],
+      {
+        orderStatuses: Object.values(orderStatuses),
+        dateRangeFrom: dateRange ? dateRange.from.getTime() : undefined,
+        dateRangeTo: dateRange ? dateRange.to.getTime() : undefined,
+        dateRangeFromCompareTo: dateRangeCompareTo ? dateRangeCompareTo.from.getTime() : undefined,
+        dateRangeToCompareTo: dateRangeCompareTo ? dateRangeCompareTo.to.getTime() : undefined
+      }
+    )
+  
   if (isLoading) {
     return <CircularProgress size={12}/>
   }
@@ -61,8 +65,9 @@ export const CustomersNumber = ({dateRange, dateRangeCompareTo, compareEnabled} 
   }
 
   if (data.analytics == undefined) {
-    return <Heading level="h3">Cannot get customers</Heading>
+    return <Heading level="h3">Cannot get orders</Heading>
   }
+
   return (
     <Grid container alignItems={'center'} spacing={2}>
       <Grid item>

@@ -15,39 +15,43 @@ import { Heading, Alert } from "@medusajs/ui";
 import { CircularProgress } from "@mui/material";
 import { DateRange } from "../utils/types";
 import { ChartCurrentPrevious } from "../common/chart-components";
+import { OrderStatus } from "../utils/types";
 
-type AdminCustomersStatisticsQuery = {
-  dateRangeFrom?: number
+type AdminOrdersStatisticsQuery = {
+  orderStatuses: string[],
+  dateRangeFrom?: number,
   dateRangeTo?: number,
   dateRangeFromCompareTo?: number,
   dateRangeToCompareTo?: number,
 }
 
-type CustomersHistory = {
-  customerCount: string,
+type OrdersHistory = {
+  orderCount: string,
   date: string
 }
 
-type CustomersHistoryResponse = {
+type OrdersHistoryResponse = {
   analytics: {
     dateRangeFrom?: number
     dateRangeTo?: number,
     dateRangeFromCompareTo?: number,
     dateRangeToCompareTo?: number,
-    current: CustomersHistory[];
-    previous: CustomersHistory[];
+    current: OrdersHistory[];
+    previous: OrdersHistory[];
   }
 }
 
-export const CustomersByNewChart = ({dateRange, dateRangeCompareTo, compareEnabled} : {dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled?: boolean}) => {
+export const TabValueByNewChart = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} : 
+  {orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled: boolean}) => {
 
   const { data, isLoading, isError, error } = useAdminCustomQuery<
-    AdminCustomersStatisticsQuery,
-    CustomersHistoryResponse
+    AdminOrdersStatisticsQuery,
+    OrdersHistoryResponse
   >(
-    `/customers-analytics/history`,
-    [dateRange, dateRangeCompareTo],
+    `/tab-analytics/history`,
+    [orderStatuses, dateRange, dateRangeCompareTo],
     {
+      orderStatuses: Object.values(orderStatuses),
       dateRangeFrom: dateRange ? dateRange.from.getTime() : undefined,
       dateRangeTo: dateRange ? dateRange.to.getTime() : undefined,
       dateRangeFromCompareTo: dateRangeCompareTo ? dateRangeCompareTo.from.getTime() : undefined,
@@ -66,7 +70,7 @@ export const CustomersByNewChart = ({dateRange, dateRangeCompareTo, compareEnabl
   }
 
   if (data.analytics == undefined) {
-    return <Heading level="h3">Cannot get customers</Heading>
+    return <Heading level="h3">Cannot get orders</Heading>
   }
 
   if (data.analytics.dateRangeFrom && data.analytics.dateRangeTo) {
@@ -74,19 +78,19 @@ export const CustomersByNewChart = ({dateRange, dateRangeCompareTo, compareEnabl
       current: data.analytics.current.map(currentData => {
         return {
           date: new Date(currentData.date),
-          value: currentData.customerCount
+          value: currentData.orderCount
         };
       }),
       previous: data.analytics.previous.map(previousData => {
         return {
           date: new Date(previousData.date),
-          value: previousData.customerCount
+          value: previousData.orderCount
         };
       }),
     };
     return (
       <>
-        <Heading level="h3">New customers by time</Heading>
+        <Heading level="h3">New orders by time</Heading>
         <ChartCurrentPrevious 
           rawChartData={rawChartData} 
           fromDate={new Date(data.analytics.dateRangeFrom)} 
@@ -98,6 +102,6 @@ export const CustomersByNewChart = ({dateRange, dateRangeCompareTo, compareEnabl
       </>
     )
   } else {
-    return <Heading level="h3">No customers</Heading>
+    return <Heading level="h3">No orders</Heading>
   }
 }

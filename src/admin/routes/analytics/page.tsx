@@ -13,7 +13,7 @@
 import { useState } from 'react';
 import { useMemo } from "react"
 import { RouteConfig } from "@medusajs/admin"
-import { Tabs } from "@medusajs/ui"
+import { Tabs, Text } from "@medusajs/ui"
 import { LightBulb } from "@medusajs/icons"
 import { Box } from "@mui/material";
 import OverviewTab from "../../../ui-components/tabs/overview";
@@ -21,10 +21,10 @@ import OrdersTab from "../../../ui-components/tabs/orders";
 import ProductsTab from '../../../ui-components/tabs/products';
 import SalesTab from '../../../ui-components/tabs/sales';
 import CustomersTab from '../../../ui-components/tabs/customers';
+import TabsTab from '../../../ui-components/tabs/tabs';
 import { DateLasts, DropdownOrderStatus, OrderStatus, convertDateLastsToComparedDateRange, convertDateLastsToDateRange } from '../../../ui-components';
 import { Grid } from "@mui/material";
-import { ComparedDate, GenerateReportButton, SelectDateLasts, SwitchComparison } from '../../../ui-components/common/overview-components';
-import ProTab from '../../../ui-components/tabs/pro';
+import { ComparedDate, SelectDateLasts, SwitchComparison } from '../../../ui-components/common/overview-components';
 
 const AnalyticsPage = () => {
   const [dateLast, setDateLasts] = useState<DateLasts>(DateLasts.LastWeek);
@@ -38,6 +38,9 @@ const AnalyticsPage = () => {
     switch (select) {
       case DateLasts.LastWeek:
         setDateLasts(DateLasts.LastWeek);
+        break;
+      case DateLasts.Last2Weeks:
+        setDateLasts(DateLasts.Last2Weeks);
         break;
       case DateLasts.LastMonth:
         setDateLasts(DateLasts.LastMonth);
@@ -60,9 +63,6 @@ const AnalyticsPage = () => {
           <Grid item>
             <SelectDateLasts dateLast={dateLast} onSelectChange={setDateLastsString}/>
           </Grid>
-          <Grid item>
-            <GenerateReportButton orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
-          </Grid>
         </Grid>
       </Grid>
       <Grid item xs={12} md={12} xl={12}>
@@ -83,7 +83,7 @@ const AnalyticsPage = () => {
             <Tabs.Trigger value='orders'>Orders</Tabs.Trigger>
             <Tabs.Trigger value='customers'>Customers</Tabs.Trigger>
             <Tabs.Trigger value='products'>Products</Tabs.Trigger>
-            {process.env.MEDUSA_ADMIN_MEDUSA_STORE_ANALYTICS_HIDE_PRO === undefined && <Tabs.Trigger value='pro' style={ { color: 'purple' }}>Pro version</Tabs.Trigger>} 
+            <Tabs.Trigger value='tabs'>HKN Tabs</Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content value='overview'>
             <Box height={20}></Box>
@@ -105,10 +105,10 @@ const AnalyticsPage = () => {
             <Box height={20}></Box>
             <ProductsTab orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
           </Tabs.Content>
-          {process.env.MEDUSA_ADMIN_MEDUSA_STORE_ANALYTICS_HIDE_PRO === undefined && <Tabs.Content value='pro'>
+          <Tabs.Content value='tabs'>
             <Box height={20}></Box>
-            <ProTab/>
-          </Tabs.Content>}
+            <TabsTab orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
+          </Tabs.Content>
         </Tabs>
       </Grid>
     </Grid>

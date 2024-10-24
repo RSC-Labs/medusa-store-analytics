@@ -20,7 +20,7 @@ export const OrderFrequencyDistribution = ({repeatCustomerRateResponse, compareE
     <Grid container direction={'column'} alignItems={'center'} paddingTop={3}>
       <Grid item>
         <Heading level="h3">
-          How orders were distributed?
+          How are customers distributed?
         </Heading>
       </Grid>
       <Grid item>

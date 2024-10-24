@@ -53,7 +53,7 @@ type SalesHistory = {
   total: string
 }
 
-export type SalesHistoryResult = {
+type SalesHistoryResult = {
   currencyCode: string,
   currencyDecimalDigits: number,
   dateRangeFrom?: number
@@ -86,7 +86,7 @@ function groupPerDate(orders: Order[], resolution: DateResolutionType) {
         accumulator[truncatedDate.toISOString()] = { date: new Date(new Date(new Date(order.created_at).setDate(1)).setHours(0,0,0,0)), total: 0 };
       }
     }
-    accumulator[truncatedDate.toISOString()].total += order.total;
+    accumulator[truncatedDate.toISOString()].total += order.subtotal;
     return accumulator;
   }, {});
 }
@@ -134,6 +134,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
         select: [
           "id",
           "total",
+          "subtotal",
           "created_at",
           "updated_at"
         ],

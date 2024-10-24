@@ -16,8 +16,8 @@ import {
   VariantsTopByCountCard,
   ReturnedVariantsByCountCard,
   OrderStatus,
+  DateRange
 } from '..';
-import type { DateRange } from '..';
 import { Grid } from "@mui/material";
 import { OutOfTheStockVariantsCard } from "../products/out_of_the_stock_variants/out-of-the-stock-variants-by-count";
 

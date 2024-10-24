@@ -23,7 +23,7 @@ type VariantsCountPopularity = {
   thumbnail: string,
 }
 
-export type VariantsCountPopularityResult = {
+type VariantsCountPopularityResult = {
   dateRangeFrom?: number
   dateRangeTo?: number,
   dateRangeFromCompareTo?: number,

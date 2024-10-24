@@ -13,7 +13,7 @@
 import { Heading, Select, Text, Alert } from "@medusajs/ui";
 import { CurrencyDollar } from "@medusajs/icons";
 import { CircularProgress, Grid } from "@mui/material";
-import type { DateRange } from "../../utils/types";
+import { DateRange } from "../../utils/types";
 import { useState } from 'react';
 import { useAdminRegions } from "medusa-react"
 import { useAdminCustomQuery } from "medusa-react"

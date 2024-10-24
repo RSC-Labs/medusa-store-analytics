@@ -10,8 +10,7 @@
  * limitations under the License.
  */
 
-import { DateLasts } from "./types";
-import type { DateRange } from "./types"
+import { DateLasts, DateRange } from "./types";
 
 export function amountToDisplay(amount: number, decimalDigits: number) : string {
   return (amount / Math.pow(10, decimalDigits)).toFixed(decimalDigits);
@@ -46,6 +45,13 @@ export function convertDateLastsToDateRange(dateLasts: DateLasts): DateRange | u
         to: new Date(Date.now())
       }
       break;
+    case DateLasts.Last2Weeks:
+      result = {
+        // 86400000 - alignment for taking last 13 days, as the current day is 14th
+        from: new Date(new Date(new Date().setDate(new Date().getDate() - 13)).setHours(0,0,0,0)),
+        to: new Date(Date.now())
+      }
+      break;
     case DateLasts.LastWeek: 
       result = {
         // 86400000 - alignment for taking last 6 days, as the current day is 7th
@@ -72,6 +78,12 @@ export function convertDateLastsToComparedDateRange(dateLasts: DateLasts): DateR
       result = {
         from: new Date(new Date(new Date().setDate(new Date().getDate() - 59)).setHours(0,0,0,0)),
         to: new Date(new Date(new Date().setDate(new Date().getDate() - 29)).setHours(0,0,0,0)),
+      }
+      break;
+    case DateLasts.Last2Weeks:
+      result = {
+        from: new Date(new Date(new Date().setDate(new Date().getDate() - 27)).setHours(0,0,0,0)),
+        to: new Date(new Date(new Date().setDate(new Date().getDate() - 13)).setHours(0,0,0,0)),
       }
       break;
     case DateLasts.LastWeek: 

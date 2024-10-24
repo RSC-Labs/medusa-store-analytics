@@ -13,7 +13,7 @@
 import { Heading } from "@medusajs/ui";
 import { Users } from "@medusajs/icons";
 import { Grid } from "@mui/material";
-import type { DateRange } from "../../utils/types";
+import { DateRange } from "../../utils/types";
 import { CumulativeCustomersChart } from "./cumulative-customers-chart";
 
 export const CumulativeCustomersCard = ({dateRange, dateRangeCompareTo, compareEnabled} : 

@@ -13,7 +13,7 @@
 import { Heading } from "@medusajs/ui";
 import { Users } from "@medusajs/icons";
 import { Grid } from "@mui/material";
-import type { DateRange } from "../utils/types";
+import { DateRange } from "../utils/types";
 import { CustomersNumber } from "./customers-number-overview";
 import { CustomersByNewChart } from "./customers-by-new-chart";
 

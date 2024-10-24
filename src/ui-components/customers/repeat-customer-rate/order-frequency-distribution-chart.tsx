@@ -14,8 +14,8 @@ import { calculateResolution, getLegendName } from "../../common/utils/chartUtil
 import { CustomersRepeatCustomerRateResponse, Distributions } from "../types"
 import { Legend, Pie, PieChart, Tooltip } from "recharts";
 
-const ONE_TIME_LABEL_NAME = 'One-time purchase';
-const REPEAT_LABEL_NAME = 'Repeat purchase';
+const ONE_TIME_LABEL_NAME = 'First Time Customer';
+const REPEAT_LABEL_NAME = 'Repeat Customer';
 
 function convertToChartData(distributions: Distributions) {
   if (distributions) {

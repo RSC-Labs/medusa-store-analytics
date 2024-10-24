@@ -14,7 +14,7 @@ import { Heading } from "@medusajs/ui";
 import { ShoppingCart } from "@medusajs/icons";
 import { Grid } from "@mui/material";
 import { OrdersByNewChart } from "./orders-by-new-chart";
-import type { DateRange } from "../utils/types";
+import { DateRange } from "../utils/types";
 import { OrdersNumber } from "./orders-number-overview";
 import { OrderStatus } from "../utils/types";
 

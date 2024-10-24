@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-export { ComparedDate, SwitchComparison, DropdownOrderStatus, SelectDateLasts, GenerateReportButton } from './common/overview-components';
+export { ComparedDate, SwitchComparison, DropdownOrderStatus, SelectDateLasts } from './common/overview-components';
 
 export { OrdersOverviewCard } from './orders/orders-overview-card'
 export { OrdersPaymentProviderCard } from './orders/orders-payment-provider-card'
@@ -25,6 +25,13 @@ export { CustomersRepeatCustomerRate } from './customers/repeat-customer-rate/cu
 export { CustomersRetentionCustomerRate } from './customers/retention-customer-rate/customers-retention-customer-rate';
 export { CumulativeCustomersCard } from './customers/cumulative-history/cumulative-customers-card';
 
+export { TabOverviewCard } from './tabview/tab-overview';
+export { TabNumber } from './tabview/tab-number-overview';
+export { TabByNewChart } from './tabview/tab-by-new-chart';
+export { TabValueCard } from './tabview/tab-value';
+export { TabValueNumber } from "./tabview/tab-value-number";
+export { TabValueByNewChart } from "./tabview/tab-value-new-chart";
+
 export { VariantsTopByCountCard } from './products/variants-top-by-count';
 export { ReturnedVariantsByCountCard } from './products/returned_variants/returned-variants-by-count';
 export { ProductsSoldCountCard } from './products/products-sold-count';
@@ -34,4 +41,4 @@ export { DiscountsTopCard } from './marketing/discounts-top-by-count';
 
 export { DateLasts, OrderStatus } from './utils/types'
 export type { DateRange } from './utils/types'
-export { convertDateLastsToComparedDateRange, convertDateLastsToDateRange, amountToDisplay, calculatePercentage } from './utils/helpers'
+export { convertDateLastsToComparedDateRange, convertDateLastsToDateRange, amountToDisplay } from './utils/helpers'

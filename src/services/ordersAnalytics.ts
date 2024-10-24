@@ -16,7 +16,7 @@ import { calculateResolution } from "./utils/dateTransformations"
 import { OrdersHistoryResult } from "./utils/types"
 import { In } from "typeorm"
 
-export type OrdersCounts = {
+type OrdersCounts = {
   dateRangeFrom?: number
   dateRangeTo?: number,
   dateRangeFromCompareTo?: number,

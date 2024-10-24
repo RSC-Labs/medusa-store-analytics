@@ -39,13 +39,13 @@ type CustomersHistoryResponse = {
   }
 }
 
-export const CustomersByNewChart = ({dateRange, dateRangeCompareTo, compareEnabled} : {dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled?: boolean}) => {
+export const TabByNewChart = ({dateRange, dateRangeCompareTo, compareEnabled} : {dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled?: boolean}) => {
 
   const { data, isLoading, isError, error } = useAdminCustomQuery<
     AdminCustomersStatisticsQuery,
     CustomersHistoryResponse
   >(
-    `/customers-analytics/history`,
+    `/tab-analytics/history`,
     [dateRange, dateRangeCompareTo],
     {
       dateRangeFrom: dateRange ? dateRange.from.getTime() : undefined,
@@ -66,7 +66,7 @@ export const CustomersByNewChart = ({dateRange, dateRangeCompareTo, compareEnabl
   }
 
   if (data.analytics == undefined) {
-    return <Heading level="h3">Cannot get customers</Heading>
+    return <Heading level="h3">Cannot get tabs</Heading>
   }
 
   if (data.analytics.dateRangeFrom && data.analytics.dateRangeTo) {
@@ -86,7 +86,7 @@ export const CustomersByNewChart = ({dateRange, dateRangeCompareTo, compareEnabl
     };
     return (
       <>
-        <Heading level="h3">New customers by time</Heading>
+        <Heading level="h3">Tabs created over time</Heading>
         <ChartCurrentPrevious 
           rawChartData={rawChartData} 
           fromDate={new Date(data.analytics.dateRangeFrom)} 
@@ -98,6 +98,6 @@ export const CustomersByNewChart = ({dateRange, dateRangeCompareTo, compareEnabl
       </>
     )
   } else {
-    return <Heading level="h3">No customers</Heading>
+    return <Heading level="h3">No tabs</Heading>
   }
 }

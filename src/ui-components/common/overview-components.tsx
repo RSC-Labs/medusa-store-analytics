@@ -11,108 +11,10 @@
  */
 
 import { useState } from 'react';
-import { Text, Switch, Label, Button, IconButton, Checkbox, Heading, Select, Tooltip, Badge } from "@medusajs/ui";
+import { Text, Switch, Label, DropdownMenu, IconButton, Checkbox, Button, Heading, Select, Tooltip } from "@medusajs/ui";
 import { Adjustments, ExclamationCircle } from "@medusajs/icons"
 import { Grid } from "@mui/material";
-import { DateLasts, OrderStatus } from "../utils/types";
-import type { DateRange } from "../utils/types";
-
-/*
- * Copyright 2024 RSC-Labs, https://rsoftcon.com/
- *
- * MIT License
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-import { DropdownMenu, toast } from "@medusajs/ui"
-import { useAdminCustomPost } from "medusa-react";
-
-type ReportResult = {
-  buffer?: Buffer
-}
-
-type AdminGenerateReportPostReq = {
-  orderStatuses: string[],
-  dateRangeFrom?: number
-  dateRangeTo?: number,
-  dateRangeFromCompareTo?: number,
-  dateRangeToCompareTo?: number,
-}
-
-export const GenerateReportButton = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} : 
-  {orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled: boolean}) => {
-
-  const [ loadingButton, setLoadingStatus ]= useState(false);
-
-  const { mutate } = useAdminCustomPost<
-    AdminGenerateReportPostReq,
-    ReportResult  
-  >
-  (
-    `/reports-analytics/general`,
-    [orderStatuses, dateRange, dateRangeCompareTo],
-  )
-  const generate = async () => {
-    const id = toast.loading("Report", {
-      description: "Generating report...",
-      duration: Infinity
-    })
-
-    setLoadingStatus(true);
-
-    mutate(
-      {
-        orderStatuses: Object.values(orderStatuses),
-        dateRangeFrom: dateRange ? dateRange.from.getTime() : undefined,
-        dateRangeTo: dateRange ? dateRange.to.getTime() : undefined,
-        dateRangeFromCompareTo: dateRangeCompareTo ? dateRangeCompareTo.from.getTime() : undefined,
-        dateRangeToCompareTo: dateRangeCompareTo ? dateRangeCompareTo.to.getTime() : undefined,
-      }, {
-        onSuccess: ( { response, buffer }) => {
-          if (response.status == 201 && buffer) {
-            const anyBuffer = buffer as any;
-            const blob = new Blob([ new Uint8Array(anyBuffer.data)  ], { type : 'application/pdf'});
-            toast.dismiss();
-            setLoadingStatus(false);
-            const pdfURL = URL.createObjectURL(blob);
-            window.open(pdfURL, '_blank');
-          } else {
-            toast.dismiss();
-            setLoadingStatus(false);
-            toast.error("Report", {
-              description: 'Problem happened when generating report',
-            })
-          }
-        },
-        onError: (error) => {
-          toast.dismiss();
-          setLoadingStatus(false);
-          const trueError = error as any;
-          toast.error("Report", {
-            description: trueError?.response?.data?.message,
-          })
-        }
-      }
-    )
-  };
-
-  return (
-    <>
-      {loadingButton && <Button variant="secondary" disabled={true} style={{ width: 180 }}>
-        Generating
-      </Button>}
-      {!loadingButton && <Button variant="secondary" onClick={generate} style={{ width: 180 }}>
-        Generate report
-        <Badge rounded="full" size="2xsmall" color="green">Beta</Badge>
-      </Button>}
-    </>
-  )
-}
+import { DateLasts, DateRange, OrderStatus } from "../utils/types";
 
 export const ComparedDate = ({compare, comparedToDateRange} : {compare: boolean, comparedToDateRange?: DateRange}) => {
   if (comparedToDateRange && compare) {
@@ -206,6 +108,7 @@ export const SelectDateLasts = ({dateLast, onSelectChange} : {dateLast: DateLast
 
   const dateLastsToSelect: DateLasts[] = [
     DateLasts.LastWeek,
+    DateLasts.Last2Weeks,
     DateLasts.LastMonth,
     DateLasts.LastYear,
     DateLasts.All

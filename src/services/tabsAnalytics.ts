@@ -1,17 +1,11 @@
-/*
- * Copyright 2024 RSC-Labs, https://rsoftcon.com/
- *
- * MIT License
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// written for HKN
 
-import { CustomerService, Order, OrderService, OrderStatus, TransactionBaseService } from "@medusajs/medusa"
-import { Customer } from "@medusajs/medusa"
+// the purpose of tab-analytics is to extract the gift card ID from customer metadata, 
+// get the details of those cards, and return the details of the cards to the frontend
+// in the same format as the customer-analytics (where this was copied from)
+
+import { CustomerService, GiftCardService, Order, OrderService, OrderStatus, TransactionBaseService } from "@medusajs/medusa"
+import { Customer, GiftCard } from "@medusajs/medusa"
 import { calculateResolution } from "./utils/dateTransformations"
 import { In } from "typeorm"
 
@@ -62,7 +56,7 @@ type CustomersRetentionRate = {
   previous: number
 }
 
-export default class CustomersAnalyticsService extends TransactionBaseService {
+export default class TabsAnalyticsService extends TransactionBaseService {
 
   private readonly customerService: CustomerService;
   private readonly orderService: OrderService;
@@ -90,6 +84,16 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
         .where(`created_at >= :dateRangeFromCompareTo`, { dateRangeFromCompareTo })
         .groupBy('type, date')
         .orderBy('date, type',  'ASC')
+        .getRawMany();
+
+        // fetch gift card associated with customer metadata
+        const giftCardIds = customers.map(customer => customer.metadata.gift_card);
+
+        // map to gift card balances
+        const giftCards = await this.activeManager_.getRepository(GiftCard)
+        .createQueryBuilder('gift_card')
+        .select('gift_card.balance', 'balance')
+        .where(`gift_card.id IN (:...giftCardIds)`, { giftCardIds })
         .getRawMany();
 
         const finalCustomers: CustomersHistoryResult = customers.reduce((acc, entry) => {

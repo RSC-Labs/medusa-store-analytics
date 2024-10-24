@@ -1,14 +1,3 @@
-/*
- * Copyright 2024 RSC-Labs, https://rsoftcon.com/
- *
- * MIT License
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 import { Heading, Alert } from "@medusajs/ui";
 import { CircularProgress, Grid } from "@mui/material";
@@ -35,12 +24,12 @@ export type CustomersCountResponse = {
   }
 }
 
-export const CustomersNumber = ({dateRange, dateRangeCompareTo, compareEnabled} : {dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled?: boolean}) => {
+export const TabNumber = ({dateRange, dateRangeCompareTo, compareEnabled} : {dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled?: boolean}) => {
   const { data, isLoading, isError, error } = useAdminCustomQuery<
   AdminCustomersStatisticsQuery,
   CustomersCountResponse
   >(
-    `/customers-analytics/count`,
+    `/tab-analytics/count`,
     [dateRange, dateRangeCompareTo],
     {
       dateRangeFrom: dateRange ? dateRange.from.getTime() : undefined,

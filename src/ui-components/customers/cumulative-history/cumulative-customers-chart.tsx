@@ -13,7 +13,7 @@
 import { useAdminCustomQuery } from "medusa-react"
 import { Heading, Alert } from "@medusajs/ui";
 import { CircularProgress } from "@mui/material";
-import type { DateRange } from "../../utils/types";
+import { DateRange } from "../../utils/types";
 import { ChartCurrentPrevious } from "../../common/chart-components";
 
 type AdminCustomersStatisticsQuery = {

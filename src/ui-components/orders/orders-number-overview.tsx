@@ -13,7 +13,7 @@
 import { Heading, Alert } from "@medusajs/ui";
 import { CircularProgress, Grid } from "@mui/material";
 import { useAdminCustomQuery } from "medusa-react"
-import type { DateRange } from "../utils/types";
+import { DateRange } from "../utils/types";
 import { IconComparison } from "../common/icon-comparison";
 import { PercentageComparison } from "../common/percentage-comparison";
 import { OrderStatus } from "../utils/types";
