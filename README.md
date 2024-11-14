@@ -9,7 +9,7 @@
 </h1>
 
 <h2>
-  Note: This plugin will be migrated to Medusa v2, when v2 will reach production readiness.
+  Note: Migration to v2 has been started. Progress: 5%.
 </h2>
 
 
