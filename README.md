@@ -9,7 +9,7 @@
 </h1>
 
 <h2>
-  Note: Migration to v2 has been started. Progress: 5%.
+  Note: Migration to v2 has been started. Progress: 10%. Customers analytics migrated.
 </h2>
 
 
