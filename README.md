@@ -9,7 +9,7 @@
 </h1>
 
 <h2>
-  Note: Migration to v2 has been started. Progress: 70%. Only orders analytics left.
+  Note: v2 is expected in 1-2 weeks.
 </h2>
 
 
