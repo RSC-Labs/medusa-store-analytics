@@ -8,68 +8,27 @@
   Medusa store-analytics
 </h1>
 
-<h2>
-  Note: v2 is expected in 1-2 weeks.
-</h2>
-
-
 Medusa "store-analytics" is a plugin which shows analytics data of your store, including orders, sales and other useful information.
 
 ### Why?
 
 Knowledge about your store is crucial to take proper action to increase the sales. Analytics data can show various things like what is a most popular region, sales channel or on which day people are buying the most. Every such data may help to find problem and possible solutions. 
 
-## Getting Started
+### Supported Medusa versions
 
-1. Install the package with `yarn add @rsc-labs/medusa-store-analytics` or `npm i @rsc-labs/medusa-store-analytics`.
-2. In `medusa-config.js`, add the plugin to the `plugins` array and set `enableUI`
+Choose README dependent on your Medusa version.
 
-```js
-const plugins = [
-  // ... other plugins
-  {
-    resolve: `@rsc-labs/medusa-store-analytics`,
-    options: {
-      enableUI: true
-    }
-  }
-]
-```
+<h2>
+  Medusa V1
+</h2>
 
+[README](./v1/README.md)
 
+<h2>
+  Medusa V2
+</h2>
 
-## How can I use it?
-
-After installation of plugin, you shall be able to see new option on sidebar. Click `Analytics` and see data about your store.
-
-<p align="center">
-  <picture>
-    <img alt="Medusa store-analytics-1" src="./docs/medusa-store-analytics-1.PNG">
-  </picture>
-</p>
-
-**WARNING**:
-
-Depends on the number of your orders, customers and other - it might take a while to load them all if you click wider options like `Last year` or `All time`!
-
-### Configuration
-
-No configuration is needed. Everything is done through UI. You can use such options like:
-- set different range for dates
-- set different statuses of orders for calculation
-- enabling/disabling comparison feature
-
-<p align="center">
-  <picture>
-    <img alt="Medusa store-analytics-2" src="./docs/medusa-store-analytics-2.PNG">
-  </picture>
-</p>
-
-<p align="center">
-  <picture>
-    <img alt="Medusa store-analytics-3" src="./docs/medusa-store-analytics-3.PNG">
-  </picture>
-</p>
+Work in progress
 
 ## Supported statistics
 
@@ -125,26 +84,6 @@ No configuration is needed. Everything is done through UI. You can use such opti
 | Name | Status |
 | --- | --- |
 | Top discounts | :white_check_mark: |
-
-## License
-
-MIT
-
-## Pro version
-
-The Pro version of medusa-store-analytics expands on the features of the free version with more advanced capabilities such as 
-- customizable dashboard - you can create your own dashboard with chosen statistics
-- date range picker - choose whatever date range to see statistics exactly for this range
-- more than 15 new, advanced statistics - funnels, deep insights about promotions or granular statistics per sales channels.
-
-The Pro version is available under commercial licence - contact labs@rsoftcon.com for more information.
-
-### Hide Pro version tab
-
-We show what advanced features we offer in "Pro version" tab. We try to keep it non-intruisive, but if you feel it differently, you can always hide this tab by setting following environment variable:
-`MEDUSA_ADMIN_MEDUSA_STORE_ANALYTICS_HIDE_PRO=true`
-
-After restarting your admin application, you shall have this tab hidden.
 
 ---
 
