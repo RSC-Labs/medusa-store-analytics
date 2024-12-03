@@ -22,13 +22,13 @@ Choose README dependent on your Medusa version.
   Medusa V1
 </h2>
 
-[README](./v1/README.md)
+[README](https://github.com/RSC-Labs/medusa-store-analytics/blob/main/v1/README.md)
 
 <h2>
   Medusa V2
 </h2>
 
-Work in progress
+[README](https://github.com/RSC-Labs/medusa-store-analytics/blob/main/v2/README.md)
 
 ## Supported statistics
 
