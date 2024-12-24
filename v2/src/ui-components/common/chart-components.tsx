@@ -189,17 +189,27 @@ toDate is inclusive. It means that:
 */
 
 const areRangesTheSame = (fromDate: Date, toDate: Date, fromCompareDate?: Date, toCompareDate?: Date) : boolean => {
+
+  function isToday(date: Date) : boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const givenDate = new Date(date);
+    givenDate.setHours(0, 0, 0, 0);
+    return today.getTime() === givenDate.getTime();
+  }
+
   if (fromCompareDate) {
     const oneDay = 24 * 60 * 60 * 1000;
     if (toCompareDate) {
-      // Math.ceil is used to round the day to larger value for taking the whole day for comparison - @deprecated
-      // Because of day light saving time, sometimes happen that Math.ceil gives 31 days instead of 30 days (probably the same could happen in 7 days comparison)
-      // Change to Math.round and testing for the future
 
-      // const diffBase = Math.ceil(Math.abs((toDate.getTime() - fromDate.getTime()) / oneDay));
-      const diffBase = Math.round((toDate.getTime() - fromDate.getTime()) / oneDay);
-      // const diffCompare = Math.ceil(Math.abs((toCompareDate.getTime() - fromCompareDate.getTime()) / oneDay));
-      const diffCompare = Math.round((toCompareDate.getTime() - fromCompareDate.getTime()) / oneDay);
+      // Cover situation when toDate is today so gives jsut couple of hours while we need the whole day.
+      if (isToday(toDate)) {
+        const diffBase = Math.ceil(Math.abs((toDate.getTime() - fromDate.getTime()) / oneDay));
+        const diffCompare = Math.round(Math.abs((toCompareDate.getTime() - fromCompareDate.getTime()) / oneDay));
+        return (diffBase == diffCompare);
+      }
+      const diffBase = Math.round(Math.abs((toDate.getTime() - fromDate.getTime()) / oneDay));
+      const diffCompare = Math.round(Math.abs((toCompareDate.getTime() - fromCompareDate.getTime()) / oneDay));
       return (diffBase == diffCompare);
     }
 

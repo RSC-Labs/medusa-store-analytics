@@ -11,7 +11,7 @@
  */
 
 import { PgConnectionType } from "../utils/types"
-import { calculateResolution } from "./utils/dateTransformations"
+import { calculateResolution } from "./../utils/dateTransformations"
 import { OrderStatus } from "@medusajs/framework/utils"
 
 export type OrdersCounts = {
@@ -80,10 +80,10 @@ export default class OrdersAnalyticsService {
             this.pgConnection.raw(`
               CASE
                 WHEN "order".created_at < ? AND "order".created_at >= ? THEN 'previous'
-                ELSE 'current'
+                WHEN "order".created_at < ? AND "order".created_at >= ? THEN 'current'
               END AS type,
               date_trunc(?, "order".created_at) AS date
-            `, [from, dateRangeFromCompareTo, resolution])
+            `, [dateRangeToCompareTo, dateRangeFromCompareTo, to, from, resolution])
           )
           .count('order.id AS orderCount')
           .where('order.created_at', '>=', dateRangeFromCompareTo)
@@ -132,23 +132,24 @@ export default class OrdersAnalyticsService {
       }
   
       if (startQueryFrom) {
-        const resolution = calculateResolution(startQueryFrom);
+        const endQuery = to ? to : new Date(Date.now());
+        const resolution = calculateResolution(startQueryFrom, endQuery);
         const rawOrders = await this.pgConnection('order')
           .select(
             this.pgConnection.raw(`date_trunc(?, "order".created_at) AS date`, [resolution])
           )
           .count('order.id AS orderCount')
           .where('order.created_at', '>=', startQueryFrom)
+          .andWhere('order.created_at', '<=', endQuery)
           .andWhere('order.status', 'IN', orderStatusesAsStrings)
           .groupBy('date')
           .orderBy('date', 'ASC');
-  
 
         const orders = rawOrders as any;
 
         return {
           dateRangeFrom: startQueryFrom.getTime(),
-          dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
+          dateRangeTo: endQuery.getTime(),
           dateRangeFromCompareTo: undefined,
           dateRangeToCompareTo: undefined,
           current: orders,
@@ -172,6 +173,40 @@ export default class OrdersAnalyticsService {
     const orderStatusesAsStrings = Object.values(orderStatuses);
 
     if (orderStatusesAsStrings.length) {
+      if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
+        const orders = await this.pgConnection
+          .select([
+            'id',
+            'created_at',
+            'updated_at',
+            'customer_id',
+          ])
+          .select(
+            this.pgConnection.raw(`CASE
+                WHEN "order".created_at < ? AND "order".created_at >= ? THEN 'previous'
+                WHEN "order".created_at < ? AND "order".created_at >= ? THEN 'current'
+              END AS type
+            `, [dateRangeToCompareTo, dateRangeFromCompareTo, to, from])
+          )
+          .from('order')
+          .whereIn('status', orderStatusesAsStrings)
+          .andWhere('order.created_at', '>=', dateRangeFromCompareTo)
+          .groupBy(['type', 'id'])
+          .orderBy([{ column: 'type', order: 'ASC' }])
+          .then(result => result);
+
+        const previousOrders = orders.filter(order => order.type == 'previous');
+        const currentOrders = orders.filter(order => order.type == 'current');
+
+        return {
+          dateRangeFrom: from.getTime(),
+          dateRangeTo: to.getTime(),
+          dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
+          dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
+          current: currentOrders.length,
+          previous: previousOrders.length
+        } 
+      }
       if (!dateRangeFromCompareTo) {
         if (from) {
           startQueryFrom = from;
@@ -190,30 +225,22 @@ export default class OrdersAnalyticsService {
       } else {
         startQueryFrom = dateRangeFromCompareTo;
       }
-      const orders = await this.pgConnection('order')
-        .select(['id', 'created_at', 'updated_at'])
-        .modify((queryBuilder) => {
-          if (startQueryFrom) {
-            queryBuilder.where('created_at', '>=', startQueryFrom);
-          }
-        })
-        .whereIn('status', orderStatusesAsStrings)
-        .orderBy('created_at', 'DESC');
-
-      if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
-        const previousOrders = orders.filter(order => order.created_at < from);
-        const currentOrders = orders.filter(order => order.created_at >= from);
-        return {
-          dateRangeFrom: from.getTime(),
-          dateRangeTo: to.getTime(),
-          dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
-          dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
-          current: currentOrders.length,
-          previous: previousOrders.length
-        }
-      }
-      
       if (startQueryFrom) {
+        const endQuery = to ? to : new Date(Date.now());
+        const orders = await this.pgConnection('order')
+          .select([
+            'id',
+            'created_at',
+            'updated_at',
+            'customer_id',
+          ])
+          .whereIn('status', orderStatusesAsStrings)
+          .andWhere('created_at', '>=', startQueryFrom) 
+          .andWhere('created_at', '<=', endQuery)
+          .orderBy('created_at', 'DESC')
+          .then(result => result);
+
+
         return {
           dateRangeFrom: startQueryFrom.getTime(),
           dateRangeTo: to ? to.getTime() : new Date(Date.now()).getTime(),
@@ -274,12 +301,10 @@ export default class OrdersAnalyticsService {
           this.pgConnection.raw(`
             CASE
               WHEN "order".created_at < ? AND "order".created_at >= ? THEN 'previous'
-              ELSE 'current'
-            END AS type
-          `, [from, dateRangeFromCompareTo])
-        )
-        .select(
-          this.pgConnection.raw(`date_trunc(?, "order".created_at) AS date`, [resolution])
+              WHEN "order".created_at < ? AND "order".created_at >= ? THEN 'current'
+            END AS type,
+            date_trunc(?, "order".created_at) AS date
+          `, [dateRangeToCompareTo, dateRangeFromCompareTo, to, from, resolution])
         )
         .count('order.id AS orderCount')
         .select('payment.provider_id AS paymentProviderId')
@@ -341,7 +366,8 @@ export default class OrdersAnalyticsService {
     }
     
     if (startQueryFrom) {
-      const resolution = calculateResolution(startQueryFrom);
+      const endQuery = to ? to : new Date(Date.now());
+      const resolution = calculateResolution(startQueryFrom, endQuery);
       const rawOrdersCountWithPayments = await this.pgConnection('order')
         .select(
           this.pgConnection.raw(`date_trunc(?, "order".created_at) AS date`, [resolution])
@@ -352,6 +378,7 @@ export default class OrdersAnalyticsService {
         .innerJoin('payment_collection', 'order_payment_collection.payment_collection_id', 'payment_collection.id')
         .innerJoin('payment', 'payment.payment_collection_id', 'payment_collection.id')
         .where('order.created_at', '>=', startQueryFrom)
+        .andWhere('order.created_at', '<=', endQuery)
         .groupByRaw(`date, payment.provider_id`)
         .orderBy('date', 'ASC');
 

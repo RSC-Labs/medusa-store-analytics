@@ -81,9 +81,9 @@ export default class CustomersAnalyticsService {
           this.pgConnection.raw(
             `CASE 
               WHEN customer.created_at < ? AND customer.created_at >= ? THEN 'previous' 
-              ELSE 'current' 
+              WHEN customer.created_at < ? AND customer.created_at >= ? THEN 'current' 
              END AS type`, 
-            [from, dateRangeFromCompareTo]
+            [dateRangeToCompareTo, dateRangeFromCompareTo, to, from]
           ),
           this.pgConnection.raw(`date_trunc(?, customer.created_at) AS date`, [resolution]),
           this.pgConnection.raw(`COUNT(customer.id) AS customerCount`)
@@ -135,13 +135,15 @@ export default class CustomersAnalyticsService {
     }
 
     if (startQueryFrom) {
-      const resolution = calculateResolution(startQueryFrom);
+      const endQuery = to ? to : new Date(Date.now());
+      const resolution = calculateResolution(startQueryFrom, endQuery);
       const customers = await this.pgConnection('customer')
         .select([
           this.pgConnection.raw(`date_trunc(?, customer.created_at) AS date`, [resolution]),
           this.pgConnection.raw(`COUNT(customer.id) AS customerCount`)
         ])
         .where('customer.created_at', '>=', startQueryFrom)
+        .andWhere('customer.created_at', '<=', endQuery)
         .groupBy('date')
         .orderBy('date', 'ASC');
 
@@ -155,7 +157,7 @@ export default class CustomersAnalyticsService {
 
       return {
         dateRangeFrom: startQueryFrom.getTime(),
-        dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
+        dateRangeTo: endQuery.getTime(),
         dateRangeFromCompareTo: undefined,
         dateRangeToCompareTo: undefined,
         current: finalCustomers,
@@ -174,6 +176,46 @@ export default class CustomersAnalyticsService {
   }
 
   async getNewCount(from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<CustomersCounts> {
+    if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
+
+      const customers = await this.pgConnection
+        .select([
+          this.pgConnection.raw(
+            `CASE 
+              WHEN customer.created_at < ? AND customer.created_at >= ? THEN 'previous' 
+              WHEN customer.created_at < ? AND customer.created_at >= ? THEN 'current' 
+             END AS type`, 
+            [dateRangeToCompareTo, dateRangeFromCompareTo, to, from]
+          ),
+          this.pgConnection.raw(`COUNT(customer.id) AS customerCount`)
+        ])
+        .from('customer')
+        .where('customer.created_at', '>=', dateRangeFromCompareTo)
+        .groupBy(['type'])
+        .orderBy([{ column: 'type', order: 'ASC' }])
+
+      const finalCustomers: CustomersHistoryResult = customers.reduce((acc, entry) => {
+        const type = entry.type;
+        const customerCount = entry.customercount;
+        if (!acc[type]) {
+          acc[type] = [];
+        }
+
+        acc[type].push({customerCount})
+
+        return acc;
+      }, {})
+
+      return {
+        dateRangeFrom: from.getTime(),
+        dateRangeTo: to.getTime(),
+        dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
+        dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
+        current: finalCustomers.current ? parseInt(finalCustomers.current[0].customerCount) : 0,
+        previous: finalCustomers.previous ? parseInt(finalCustomers.previous[0].customerCount) : 0,
+      }
+    }
+
     let startQueryFrom: Date | undefined;
     if (!dateRangeFromCompareTo) {
       if (from) {
@@ -189,58 +231,28 @@ export default class CustomersAnalyticsService {
         }
       }
     } else {
-        startQueryFrom = dateRangeFromCompareTo;
+      startQueryFrom = dateRangeFromCompareTo;
     }
-    const filterCondition: [string, string, Date] | null = startQueryFrom 
-      ? ['created_at', '>=', startQueryFrom] 
-      : null;
+    if (startQueryFrom) {
+      const endQuery = to ? to : new Date(Date.now());
+      const customersCount = await this.pgConnection('customer')
+        .count({ count: '*' })
+        .where('created_at', '>=', startQueryFrom) 
+        .andWhere('created_at', '<=', endQuery) 
+        .first();
 
-    const customersData = await this.pgConnection('customer')
-      .select(['id', 'created_at', 'updated_at'])
-      .modify((queryBuilder) => {
-        if (filterCondition) {
-          queryBuilder.where(...filterCondition);
-        }
-      })
-      .orderBy('created_at', 'DESC');
-    
-    const customersCount = await this.pgConnection('customer')
-      .count({ count: '*' })
-      .modify((queryBuilder) => {
-        if (filterCondition) {
-          queryBuilder.where(...filterCondition);
-        }
-      })
-      .first();
+      const totalCustomersCount = parseInt(customersCount?.count || '0', 10);
 
-    const totalCustomersCount = parseInt(customersCount?.count || '0', 10);
-
-    const customers = [customersData, totalCustomersCount];
-
-    if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
-      const previousCustomers = customers[0].filter(customer => customer.created_at < from);
-      const currentCustomers = customers[0].filter(customer => customer.created_at >= from);
-      return {
-        dateRangeFrom: from.getTime(),
-        dateRangeTo: to.getTime(),
-        dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
-        dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
-        current: currentCustomers.length,
-        previous: previousCustomers.length
-      }
-    }
-
-    if (startQueryFrom && customers.length > 0) {
       return {
         dateRangeFrom: startQueryFrom.getTime(),
-        dateRangeTo: to ? to.getTime() : new Date(Date.now()).getTime(),
-        dateRangeFromCompareTo: undefined,
-        dateRangeToCompareTo: undefined,
-        current: customers[1],
+        dateRangeTo: endQuery.getTime(),
+        dateRangeFromCompareTo: dateRangeFromCompareTo ? dateRangeFromCompareTo.getTime() : undefined,
+        dateRangeToCompareTo: dateRangeToCompareTo ? dateRangeToCompareTo.getTime() : undefined,
+        current: totalCustomersCount,
         previous: 0
       }
     }
-
+    
     return {
       dateRangeFrom: undefined,
       dateRangeTo: undefined,
@@ -249,7 +261,6 @@ export default class CustomersAnalyticsService {
       current: 0,
       previous: 0
     }
-    
   }
 
   async getNumberOfReturningCustomers() : Promise<number> {
@@ -264,45 +275,34 @@ export default class CustomersAnalyticsService {
   }
 
   async getRepeatCustomerRate(orderStatuses: OrderStatus[], from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<CustomersOrdersDistribution> {
-    
     // Use the same query like finding for Orders, but include Customers
     let startQueryFrom: Date | undefined;
     const orderStatusesAsStrings = Object.values(orderStatuses);
     if (orderStatusesAsStrings.length) {
-      if (!dateRangeFromCompareTo) {
-        if (from) {
-          startQueryFrom = from;
-        } else {
-          const lastOrder = await this.pgConnection('order')
-            .select('created_at')
-            .whereIn('status', orderStatusesAsStrings)
-            .orderBy('created_at', 'ASC')
-            .limit(1)
-            .then(result => result[0]);
-
-          if (lastOrder) {
-              startQueryFrom = lastOrder.created_at;
-          }
-        }
-      } else {
-        startQueryFrom = dateRangeFromCompareTo;
-      }
-      const orders = await this.pgConnection('order')
-        .select([
-          'id',
-          'created_at',
-          'updated_at',
-          'customer_id',
-        ])
-        .whereIn('status', orderStatusesAsStrings)
-        .andWhere('created_at', '>=', startQueryFrom) 
-        .orderBy('created_at', 'DESC')
-        .then(result => result);
-      
       if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
-        const previousOrders = orders.filter(order => order.created_at < from);
-        const currentOrders = orders.filter(order => order.created_at >= from);
-        
+        const orders = await this.pgConnection
+          .select(
+            this.pgConnection.raw(`CASE
+                WHEN "order".created_at < ? AND "order".created_at >= ? THEN 'previous'
+                WHEN "order".created_at < ? AND "order".created_at >= ? THEN 'current'
+              END AS type
+            `, [dateRangeToCompareTo, dateRangeFromCompareTo, to, from])
+          )
+          .select([
+            'id',
+            'created_at',
+            'updated_at',
+            'customer_id',
+          ])
+          .from('order')
+          .whereIn('status', orderStatusesAsStrings)
+          .andWhere('order.created_at', '>=', dateRangeFromCompareTo)
+          .groupBy(['type', 'id'])
+          .orderBy([{ column: 'type', order: 'ASC' }])
+          .then(result => result);
+
+        const previousOrders = orders.filter(order => order.type == 'previous');
+        const currentOrders = orders.filter(order => order.type == 'current');
 
         const previousOrderCountByCustomer: Map<string, number> = previousOrders.reduce((acc, order) => {
           acc[order.customer_id] = (acc[order.customer_id] || 0) + 1;
@@ -362,7 +362,39 @@ export default class CustomersAnalyticsService {
         }
       }
 
+      if (!dateRangeFromCompareTo) {
+        if (from) {
+          startQueryFrom = from;
+        } else {
+          const lastOrder = await this.pgConnection('order')
+            .select('created_at')
+            .whereIn('status', orderStatusesAsStrings)
+            .orderBy('created_at', 'ASC')
+            .limit(1)
+            .then(result => result[0]);
+
+          if (lastOrder) {
+              startQueryFrom = lastOrder.created_at;
+          }
+        }
+      } else {
+        startQueryFrom = dateRangeFromCompareTo;
+      }
       if (startQueryFrom) {
+        const endQuery = to ? to : new Date(Date.now());
+        const orders = await this.pgConnection('order')
+          .select([
+            'id',
+            'created_at',
+            'updated_at',
+            'customer_id',
+          ])
+          .whereIn('status', orderStatusesAsStrings)
+          .andWhere('created_at', '>=', startQueryFrom) 
+          .andWhere('created_at', '<=', endQuery) 
+          .orderBy('created_at', 'DESC')
+          .then(result => result);
+
         const orderCountByCustomer: Map<string, number> = orders.reduce((acc, order) => {
           acc[order.customer_id] = (acc[order.customer_id] || 0) + 1;
           return acc;
@@ -387,7 +419,7 @@ export default class CustomersAnalyticsService {
 
         return {
           dateRangeFrom: startQueryFrom.getTime(),
-          dateRangeTo: to ? to.getTime() : new Date(Date.now()).getTime(),
+          dateRangeTo: endQuery.getTime(),
           dateRangeFromCompareTo: undefined,
           dateRangeToCompareTo: undefined,
           current: {
@@ -420,7 +452,7 @@ export default class CustomersAnalyticsService {
             this.pgConnection.raw(`date_trunc(?, customer.created_at) AS date`, [resolution]),
             this.pgConnection.raw(`COUNT(customer.id) AS customerCount`)
           ])
-          .where('customer.created_at', '>=', dateRangeFromCompareTo)
+          .where('customer.created_at', '>=', from)
           .groupBy('date')
           .orderBy('date', 'ASC');
       
@@ -436,7 +468,7 @@ export default class CustomersAnalyticsService {
         
         const beforeCustomers = await this.pgConnection('customer')
           .count({ cumulative_count: '*' })
-          .where('created_at', '<', dateRangeFromCompareTo)
+          .where('created_at', '<', dateRangeToCompareTo)
           .first();
 
        
@@ -494,29 +526,31 @@ export default class CustomersAnalyticsService {
     }
 
     if (startQueryFrom) {
-      const resolution = calculateResolution(startQueryFrom);
-  
+      const endQuery = to ? to : new Date(Date.now());
+      const resolution = calculateResolution(startQueryFrom, endQuery);
       const afterCustomers = await this.pgConnection('customer')
-          .select([
-            this.pgConnection.raw(`date_trunc(?, customer.created_at) AS date`, [resolution]),
-            this.pgConnection.raw(`COUNT(customer.id) AS customerCount`)
-          ])
-          .groupBy('date')
-          .orderBy('date', 'ASC');
-      
-        let cumulativeCount = 0;
-        const customersWithCumulativeCount = afterCustomers.map((customer) => {
-          const row = customer as unknown as any;
-          cumulativeCount += parseInt(row.customercount) ; // Add current count to cumulative sum
-          return {
-            ...row,
-            cumulative_count: cumulativeCount
-          };
-        });
+        .select([
+          this.pgConnection.raw(`date_trunc(?, customer.created_at) AS date`, [resolution]),
+          this.pgConnection.raw(`COUNT(customer.id) AS customerCount`)
+        ])
+        .where('customer.created_at', '>=', startQueryFrom)
+        .andWhere('customer.created_at', '<=', endQuery)
+        .groupBy('date')
+        .orderBy('date', 'ASC');
+    
+      let cumulativeCount = 0;
+      const customersWithCumulativeCount = afterCustomers.map((customer) => {
+        const row = customer as unknown as any;
+        cumulativeCount += parseInt(row.customercount) ;
+        return {
+          ...row,
+          cumulative_count: cumulativeCount
+        };
+      });
 
       const finalCustomers: CustomersHistoryResult = {
           dateRangeFrom: startQueryFrom.getTime(),
-          dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
+          dateRangeTo: endQuery.getTime(),
           dateRangeFromCompareTo: undefined,
           dateRangeToCompareTo: undefined,
           current: customersWithCumulativeCount.map(currentCustomer => {
@@ -543,48 +577,38 @@ export default class CustomersAnalyticsService {
 
   // Customers which purchased something in the time period / Total customers
   async getRetentionRate(orderStatuses: OrderStatus[], from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<CustomersRetentionRate> {
-    
     // Use the same query like finding for Orders, but include Customers
     let startQueryFrom: Date | undefined;
     const orderStatusesAsStrings = Object.values(orderStatuses);
     if (orderStatusesAsStrings.length) {
       const totalNumberCustomers = await this.pgConnection('customer')
-        .count('* as total')
-        .then(result => result[0].total);
-
-      if (!dateRangeFromCompareTo) {
-        if (from) {
-          startQueryFrom = from;
-        } else {
-          const lastOrder = await this.pgConnection('order')
-            .select('created_at')
-            .whereIn('status', orderStatusesAsStrings)
-            .orderBy('created_at', 'ASC')
-            .limit(1)
-            .then(result => result[0]);
-
-          if (lastOrder) {
-              startQueryFrom = lastOrder.created_at;
-          }
-        }
-      } else {
-        startQueryFrom = dateRangeFromCompareTo;
-      }
-      const orders = await this.pgConnection('order')
-        .select([
-          'id',
-          'created_at',
-          'updated_at',
-          'customer_id',
-        ])
-        .whereIn('status', orderStatusesAsStrings)
-        .andWhere('created_at', '>=', startQueryFrom)  // fallback to some distant past date if no startQueryFrom
-        .orderBy('created_at', 'DESC')
-        .then(result => result);
- 
+      .count('* as total')
+      .then(result => result[0].total);
+  
       if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
-        const previousOrders = orders.filter(order => order.created_at < from);
-        const currentOrders = orders.filter(order => order.created_at >= from);
+        const orders = await this.pgConnection
+          .select([
+            'id',
+            'created_at',
+            'updated_at',
+            'customer_id',
+          ])
+          .select(
+            this.pgConnection.raw(`CASE
+                WHEN "order".created_at < ? AND "order".created_at >= ? THEN 'previous'
+                WHEN "order".created_at < ? AND "order".created_at >= ? THEN 'current'
+              END AS type
+            `, [dateRangeToCompareTo, dateRangeFromCompareTo, to, from])
+          )
+          .from('order')
+          .whereIn('status', orderStatusesAsStrings)
+          .andWhere('order.created_at', '>=', dateRangeFromCompareTo)
+          .groupBy(['type', 'id'])
+          .orderBy([{ column: 'type', order: 'ASC' }])
+          .then(result => result);
+
+        const previousOrders = orders.filter(order => order.type == 'previous');
+        const currentOrders = orders.filter(order => order.type == 'current');
 
         const previousCustomersSet: Set<string> = previousOrders.reduce((acc, order) => {
           acc.add(order.customer_id);
@@ -609,7 +633,40 @@ export default class CustomersAnalyticsService {
         }
       }
 
+
+      if (!dateRangeFromCompareTo) {
+        if (from) {
+          startQueryFrom = from;
+        } else {
+          const lastOrder = await this.pgConnection('order')
+            .select('created_at')
+            .whereIn('status', orderStatusesAsStrings)
+            .orderBy('created_at', 'ASC')
+            .limit(1)
+            .then(result => result[0]);
+
+          if (lastOrder) {
+              startQueryFrom = lastOrder.created_at;
+          }
+        }
+      } else {
+        startQueryFrom = dateRangeFromCompareTo;
+      }
       if (startQueryFrom) {
+        const endQuery = to ? to : new Date(Date.now());
+        const orders = await this.pgConnection('order')
+          .select([
+            'id',
+            'created_at',
+            'updated_at',
+            'customer_id',
+          ])
+          .whereIn('status', orderStatusesAsStrings)
+          .andWhere('created_at', '>=', startQueryFrom) 
+          .andWhere('created_at', '<=', endQuery) 
+          .orderBy('created_at', 'DESC')
+          .then(result => result);
+
         const currentCustomersSet: Set<string> = orders.reduce((acc, order) => {
           acc.add(order.customer_id);
           return acc;
@@ -619,7 +676,7 @@ export default class CustomersAnalyticsService {
 
         return {
           dateRangeFrom: startQueryFrom.getTime(),
-          dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
+          dateRangeTo: endQuery.getTime(),
           dateRangeFromCompareTo: undefined,
           dateRangeToCompareTo: undefined,
           current: retentionCustomerRateCurrentValue,

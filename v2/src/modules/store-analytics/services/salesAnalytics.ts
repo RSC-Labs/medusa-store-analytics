@@ -11,7 +11,7 @@
  */
 
 import { PgConnectionType } from "../utils/types"
-import { calculateResolution, DateResolutionType, getTruncateFunction } from "./utils/dateTransformations"
+import { calculateResolution, DateResolutionType, getTruncateFunction } from "./../utils/dateTransformations"
 import { OrderStatus } from "@medusajs/framework/utils"
 import { getDecimalDigits } from "./utils/currency"
 
@@ -126,26 +126,30 @@ export default class SalesAnalyticsService {
       } else {
         startQueryFrom = dateRangeFromCompareTo;
       }
-
-      const ordersWithSummary  = await this.pgConnection('order')
-        .select([
-          'order.*',
-          'order_summary.id as summary_id',
-          'order_summary.totals',
-          'order_summary.created_at as summary_created_at',
-          'order_summary.updated_at as summary_updated_at'
-        ])
-        .leftJoin('order_summary', 'order.id', 'order_summary.order_id')
-        .whereIn('order.status', orderStatusesAsStrings)
-        .andWhere('order.currency_code', currencyCode)
-        .andWhere('order.created_at', '>=', startQueryFrom) 
-        .orderBy('order.created_at', 'DESC')
-        .then(result => result);
-
       if (startQueryFrom) {
+        const endQuery = to ? to : new Date(Date.now());
+        const ordersWithSummary  = await this.pgConnection('order')
+          .select([
+            'order.*',
+            'order_summary.id as summary_id',
+            'order_summary.totals',
+            'order_summary.created_at as summary_created_at',
+            'order_summary.updated_at as summary_updated_at'
+          ])
+          .leftJoin('order_summary', 'order.id', 'order_summary.order_id')
+          .whereIn('order.status', orderStatusesAsStrings)
+          .andWhere('order.currency_code', currencyCode)
+          .andWhere('order.created_at', '>=', startQueryFrom)
+          .andWhere('order.created_at', '<=', endQuery)
+          .orderBy('order.created_at', 'DESC')
+          .then(result => result);
+
+        const uniqueOrdersWithSummary = Array.from(
+          new Map(ordersWithSummary.map(order => [order.id, order])).values());
+
         if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
-          const previousOrders = ordersWithSummary.filter(order => order.created_at < from);
-          const currentOrders = ordersWithSummary.filter(order => order.created_at >= from);
+          const previousOrders = uniqueOrdersWithSummary.filter(order => order.created_at < from);
+          const currentOrders = uniqueOrdersWithSummary.filter(order => order.created_at >= from);
           const resolution = calculateResolution(from);
           const groupedCurrentOrders = groupPerDate(currentOrders, resolution, decimalDigits);
           const groupedPreviousOrders = groupPerDate(previousOrders, resolution, decimalDigits);
@@ -163,7 +167,7 @@ export default class SalesAnalyticsService {
           }
         }
         const resolution = calculateResolution(startQueryFrom);
-        const currentOrders = ordersWithSummary;
+        const currentOrders = uniqueOrdersWithSummary;
         const groupedCurrentOrders = groupPerDate(currentOrders, resolution, decimalDigits);
         const currentSales: SalesHistory[] = Object.values(groupedCurrentOrders);
     
@@ -191,6 +195,7 @@ export default class SalesAnalyticsService {
       previous: []
     }
   }
+
   async getSalesChannelsPopularity(orderStatuses: OrderStatus[], from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<OrdersSalesChannelPopularityResult> {
     const orderStatusesAsStrings = Object.values(orderStatuses);
     if (orderStatusesAsStrings.length) {
@@ -268,7 +273,8 @@ export default class SalesAnalyticsService {
       }
       
       if (startQueryFrom) {
-        const resolution = calculateResolution(startQueryFrom);
+        const endQuery = to ? to : new Date(Date.now());
+        const resolution = calculateResolution(startQueryFrom, endQuery);
         const rawOrdersCountBySalesChannel = await this.pgConnection('order')
           .select([
             this.pgConnection.raw(`date_trunc(?, "order".created_at) AS date`, [resolution]),
@@ -278,6 +284,7 @@ export default class SalesAnalyticsService {
           ])
           .leftJoin('sales_channel', 'sales_channel.id', '=', 'order.sales_channel_id')
           .where('order.created_at', '>=', startQueryFrom)
+          .andWhere('order.created_at', '<=', endQuery)
           .whereIn('order.status', orderStatusesAsStrings)
           .groupByRaw('date, sales_channel.id')
           .orderBy('date', 'ASC');
@@ -391,6 +398,7 @@ export default class SalesAnalyticsService {
       }
       
       if (startQueryFrom) {
+        const endQuery = to ? to : new Date(Date.now());
         const resolution = calculateResolution(startQueryFrom);
         const rawOrdersCountByRegion = await this.pgConnection('order')
           .select([
@@ -401,6 +409,7 @@ export default class SalesAnalyticsService {
           ])
           .leftJoin('region', 'region.id', '=', 'order.region_id')
           .where('order.created_at', '>=', startQueryFrom)
+          .andWhere('order.created_at', '<=', endQuery)
           .whereIn('order.status', orderStatusesAsStrings)
           .groupByRaw('date, region.id')
           .orderBy('date', 'ASC');
@@ -489,10 +498,12 @@ export default class SalesAnalyticsService {
     }
 
     if (startQueryFrom) {
+      const endQuery = to ? to : new Date(Date.now());
       const totalRefundAmount = await this.pgConnection('refund')
         .join('payment', 'refund.payment_id', 'payment.id')
         .sum('refund.amount AS sum')
         .where('refund.created_at', '>=', startQueryFrom)
+        .andWhere('refund.created_at', '<=', endQuery)
         .andWhere('payment.currency_code', '=', currencyCode)
         .first();
 
