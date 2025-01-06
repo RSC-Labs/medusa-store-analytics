@@ -1,12 +1,15 @@
 import { Logger, RegionDTO } from "@medusajs/framework/types"
-import CustomersAnalyticsService from "./services/customersAnalytics";
+import { 
+  CustomersAnalyticsService, 
+  ReportsAnalyticsService, 
+  SalesAnalyticsService, 
+  ProductsAnalyticsService,
+  MarketingAnalyticsService,
+  OrdersAnalyticsService,
+  SalesHistoryResult
+} from "./services";
 import { PgConnectionType } from "./utils/types";
-import ReportsAnalyticsService from "./services/reportsAnalytics";
 import { OrderStatus } from "@medusajs/framework/utils";
-import SalesAnalyticsService, { SalesHistoryResult } from "./services/salesAnalytics";
-import ProductsAnalyticsService from "./services/productsAnalytics";
-import MarketingAnalyticsService from "./services/marketingAnalytics";
-import OrdersAnalyticsService from "./services/ordersAnalytics";
 
 type ModuleOptions = {
   hideProTab: boolean

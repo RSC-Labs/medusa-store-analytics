@@ -53,7 +53,7 @@ type InjectedDependencies = {
   __pg_connection__: PgConnectionType,
 }
 
-export default class ProductsAnalyticsService {
+export class ProductsAnalyticsService {
 
   protected pgConnection: PgConnectionType;
   private readonly TOP_LIMIT;

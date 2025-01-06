@@ -37,7 +37,7 @@ type ReportInput = {
   regions: RegionDTO[]
 }
 
-export default class ReportsAnalyticsService {
+export class ReportsAnalyticsService {
 
   protected pgConnection: PgConnectionType;
 

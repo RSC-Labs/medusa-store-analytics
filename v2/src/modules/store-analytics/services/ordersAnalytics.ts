@@ -62,7 +62,7 @@ type InjectedDependencies = {
   __pg_connection__: PgConnectionType,
 }
 
-export default class OrdersAnalyticsService {
+export class OrdersAnalyticsService {
 
   protected pgConnection: PgConnectionType;
 
