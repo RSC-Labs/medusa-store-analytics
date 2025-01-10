@@ -23,6 +23,19 @@ Add module to your `medusa-config.js` file:
 }
 ```
 
+Add plugin dependencies to your `package.json`
+```json
+    "@medusajs/icons": "^2.1.3",
+
+    "@mui/material": "^6.1.2",
+    "react-hook-form": "^7.53.0",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+
+    "pdfkit": "^0.15.1",
+    "recharts": "^2.13.3"
+```
+
 ## How can I use it?
 
 After installation of plugin, you shall be able to see new option on sidebar. Click `Analytics` and see data about your store.
