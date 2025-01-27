@@ -42,7 +42,7 @@ After installation of plugin, you shall be able to see new option on sidebar. Cl
 
 <p align="center">
   <picture>
-    <img alt="Medusa store-analytics-1" src="./docs/medusa-store-analytics-1.PNG">
+    <img alt="Medusa store-analytics-1" src="https://github.com/RSC-Labs/medusa-store-analytics/blob/a2b38a666f5bab31c08f11146edbc336dd27dfbc/v2/docs/medusa-store-analytics-1.PNG">
   </picture>
 </p>
 
@@ -59,7 +59,7 @@ No configuration is needed. Everything is done through UI. You can use such opti
 
 <p align="center">
   <picture>
-    <img alt="Medusa store-analytics-2" src="./docs/medusa-store-analytics-2.PNG">
+    <img alt="Medusa store-analytics-2" src="https://github.com/RSC-Labs/medusa-store-analytics/blob/a2b38a666f5bab31c08f11146edbc336dd27dfbc/v2/docs/medusa-store-analytics-2.PNG">
   </picture>
 </p>
 
