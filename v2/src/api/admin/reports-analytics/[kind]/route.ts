@@ -34,7 +34,7 @@ export const POST = async (
   const orderStatuses: OrderStatus[] = orderStatusesFromQuery !== undefined ? 
     orderStatusesFromQuery.map(status => OrderStatus[status.toUpperCase()]).filter(orderStatus => orderStatus !== undefined): [];
 
-  let result: Buffer;
+  let result: Buffer | undefined;
   const storeAnalyticsModuleService: StoreAnalyticsModuleService = req.scope.resolve(STORE_ANALYTICS_MODULE)
 
   try {
