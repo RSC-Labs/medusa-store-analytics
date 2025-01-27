@@ -91,10 +91,10 @@ export function convertDateLastsToComparedDateRange(dateLasts: DateLasts): DateR
   return result;
 }
 
-export function deduceDateUrlParams(dateRange: DateRange, dateRangeCompareTo: DateRange, orderStatuses?: OrderStatus[]): URLSearchParams {
+export function deduceDateUrlParams(dateRange?: DateRange, dateRangeCompareTo?: DateRange, orderStatuses?: OrderStatus[]): URLSearchParams {
 
-  let dateRangeParams: Record<string, string>;
-  let dateRangeCompareToParams: Record<string, string>;
+  let dateRangeParams: Record<string, string> = {};
+  let dateRangeCompareToParams: Record<string, string> = {};
 
   if (dateRange) {
     dateRangeParams = {

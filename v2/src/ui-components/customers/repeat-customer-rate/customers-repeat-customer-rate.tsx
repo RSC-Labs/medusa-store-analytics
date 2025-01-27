@@ -64,11 +64,11 @@ const RepeatCustomerRateDetails = ({orderStatuses, dateRange, dateRangeCompareTo
     return <Alert variant="error">{errorText}</Alert>
   }
 
-  if (data.analytics == undefined) {
+  if (data && data.analytics == undefined) {
     return <Heading level="h3">Cannot get orders or customers</Heading>
   }
 
-  if (data.analytics.dateRangeFrom) {
+  if (data && data.analytics.dateRangeFrom) {
     return (
       <Grid container>
         <Grid item xs={12} md={12}>

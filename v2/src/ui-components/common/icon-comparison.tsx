@@ -16,10 +16,10 @@ export const IconComparison = ({current, previous, switchArrow} : {current: numb
   if (current == previous) {
     return <MinusMini color="black"/>
   }
-  if (current > previous) {
+  if (previous && (current > previous)) {
     return <ArrowUpMini color={switchArrow ? "red" : "green"}/>
   }
-  if (current < previous) {
+  if (previous && (current < previous)) {
     return <ArrowDownMini color={switchArrow ? "green" : "red"}/>
   }
 }

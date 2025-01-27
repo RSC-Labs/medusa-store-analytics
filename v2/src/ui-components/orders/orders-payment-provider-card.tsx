@@ -61,11 +61,11 @@ const OrdersPaymentProviderDetails = ({dateRange, dateRangeCompareTo, compareEna
     return <Alert variant="error">{errorText}</Alert>
   }
 
-  if (data.analytics == undefined) {
+  if (data && data.analytics == undefined) {
     return <Heading level="h3">Cannot get orders</Heading>
   }
 
-  if (data.analytics.dateRangeFrom) {
+  if (data && data.analytics.dateRangeFrom) {
     return <OrdersPaymentProviderPieChart ordersPaymentProviderResponse={data} compareEnabled={compareEnabled}/>
   } else {
     return <Heading level="h3">No orders</Heading>

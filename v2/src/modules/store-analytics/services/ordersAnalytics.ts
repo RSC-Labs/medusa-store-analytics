@@ -91,7 +91,9 @@ export class OrdersAnalyticsService {
           .groupBy(['type', 'date'])
           .orderByRaw('"date" ASC, "type" ASC');
 
-        const finalOrders: OrdersHistoryResult = orders.reduce((acc, entry) => {
+        const theOrders = orders as unknown as any;
+
+        const finalOrders: any = theOrders.reduce((acc, entry) => {
           const { type, date, orderCount } = entry;
           if (!acc[type]) {
             acc[type] = [];
@@ -272,7 +274,7 @@ export class OrdersAnalyticsService {
       results.forEach(result => {
           const { orderCount, paymentProviderId } = result;
           if (orderMap.has(paymentProviderId)) {
-            const sum: number = parseInt(orderMap.get(paymentProviderId)) + parseInt(orderCount);
+            const sum: number = parseInt(orderMap.get(paymentProviderId)!) + parseInt(orderCount);
             orderMap.set(paymentProviderId, sum.toFixed());
           } else {
             orderMap.set(paymentProviderId, orderCount);

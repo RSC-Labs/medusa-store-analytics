@@ -66,7 +66,7 @@ const SalesDetails = ({orderStatuses, currencyCode, dateRange, dateRangeCompareT
     return <Alert variant="error">{errorText}</Alert>
   }
 
-  if (data.analytics == undefined) {
+  if (data && data.analytics == undefined) {
     return (
       <Grid item xs={12} md={12}> 
         <Heading level="h3">Cannot get orders</Heading>
@@ -74,14 +74,14 @@ const SalesDetails = ({orderStatuses, currencyCode, dateRange, dateRangeCompareT
     )
   }
 
-  if (data.analytics.dateRangeFrom) {
+  if (data && data.analytics.dateRangeFrom && data.analytics.dateRangeTo) {
     return (
       <>
         <Grid item xs={12} md={12}>
           <SalesNumber salesHistoryResponse={data} compareEnabled={compareEnabled}/>
         </Grid>
         <Grid item xs={12} md={12}>
-          <SalesByNewChart salesHistoryResponse={data} compareEnabled={compareEnabled}/> 
+          <SalesByNewChart dateRangeFrom={new Date(data.analytics.dateRangeFrom)} dateRangeTo={new Date(data.analytics.dateRangeTo)} salesHistoryResponse={data} compareEnabled={compareEnabled}/> 
         </Grid>
       </>
     )

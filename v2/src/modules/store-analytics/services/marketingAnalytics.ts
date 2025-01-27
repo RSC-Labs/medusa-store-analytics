@@ -70,12 +70,12 @@ export class MarketingAnalyticsService {
           dateRangeToCompareTo: undefined,
           current: topDiscounts.map(result => (
             {
-              sum: result.sum,
-              discountCode: result.code,
-              discountId: result.discount_id
+              sum: result.sum.toString(),
+              discountCode: result.code.toString(),
+              discountId: result.discount_id.toString()
             }
           )),
-          previous: undefined
+          previous: []
         }
       }
 
@@ -123,12 +123,12 @@ export class MarketingAnalyticsService {
           dateRangeToCompareTo: undefined,
           current: topDiscounts.map(result => (
             {
-              sum: result.sum,
-              discountCode: result.code,
-              discountId: result.discount_id
+              sum: result.sum.toString(),
+              discountCode: result.code.toString(),
+              discountId: result.discount_id.toString()
             }
           )),
-          previous: undefined
+          previous: []
         }
       }
     }
@@ -139,7 +139,7 @@ export class MarketingAnalyticsService {
       dateRangeFromCompareTo: undefined,
       dateRangeToCompareTo: undefined,
       current: [],
-      previous: undefined
+      previous: []
     }
   }
 }

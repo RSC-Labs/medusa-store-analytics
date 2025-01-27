@@ -154,6 +154,10 @@ const OutOfTheStockVariantsModalContent = () => {
     );
   }
 
+  if (data == undefined || data.analytics == undefined) {
+    return <Heading level="h3">Cannot get products</Heading>
+  }
+
   return (
     <FocusModal.Body>
       <Grid container direction={'column'} alignContent={'center'} paddingTop={8}>

@@ -107,7 +107,7 @@ export class ProductsAnalyticsService {
               thumbnail: result.thumbnail
             }
           )),
-          previous: undefined
+          previous: []
         }
       }
 
@@ -172,7 +172,7 @@ export class ProductsAnalyticsService {
               thumbnail: result.thumbnail
             }
           )),
-          previous: undefined
+          previous: []
         } 
       }
     }
@@ -183,7 +183,7 @@ export class ProductsAnalyticsService {
       dateRangeFromCompareTo: undefined,
       dateRangeToCompareTo: undefined,
       current: [],
-      previous: undefined
+      previous: []
     }
   }
 
@@ -211,8 +211,8 @@ export class ProductsAnalyticsService {
           dateRangeTo: to.getTime(),
           dateRangeFromCompareTo: dateRangeFromCompareTo.getTime(),
           dateRangeToCompareTo: dateRangeToCompareTo.getTime(),
-          current: productsSoldCurrently.total_quantity,
-          previous: productsSoldPreviously.total_quantity
+          current: productsSoldCurrently ? productsSoldCurrently.total_quantity : [],
+          previous: productsSoldPreviously ? productsSoldPreviously.total_quantity : []
         }
       }
 
@@ -249,8 +249,8 @@ export class ProductsAnalyticsService {
           dateRangeTo: to ? to.getTime(): new Date(Date.now()).getTime(),
           dateRangeFromCompareTo: undefined,
           dateRangeToCompareTo: undefined,
-          current: productsSoldCurrently.total_quantity,
-          previous: undefined
+          current: productsSoldCurrently ? productsSoldCurrently.total_quantity : [],
+          previous: []
         }
       }
     }
@@ -260,8 +260,8 @@ export class ProductsAnalyticsService {
       dateRangeTo: undefined,
       dateRangeFromCompareTo: undefined,
       dateRangeToCompareTo: undefined,
-      current: undefined,
-      previous: undefined
+      current: [],
+      previous: []
     }
   }
   async getOutOfTheStockVariants(limit?: number) : Promise<OutOfTheStockVariantsCountResult> {
@@ -373,7 +373,7 @@ export class ProductsAnalyticsService {
             thumbnail: result.thumbnail
           }
         )),
-        previous: undefined
+        previous: []
       } 
     }
 
@@ -434,7 +434,7 @@ export class ProductsAnalyticsService {
             thumbnail: result.thumbnail
           }
         )),
-        previous: undefined
+        previous: []
       } 
     }
 
@@ -444,7 +444,7 @@ export class ProductsAnalyticsService {
       dateRangeFromCompareTo: undefined,
       dateRangeToCompareTo: undefined,
       current: [],
-      previous: undefined
+      previous: []
     }
   }
 }

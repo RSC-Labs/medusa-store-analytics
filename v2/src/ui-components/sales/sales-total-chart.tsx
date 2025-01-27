@@ -15,7 +15,8 @@ import { ChartCurrentPrevious } from "../common/chart-components";
 import { SalesHistoryResponse } from "./types";
 import { amountToDisplay } from "../utils/helpers";
 
-export const SalesByNewChart = ({salesHistoryResponse, compareEnabled} : {salesHistoryResponse: SalesHistoryResponse, compareEnabled?: boolean}) => {
+export const SalesByNewChart = ({dateRangeFrom, dateRangeTo, salesHistoryResponse, compareEnabled} : 
+  {dateRangeFrom: Date, dateRangeTo: Date, salesHistoryResponse: SalesHistoryResponse, compareEnabled?: boolean}) => {
   const rawChartData = {
     current: salesHistoryResponse.analytics.current.map(currentData => {
       return {
@@ -34,9 +35,9 @@ export const SalesByNewChart = ({salesHistoryResponse, compareEnabled} : {salesH
     <>
       <Heading level="h3">Sales by time</Heading>
       <ChartCurrentPrevious          
-         rawChartData={rawChartData} 
-        fromDate={new Date(salesHistoryResponse.analytics.dateRangeFrom)} 
-        toDate={new Date(salesHistoryResponse.analytics.dateRangeTo)}
+        rawChartData={rawChartData} 
+        fromDate={dateRangeFrom} 
+        toDate={dateRangeTo}
         fromCompareDate={salesHistoryResponse.analytics.dateRangeFromCompareTo ? new Date(salesHistoryResponse.analytics.dateRangeFromCompareTo) : undefined}
         toCompareDate={salesHistoryResponse.analytics.dateRangeToCompareTo ? new Date(salesHistoryResponse.analytics.dateRangeToCompareTo) : undefined}
         compareEnabled={compareEnabled}

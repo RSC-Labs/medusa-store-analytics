@@ -81,7 +81,7 @@ export const CumulativeCustomersChart = ({dateRange, dateRangeCompareTo, compare
     return <Alert variant="error">{errorText}</Alert>
   }
 
-  if (data.analytics == undefined) {
+  if (data == undefined || data.analytics == undefined) {
     return <Heading level="h3">Cannot get customers</Heading>
   }
 

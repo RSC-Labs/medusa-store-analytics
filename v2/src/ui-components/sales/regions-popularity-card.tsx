@@ -114,11 +114,11 @@ const RegionsPopularityDetails = ({orderStatuses, dateRange, dateRangeCompareTo,
     return <Alert variant="error">{errorText}</Alert>
   }
 
-  if (data.analytics == undefined) {
+  if (data && data.analytics == undefined) {
     return <Heading level="h3">Cannot get orders</Heading>
   }
 
-  if (data.analytics.dateRangeFrom) {
+  if (data && data.analytics.dateRangeFrom) {
     return <PopularityTable valueColumnName="Orders" tableRows={transformToPopularityTable(data.analytics)} enableComparing={compareEnabled && dateRangeCompareTo !== undefined}/>
   } else {
     return <Heading level="h3">No orders</Heading>

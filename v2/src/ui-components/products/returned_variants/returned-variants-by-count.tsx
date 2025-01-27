@@ -44,7 +44,13 @@ function transformToVariantTopTable(result: VariantsCountPopularityResult): Vari
   const currentMap = new Map<string, VariantsTopTableRow>();
 
   result.current.forEach(currentItem => {
-    const currentCount = currentMap.get(currentItem.variantId) ? currentMap.get(currentItem.variantId).sum : '0';
+    let currentCount = '0';
+    if (currentMap.get(currentItem.variantId)) {
+      const sum = currentMap.get(currentItem.variantId)?.sum;
+      if (sum) {
+        currentCount = sum;
+      }
+    }
     currentMap.set(currentItem.variantId, {
       productId: currentItem.productId,
       productTitle: currentItem.productTitle,
@@ -99,11 +105,11 @@ const ReturnedVariantsByCount = ({dateRange, dateRangeCompareTo} : {
     return <Alert variant="error">{errorText}</Alert>
   }
 
-  if (data.analytics == undefined) {
+  if (data && data.analytics == undefined) {
     return <Heading level="h3">Cannot get orders or products</Heading>
   }
 
-  if (data.analytics.dateRangeFrom) {
+  if (data && data.analytics.dateRangeFrom) {
     return <ReturnedVariantsTable tableRows={transformToVariantTopTable(data.analytics)}/>
   } else {
     return <Heading level="h3">No products for selected orders</Heading>

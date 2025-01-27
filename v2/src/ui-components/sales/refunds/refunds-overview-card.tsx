@@ -65,7 +65,7 @@ const RefundsDetails = ({currencyCode, dateRange, dateRangeCompareTo, compareEna
     return <Alert variant="error">{errorText}</Alert>
   }
 
-  if (data.analytics == undefined) {
+  if (data && data.analytics == undefined) {
     return (
       <Grid item xs={12} md={12}> 
         <Heading level="h3">Cannot get refunds</Heading>
@@ -73,7 +73,7 @@ const RefundsDetails = ({currencyCode, dateRange, dateRangeCompareTo, compareEna
     )
   }
 
-  if (data.analytics.dateRangeFrom) {
+  if (data && data.analytics.dateRangeFrom) {
     return (
       <>
         <Grid item xs={12} md={12}>

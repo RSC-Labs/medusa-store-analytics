@@ -243,7 +243,14 @@ export const ChartCurrentPrevious = ({rawChartData, fromDate, toDate, fromCompar
 
   if (!areRangesTheSame(fromDate, toDate, fromCompareDate, toCompareDate)) {
     const currentPeriodInDays = Math.ceil((toDate.getTime() - fromDate.getTime()) / (24*60*60*1000));
-    const precedingPeriodInDays = Math.ceil((toCompareDate.getTime() - fromCompareDate.getTime()) / (24*60*60*1000));
+    let precedingPeriodInDays = 0;
+    if (fromCompareDate) {
+      if (toCompareDate) {
+        precedingPeriodInDays = Math.ceil((toCompareDate.getTime() - fromCompareDate.getTime()) / (24*60*60*1000));
+      } else {
+        precedingPeriodInDays = Math.ceil((new Date(Date.now()).getTime() - fromCompareDate.getTime()) / (24*60*60*1000));
+      }
+    }
     return (
       <Box 
         width={500} 

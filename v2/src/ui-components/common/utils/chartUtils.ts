@@ -16,7 +16,7 @@ export enum ChartResolutionType {
 }
 
 export function calculateResolution(fromDate?: Date, toDate?: Date) : ChartResolutionType {
-  if (!fromDate) return undefined;
+  if (!fromDate) return ChartResolutionType.Month;
 
   const calculateToDate = toDate ? new Date(toDate) : new Date(Date.now());
   const diffTime = calculateToDate.getTime() - fromDate.getTime();

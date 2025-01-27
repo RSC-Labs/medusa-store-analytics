@@ -70,8 +70,8 @@ type RefundsResult = {
   dateRangeTo?: number,
   dateRangeFromCompareTo?: number,
   dateRangeToCompareTo?: number,
-  current: string
-  previous: string
+  current?: string
+  previous?: string
 }
 
 function groupPerDate(orders: any[], resolution: DateResolutionType, decimalMultiplier: number) {
@@ -521,7 +521,7 @@ export class SalesAnalyticsService {
     }
 
     return {
-      currencyCode: undefined,
+      currencyCode: currencyCode,
       currencyDecimalDigits: getDecimalDigits(currencyCode),
       dateRangeFrom: undefined,
       dateRangeTo: undefined,

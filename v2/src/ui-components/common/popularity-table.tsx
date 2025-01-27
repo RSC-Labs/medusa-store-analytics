@@ -14,7 +14,7 @@ import { Heading, Text, Tooltip } from "@medusajs/ui";
 import { Divider, Grid } from "@mui/material";
 import { IconComparison } from "./icon-comparison";
 
-const ValueColumn = ({current, previous, enableComparing} : {current: string, previous: string, enableComparing?: boolean}) => {
+const ValueColumn = ({current, previous, enableComparing} : {current: string, previous?: string, enableComparing?: boolean}) => {
   return (
     <Grid container alignItems={'center'}>
       {enableComparing ? 
@@ -35,7 +35,7 @@ const ValueColumn = ({current, previous, enableComparing} : {current: string, pr
       {enableComparing && 
       <Grid item>
         <Grid container alignItems={'center'}>
-          {parseInt(current) != parseInt(previous) && <Grid item>
+          {parseInt(current) != (previous ? parseInt(previous) : undefined) && <Grid item>
             <IconComparison current={parseInt(current)} previous={previous ? parseInt(previous) : undefined}/>
           </Grid>
           }

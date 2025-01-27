@@ -72,7 +72,7 @@ export const OrdersNumber = ({orderStatuses, dateRange, dateRangeCompareTo, comp
     return <Alert variant="error">{errorText}</Alert>
   }
 
-  if (data.analytics == undefined) {
+  if (data == undefined || data.analytics == undefined) {
     return <Heading level="h3">Cannot get orders</Heading>
   }
 

@@ -15,8 +15,8 @@ export enum DateResolutionType {
   Month = 'month'
 }
 
-export function calculateResolution(date?: Date, toDate?: Date) : DateResolutionType | undefined {
-  if (!date) return undefined;
+export function calculateResolution(date?: Date, toDate?: Date) : DateResolutionType {
+  if (!date) return DateResolutionType.Month;
 
   const weekAgoTruncated = new Date(new Date(Date.now() - 604800000).setHours(0,0,0,0)); 
   const monthAgoTruncated = new Date(new Date(new Date().setMonth(new Date().getMonth() - 1)).setHours(0,0,0,0));

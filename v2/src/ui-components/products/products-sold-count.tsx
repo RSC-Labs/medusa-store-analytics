@@ -33,7 +33,7 @@ type ProductsSoldCountPopularityResponse = {
   analytics: ProductsSoldCountPopularityResult
 }
 
-const ProductsSoldCountNumbers = ({current, previous, compareEnabled} : {current: string, previous: string | undefined, compareEnabled: boolean}) => {
+const ProductsSoldCountNumbers = ({current, previous, compareEnabled} : {current: string, previous: string | undefined, compareEnabled?: boolean}) => {
   return (
     <Grid container alignItems={'center'} spacing={2}>
       <Grid item>
@@ -99,11 +99,11 @@ const ProductsSoldCount = ({orderStatuses, dateRange, dateRangeCompareTo, compar
     return <Alert variant="error">{errorText}</Alert>
   }
 
-  if (data.analytics == undefined || data.analytics.current == undefined) {
+  if (data == undefined || data.analytics == undefined || data.analytics.current == undefined) {
     return <Heading level="h3">Cannot get orders or products</Heading>
   }
 
-  if (data.analytics.dateRangeFrom) {
+  if (data && data.analytics.dateRangeFrom) {
     return <ProductsSoldCountNumbers current={data.analytics.current} previous={data.analytics.previous} compareEnabled={compareEnabled}/>
   } else {
     return <Heading level="h3">No products for selected orders</Heading>

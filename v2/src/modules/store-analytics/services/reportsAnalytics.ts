@@ -59,8 +59,11 @@ export class ReportsAnalyticsService {
     // Sales
     PdfSalesTemplate.generateHeader(doc);
     for (const region of input.regions) {
-      PdfSalesTemplate.generateTableTitle(doc, region);
-      PdfSalesTemplate.generateTable(doc, input.salesHistories.find(salesHistory => salesHistory.currencyCode == region.currency_code));
+      const salesHistory = input.salesHistories.find(salesHistory => salesHistory.currencyCode == region.currency_code);
+      if (salesHistory) {
+        PdfSalesTemplate.generateTableTitle(doc, region);
+        PdfSalesTemplate.generateTable(doc, salesHistory);
+      }
     }
 
     // Customers

@@ -49,7 +49,7 @@ type CustomersOrdersDistribution = {
   dateRangeFromCompareTo?: number,
   dateRangeToCompareTo?: number,
   current: Distributions,
-  previous: Distributions
+  previous?: Distributions
 }
 
 type CustomersRetentionRate = {
@@ -57,8 +57,8 @@ type CustomersRetentionRate = {
   dateRangeTo?: number,
   dateRangeFromCompareTo?: number,
   dateRangeToCompareTo?: number,
-  current: number,
-  previous: number
+  current?: number,
+  previous?: number
 }
 
 type InjectedDependencies = {
@@ -241,7 +241,7 @@ export class CustomersAnalyticsService {
         .andWhere('created_at', '<=', endQuery) 
         .first();
 
-      const totalCustomersCount = parseInt(customersCount?.count || '0', 10);
+      const totalCustomersCount = parseInt(customersCount?.count?.toString() || '0', 10);
 
       return {
         dateRangeFrom: startQueryFrom.getTime(),
@@ -480,7 +480,7 @@ export class CustomersAnalyticsService {
 
         for (const customerWithCumulativeCount of customersWithCumulativeCount) {
           customerWithCumulativeCount.cumulative_count = parseInt(customerWithCumulativeCount.cumulative_count);
-          customerWithCumulativeCount.cumulative_count += parseInt(beforeCustomers.cumulative_count);
+          customerWithCumulativeCount.cumulative_count += parseInt(beforeCustomers ? beforeCustomers.cumulative_count?.toString() || '0' : '0');
         }
 
         const previousCustomers = customersWithCumulativeCount.filter(customer => customer.date < from);

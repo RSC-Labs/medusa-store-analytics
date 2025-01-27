@@ -23,6 +23,15 @@
     "dev": "medusa plugin:develop",
     "prepublishOnly": "medusa plugin:build"
   },
+  "dependencies": {
+    "@mui/material": "^6.4.1",
+    "typeorm": "^0.3.20",
+    "react-hook-form": "^7.54.2",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "recharts": "^2.10.3",
+    "pdfkit": "^0.15.0"
+  },
   "devDependencies": {
     "@medusajs/admin-sdk": "2.4.0",
     "@medusajs/cli": "2.4.0",
@@ -48,16 +57,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2",
     "vite": "^5.2.11",
-    "yalc": "^1.0.0-pre.53",
-
-
-    "@mui/material": "^5.15.3",
-    "typeorm": "^0.3.16",
-    "react-hook-form": "^7.49.2",
-    "@emotion/react": "^11.11.3",
-    "@emotion/styled": "11.13.0",
-    "recharts": "^2.10.3",
-    "pdfkit": "^0.15.0"
+    "yalc": "^1.0.0-pre.53"
   },
   "peerDependencies": {
     "@medusajs/admin-sdk": "2.4.0",

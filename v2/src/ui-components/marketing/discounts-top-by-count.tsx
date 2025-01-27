@@ -42,7 +42,13 @@ function transformToDiscountsTopTable(result: DiscountsCountPopularityResult): D
   const currentMap = new Map<string, DiscountsTopTableRow>();
 
   result.current.forEach(currentItem => {
-    const currentCount = currentMap.get(currentItem.discountId) ? currentMap.get(currentItem.discountId).sum : '0';
+    let currentCount = '0';
+    if (currentMap.get(currentItem.discountId)) {
+      const sum = currentMap.get(currentItem.discountId)?.sum;
+      if (sum) {
+        currentCount = sum;
+      }
+    }
     currentMap.set(currentItem.discountId, {
       discountCode: currentItem.discountCode,
       sum: (parseInt(currentCount) + parseInt(currentItem.sum)).toString()
@@ -94,7 +100,7 @@ const DiscountsTopByCount = ({orderStatuses, dateRange, dateRangeCompareTo} : {
     return <Alert variant="error">{errorText}</Alert>
   }
 
-  if (data.analytics == undefined) {
+  if (data == undefined || data.analytics == undefined) {
     return <Heading level="h3">Cannot get orders or discounts</Heading>
   }
 
