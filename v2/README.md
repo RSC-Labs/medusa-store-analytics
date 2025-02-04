@@ -8,7 +8,44 @@ Knowledge about your store is crucial to take proper action to increase the sale
 
 ### Plugin system
 
-Plugins are not yet supported in Medusa 2.0, so this part is TODO.
+1. Install plugin by adding to your `package.json`:
+
+```json
+...
+"@rsc-labs/medusa-store-analytics-v2": "0.0.3" // or other version
+...
+```
+and execute install, e.g. `yarn install`.
+
+2. Add plugin to your `medusa-config.js` with the licence key, which you received:
+
+```js
+...
+plugins: [
+    {
+      resolve: "@rsc-labs/medusa-store-analytics-v2",
+      options: {}
+    }
+]
+...
+```
+
+  3. Due to: https://github.com/medusajs/medusa/issues/11248 you need also add following configuration to `medusa-config.js`:
+```js
+admin: {
+  vite: () => {
+    return {
+      optimizeDeps: {
+        include: ["@emotion/react", "@mui/material", "recharts"]
+      },
+    };
+  },
+},
+projectConfig: {
+  ...
+}
+```
+
 
 ### Copy the code
 
