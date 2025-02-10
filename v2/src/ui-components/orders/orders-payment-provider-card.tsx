@@ -11,7 +11,7 @@
  */
 
 import { Heading, Alert } from "@medusajs/ui";
-import { CircularProgress, Grid2 } from "@mui/material";
+import { CircularProgress, Grid } from "@mui/material";
 import type { DateRange } from "../utils/types";
 import { Cash } from "@medusajs/icons";
 import { OrdersPaymentProviderResponse } from "./types";
@@ -75,26 +75,26 @@ const OrdersPaymentProviderDetails = ({dateRange, dateRangeCompareTo, compareEna
 export const OrdersPaymentProviderCard = ({ dateRange, dateRangeCompareTo, compareEnabled} : 
   {dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled: boolean}) => {
   return (
-    <Grid2 container paddingBottom={2} spacing={3}>
-      <Grid2 size={12}>
-          <Grid2 container alignItems={'center'} spacing={2}>
-            <Grid2>
+    <Grid container paddingBottom={2} spacing={3}>
+      <Grid item xs={12} md={12}>
+          <Grid container spacing={2}>
+            <Grid item>
               <Cash/>
-            </Grid2>
-            <Grid2>
+            </Grid>
+            <Grid item>
               <Heading level="h2">
                 Payment provider popularity
               </Heading>
-            </Grid2>
-          </Grid2>
-      </Grid2>
-      <Grid2 size={12}>
-        <Grid2 container direction={'column'} alignItems={'center'} paddingTop={3}>
-          <Grid2>
+            </Grid>
+          </Grid>
+      </Grid>
+      <Grid item xs={12} md={12}>
+        <Grid container direction={'column'} alignItems={'center'} paddingTop={3}>
+          <Grid item>
             <OrdersPaymentProviderDetails dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
-          </Grid2>
-        </Grid2>
-      </Grid2>
-    </Grid2>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
   )
 }

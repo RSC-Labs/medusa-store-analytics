@@ -12,7 +12,7 @@
 
 import { Heading, Alert } from "@medusajs/ui";
 import { ShoppingBag } from "@medusajs/icons";
-import { CircularProgress, Grid, Grid2 } from "@mui/material";
+import { CircularProgress, Grid } from "@mui/material";
 import type { DateRange } from "../../utils/types";
 import { CustomersRetentionCustomerRateResponse } from "../types";
 import { RetentionCustomerRateNumber } from "./customers-retention-customer-rate-number";
@@ -82,22 +82,22 @@ const RetentionCustomerRateDetails = ({orderStatuses, dateRange, dateRangeCompar
 export const CustomersRetentionCustomerRate = ({orderStatuses, dateRange, dateRangeCompareTo, compareEnabled} : 
   {orderStatuses: OrderStatus[], dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled: boolean}) => {
   return (
-    <Grid2 container paddingBottom={2} spacing={3}>
-      <Grid2 size={12}>
-          <Grid2 container alignItems={'center'} spacing={2}>
-            <Grid2>
+    <Grid container paddingBottom={2} spacing={3}>
+      <Grid item xs={12} md={12}>
+          <Grid container spacing={2}>
+            <Grid item>
               <ShoppingBag/>
-            </Grid2>
-            <Grid2>
+            </Grid>
+            <Grid item>
               <Heading level="h2">
                 Retention customer rate
               </Heading>
-            </Grid2>
-          </Grid2>
-      </Grid2>
-      <Grid2 size={12}>
+            </Grid>
+          </Grid>
+      </Grid>
+      <Grid item xs={12} md={12}>
         <RetentionCustomerRateDetails orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
-      </Grid2>
-    </Grid2>
+      </Grid>
+    </Grid>
   )
 }

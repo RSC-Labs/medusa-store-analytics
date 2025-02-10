@@ -12,7 +12,7 @@
 
 import { Heading } from "@medusajs/ui";
 import { Users } from "@medusajs/icons";
-import { Grid2 } from "@mui/material";
+import { Grid } from "@mui/material";
 import type { DateRange } from "../utils/types";
 import { CustomersNumber } from "./customers-number-overview";
 import { CustomersByNewChart } from "./customers-by-new-chart";
@@ -20,25 +20,25 @@ import { CustomersByNewChart } from "./customers-by-new-chart";
 export const CustomersOverviewCard = ({dateRange, dateRangeCompareTo, compareEnabled} : 
   {dateRange?: DateRange, dateRangeCompareTo?: DateRange, compareEnabled: boolean}) => {
   return (
-    <Grid2 container paddingBottom={2} spacing={3}>
-      <Grid2 size={12}>
-          <Grid2 container alignItems={'center'} spacing={2}>
-            <Grid2>
+    <Grid container paddingBottom={2} spacing={3}>
+      <Grid item xs={12} md={12}>
+          <Grid container spacing={2}>
+            <Grid item>
               <Users/>
-            </Grid2>
-            <Grid2>
+            </Grid>
+            <Grid item>
               <Heading level="h2">
                 New customers
               </Heading>
-            </Grid2>
-          </Grid2>
-      </Grid2>
-      <Grid2 size={12}>
+            </Grid>
+          </Grid>
+      </Grid>
+      <Grid item xs={12} md={12}>
         <CustomersNumber dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
-      </Grid2>
-      <Grid2 size={12}>
+      </Grid>
+      <Grid item xs={12} md={12}>
         <CustomersByNewChart dateRange={dateRange} dateRangeCompareTo={dateRangeCompareTo} compareEnabled={compareEnabled}/>
-      </Grid2>
-    </Grid2>
+      </Grid>
+    </Grid>
   )
 }
