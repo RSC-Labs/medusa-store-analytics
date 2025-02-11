@@ -12,30 +12,18 @@ Knowledge about your store is crucial to take proper action to increase the sale
 
 ```json
 ...
-<<<<<<< HEAD
-"@rsc-labs/medusa-store-analytics-v2": "0.0.3" // or other version
-=======
 "@rsc-labs/medusa-store-analytics-v2": "0.1.0" // or other available version
->>>>>>> ad58cf2 (Prepare to be a plugin)
 ...
 ```
 and execute install, e.g. `yarn install`.
 
-<<<<<<< HEAD
-2. Add plugin to your `medusa-config.js` with the licence key, which you received:
-=======
 2. Add plugin to your `medusa-config.js`:
->>>>>>> ad58cf2 (Prepare to be a plugin)
 
 ```js
 ...
 plugins: [
     {
       resolve: "@rsc-labs/medusa-store-analytics-v2",
-<<<<<<< HEAD
-      options: {}
-=======
->>>>>>> ad58cf2 (Prepare to be a plugin)
     }
 ]
 ...
