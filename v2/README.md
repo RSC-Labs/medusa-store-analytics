@@ -12,7 +12,7 @@ Knowledge about your store is crucial to take proper action to increase the sale
 
 ```json
 ...
-"@rsc-labs/medusa-store-analytics-v2": "0.1.1" // or other available version
+"@rsc-labs/medusa-store-analytics-v2": "0.1.3" // or other available version
 ...
 ```
 and execute install, e.g. `yarn install`.
