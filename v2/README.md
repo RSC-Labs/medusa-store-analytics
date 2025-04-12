@@ -12,7 +12,7 @@ Knowledge about your store is crucial to take proper action to increase the sale
 
 ```json
 ...
-"@rsc-labs/medusa-store-analytics-v2": "0.1.0" // or other available version
+"@rsc-labs/medusa-store-analytics-v2": "0.1.1" // or other available version
 ...
 ```
 and execute install, e.g. `yarn install`.
@@ -28,22 +28,6 @@ plugins: [
     }
 ]
 ...
-```
-
-  3. Due to: https://github.com/medusajs/medusa/issues/11248 you need also add following configuration to `medusa-config.js`:
-```js
-admin: {
-  vite: () => {
-    return {
-      optimizeDeps: {
-        include: ["@emotion/react", "@mui/material", "recharts"]
-      },
-    };
-  },
-},
-projectConfig: {
-  ...
-}
 ```
 
 ### Copy the code
