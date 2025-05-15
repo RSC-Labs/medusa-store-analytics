@@ -11,7 +11,7 @@
  */
 
 import { useState } from 'react';
-import { Text, Switch, Label, Button, IconButton, Checkbox, Heading, Select, Tooltip, Badge } from "@medusajs/ui";
+import { Text, Switch, Label, Button, IconButton, Checkbox, Heading, Select, Tooltip, TooltipProvider, Badge } from "@medusajs/ui";
 import { Adjustments, ExclamationCircle } from "@medusajs/icons"
 import { Grid } from "@mui/material";
 import { DateLasts, OrderStatus } from "../utils/types";
@@ -197,9 +197,11 @@ export const SelectDateLasts = ({dateLast, onSelectChange} : {dateLast: DateLast
                     {dateToSelect}
                   </Grid>
                   <Grid item>
-                    <Tooltip content='If you have many orders, it might take a while to load statistics.'>
-                      <ExclamationCircle />
-                    </Tooltip>
+                    <TooltipProvider>
+                      <Tooltip content='If you have many orders, it might take a while to load statistics.'>
+                        <ExclamationCircle />
+                      </Tooltip>
+                    </TooltipProvider>
                   </Grid>
                 </Grid>
               ) : dateToSelect}

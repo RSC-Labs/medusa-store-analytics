@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import { Heading, Alert, Tooltip } from "@medusajs/ui";
+import { Heading, Alert, Tooltip, TooltipProvider } from "@medusajs/ui";
 import { ArrowRightOnRectangle, InformationCircle } from "@medusajs/icons";
 import { CircularProgress, Grid } from "@mui/material";
 import { OutOfTheStockVariantsTable } from "./out-of-the-stock-variants-table";
@@ -80,9 +80,11 @@ export const OutOfTheStockVariantsCard = () => {
               </Heading>
             </Grid>
             <Grid item>
-              <Tooltip content='It includes only published products and not gift cards'>
-                <InformationCircle />
-              </Tooltip>
+              <TooltipProvider>
+                <Tooltip content='It includes only published products and not gift cards'>
+                  <InformationCircle />
+                </Tooltip>
+              </TooltipProvider>
             </Grid>
           </Grid>
       </Grid>

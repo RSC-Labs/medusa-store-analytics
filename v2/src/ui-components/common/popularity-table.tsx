@@ -10,7 +10,7 @@
  * limitations under the License.
  */
 
-import { Heading, Text, Tooltip } from "@medusajs/ui";
+import { Heading, Text, Tooltip, TooltipProvider } from "@medusajs/ui";
 import { Divider, Grid } from "@mui/material";
 import { IconComparison } from "./icon-comparison";
 
@@ -18,13 +18,15 @@ const ValueColumn = ({current, previous, enableComparing} : {current: string, pr
   return (
     <Grid container alignItems={'center'}>
       {enableComparing ? 
-        <Tooltip content={`Previously: ${previous}`}>
-        <span>
-            <Text style={ { textDecorationStyle: 'dotted', textDecorationLine: 'underline', textUnderlineOffset: '3px'}}>
-              {current !== undefined ? `${current}` : `N/A`}
-            </Text>
-          </span>
-        </Tooltip>
+        <TooltipProvider>
+          <Tooltip content={`Previously: ${previous}`}>
+          <span>
+              <Text style={ { textDecorationStyle: 'dotted', textDecorationLine: 'underline', textUnderlineOffset: '3px'}}>
+                {current !== undefined ? `${current}` : `N/A`}
+              </Text>
+            </span>
+          </Tooltip>
+        </TooltipProvider>
       :
       <Grid item>
         <Text>
