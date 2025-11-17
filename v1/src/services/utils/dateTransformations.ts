@@ -60,3 +60,23 @@ export function getTruncateFunction(dateResolution: DateResolutionType) : (date:
     return (date: Date) => new Date(new Date(new Date(date).setDate(0)).setHours(0,0,0,0))
   }
 }
+
+/**
+ * Calculates the end date for a date range query.
+ * - If 'to' is provided (from date picker), adds 1 day to include the full selected day
+ * - If 'to' is undefined, returns the current date/time
+ * 
+ * @param to - Optional end date from date picker (at midnight)
+ * @returns Date object for use in query with < operator
+ */
+export function getQueryEndDate(to?: Date): Date {
+  if (to) {
+    // Date picker date at midnight - add 1 day to include the full day
+    const nextDay = new Date(to);
+    nextDay.setDate(nextDay.getDate() + 1);
+    return nextDay;
+  }
+  
+  // No date provided - use current time
+  return new Date(Date.now());
+}

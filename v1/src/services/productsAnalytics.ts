@@ -13,6 +13,7 @@
 import { LineItem, OrderStatus, ProductVariant, Return, ReturnItem, TransactionBaseService } from "@medusajs/medusa"
 import { Order } from "@medusajs/medusa"
 import { In } from "typeorm"
+import { getQueryEndDate } from "./utils/dateTransformations"
 
 type VariantsCountPopularity = {
   sum: string,
@@ -123,7 +124,7 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
       }
 
       if (startQueryFrom) {
-        const endQuery = to ? to : new Date(Date.now());
+        const endQuery = getQueryEndDate(to);
         const query = this.activeManager_
         .getRepository(LineItem)
         .createQueryBuilder('lineitem')
@@ -251,7 +252,7 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
     }
 
     if (startQueryFrom) {
-      const endQuery = to ? to : new Date(Date.now());
+      const endQuery = getQueryEndDate(to);
       const query = this.activeManager_.getRepository(ReturnItem)
       .createQueryBuilder('returnItem')
       .leftJoinAndMapOne(
@@ -373,7 +374,8 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
       }
   
       if (startQueryFrom) {
-        const endQuery = to ? to : new Date(Date.now());
+        const endQuery = getQueryEndDate(to);
+
         const productsSoldCurrently = await this.activeManager_
         .getRepository(LineItem)
         .createQueryBuilder('lineitem')

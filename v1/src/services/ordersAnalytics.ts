@@ -12,7 +12,7 @@
 
 import { OrderStatus, TransactionBaseService } from "@medusajs/medusa"
 import { Order, OrderService } from "@medusajs/medusa"
-import { calculateResolution } from "./utils/dateTransformations"
+import { calculateResolution, getQueryEndDate } from "./utils/dateTransformations"
 import { OrdersHistoryResult } from "./utils/types"
 import { In } from "typeorm"
 
@@ -126,13 +126,14 @@ export default class OrdersAnalyticsService extends TransactionBaseService {
       }
   
       if (startQueryFrom) {
-        const endQuery = to ? to : new Date(Date.now());
+        const endQuery = getQueryEndDate(to);
         const resolution = calculateResolution(startQueryFrom, endQuery);
         const query = this.activeManager_.getRepository(Order)
           .createQueryBuilder('order')
           .select(`date_trunc('${resolution}', order.created_at)`, 'date')
           .addSelect('COUNT(order.id)', 'orderCount')
           .where(`created_at >= :startQueryFrom`, { startQueryFrom })
+          .andWhere(`created_at <= :endQuery`, { endQuery })
           .andWhere(`status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings });
   
         const orders = await query
@@ -185,7 +186,7 @@ export default class OrdersAnalyticsService extends TransactionBaseService {
       } else {
           startQueryFrom = dateRangeFromCompareTo;
       }
-      const endQuery = to ? to : new Date(Date.now());
+      const endQuery = getQueryEndDate(to);
       const orders = await this.orderService.listAndCount({
         created_at: startQueryFrom ? { gte: startQueryFrom, lte: endQuery } : undefined,
         status: In(orderStatusesAsStrings)
@@ -336,7 +337,7 @@ export default class OrdersAnalyticsService extends TransactionBaseService {
     }
     
     if (startQueryFrom) {
-      const endQuery = to ? to : new Date(Date.now());
+      const endQuery = getQueryEndDate(to);
       const resolution = calculateResolution(startQueryFrom, endQuery);
       const query = this.activeManager_
       .getRepository(Order)

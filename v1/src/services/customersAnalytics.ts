@@ -12,7 +12,7 @@
 
 import { CustomerService, Order, OrderService, OrderStatus, TransactionBaseService } from "@medusajs/medusa"
 import { Customer } from "@medusajs/medusa"
-import { calculateResolution } from "./utils/dateTransformations"
+import { calculateResolution, getQueryEndDate } from "./utils/dateTransformations"
 import { In } from "typeorm"
 
 type CustomersHistory = {
@@ -137,7 +137,7 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
     }
 
     if (startQueryFrom) {
-      const endQuery = to ? to : new Date(Date.now());
+      const endQuery = getQueryEndDate(to);
       const resolution = calculateResolution(startQueryFrom, endQuery);
       const customers = await this.activeManager_.getRepository(Customer)
       .createQueryBuilder('customer')
@@ -189,7 +189,7 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
     } else {
         startQueryFrom = dateRangeFromCompareTo;
     }
-    const endQuery = to ? to : new Date(Date.now());
+    const endQuery = getQueryEndDate(to);
     const customers = await this.customerService.listAndCount({
       created_at: startQueryFrom ? { gte: startQueryFrom, lte: endQuery } : undefined,
     }, {
@@ -268,7 +268,7 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
       } else {
           startQueryFrom = dateRangeFromCompareTo;
       }
-      const endQuery = to ? to : new Date(Date.now());
+      const endQuery = getQueryEndDate(to);
       const orders: Order[] = await this.orderService.list({
         created_at: startQueryFrom ? { gte: startQueryFrom, lte: endQuery } : undefined,
         status: In(orderStatusesAsStrings)
@@ -473,7 +473,7 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
     }
 
     if (startQueryFrom) {
-      const endQuery = to ? to : new Date(Date.now());
+      const endQuery = getQueryEndDate(to);
       const resolution = calculateResolution(startQueryFrom, endQuery);
       const allCustomers = await this.activeManager_.getRepository(Customer)
         .createQueryBuilder('customer')
@@ -544,7 +544,7 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
       } else {
           startQueryFrom = dateRangeFromCompareTo;
       }
-      const endQuery = to ? to : new Date(Date.now());
+      const endQuery = getQueryEndDate(to);
       const orders: Order[] = await this.orderService.list({
         created_at: startQueryFrom ? { gte: startQueryFrom, lte: endQuery } : undefined,
         status: In(orderStatusesAsStrings)

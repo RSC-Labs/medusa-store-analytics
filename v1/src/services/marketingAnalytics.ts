@@ -13,6 +13,7 @@
 import { OrderStatus, TransactionBaseService } from "@medusajs/medusa"
 import { Order } from "@medusajs/medusa"
 import { In } from "typeorm"
+import { getQueryEndDate } from "./utils/dateTransformations"
 
 type DiscountsCountPopularity = {
   sum: string,
@@ -96,7 +97,8 @@ export default class MarketingAnalyticsService extends TransactionBaseService {
       }
 
       if (startQueryFrom) {
-        const endQuery = to ? to : new Date(Date.now());
+        const endQuery = getQueryEndDate(to);
+        
         const query = this.activeManager_
         .getRepository(Order)
         .createQueryBuilder('order')

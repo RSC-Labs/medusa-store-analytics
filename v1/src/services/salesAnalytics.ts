@@ -12,7 +12,7 @@
 
 import { OrderStatus, Refund, TransactionBaseService } from "@medusajs/medusa"
 import { Order, OrderService } from "@medusajs/medusa"
-import { DateResolutionType, calculateResolution, getTruncateFunction } from "./utils/dateTransformations"
+import { DateResolutionType, calculateResolution, getQueryEndDate, getTruncateFunction } from "./utils/dateTransformations"
 import { In } from "typeorm"
 import { getDecimalDigits } from "./utils/currency"
 
@@ -126,7 +126,8 @@ export default class SalesAnalyticsService extends TransactionBaseService {
           startQueryFrom = dateRangeFromCompareTo;
       }
 
-      const endQuery = to ? to : new Date(Date.now());
+      const endQuery = getQueryEndDate(to);
+
       const orders = await this.orderService.list({
         created_at: startQueryFrom ? { gte: startQueryFrom, lte: endQuery } : undefined,
         currency_code: currencyCode,
@@ -270,7 +271,8 @@ export default class SalesAnalyticsService extends TransactionBaseService {
       }
       
       if (startQueryFrom) {
-        const endQuery = to ? to : new Date(Date.now());
+        const endQuery = getQueryEndDate(to);
+
         const resolution = calculateResolution(startQueryFrom, endQuery);
         const query = this.activeManager_
         .getRepository(Order)
@@ -395,7 +397,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
       }
       
       if (startQueryFrom) {
-        const endQuery = to ? to : new Date(Date.now());
+        const endQuery = getQueryEndDate(to);
         const resolution = calculateResolution(startQueryFrom, endQuery);
         const query = this.activeManager_
         .getRepository(Order)
@@ -500,7 +502,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
     }
 
     if (startQueryFrom) {
-      const endQuery = to ? to : new Date(Date.now());
+      const endQuery = getQueryEndDate(to);
       const query = this.activeManager_.getRepository(Refund)
         .createQueryBuilder('refund')
         .select("SUM(refund.amount)", "sum")
