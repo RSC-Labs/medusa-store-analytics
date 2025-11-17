@@ -75,7 +75,7 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
 
   async getHistory(from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<CustomersHistoryResult> {
     if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
-        const resolution = calculateResolution(from);
+        const resolution = calculateResolution(from, to);
         const customers = await this.activeManager_.getRepository(Customer)
         .createQueryBuilder('customer')
         .select(`
@@ -88,6 +88,7 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
         .setParameters({ from, dateRangeFromCompareTo })
         .addSelect('COUNT(customer.id)', 'customerCount')
         .where(`created_at >= :dateRangeFromCompareTo`, { dateRangeFromCompareTo })
+        .andWhere(`created_at <= :to`, { to })
         .groupBy('type, date')
         .orderBy('date, type',  'ASC')
         .getRawMany();
@@ -136,12 +137,14 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
     }
 
     if (startQueryFrom) {
-      const resolution = calculateResolution(startQueryFrom);
+      const endQuery = to ? to : new Date(Date.now());
+      const resolution = calculateResolution(startQueryFrom, endQuery);
       const customers = await this.activeManager_.getRepository(Customer)
       .createQueryBuilder('customer')
       .select(`date_trunc('${resolution}', customer.created_at)`, 'date')
       .addSelect('COUNT(customer.id)', 'customerCount')
       .where(`created_at >= :startQueryFrom`, { startQueryFrom })
+      .andWhere(`created_at <= :endQuery`, { endQuery })
       .groupBy('date')
       .orderBy('date', 'ASC')
       .getRawMany();
@@ -186,8 +189,9 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
     } else {
         startQueryFrom = dateRangeFromCompareTo;
     }
+    const endQuery = to ? to : new Date(Date.now());
     const customers = await this.customerService.listAndCount({
-      created_at: startQueryFrom ? { gte: startQueryFrom } : undefined,
+      created_at: startQueryFrom ? { gte: startQueryFrom, lte: endQuery } : undefined,
     }, {
       select: [
         "id",
@@ -264,8 +268,9 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
       } else {
           startQueryFrom = dateRangeFromCompareTo;
       }
+      const endQuery = to ? to : new Date(Date.now());
       const orders: Order[] = await this.orderService.list({
-        created_at: startQueryFrom ? { gte: startQueryFrom } : undefined,
+        created_at: startQueryFrom ? { gte: startQueryFrom, lte: endQuery } : undefined,
         status: In(orderStatusesAsStrings)
       }, {
         select: [
@@ -391,7 +396,7 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
   }
   async getCumulativeHistory(from?: Date, to?: Date, dateRangeFromCompareTo?: Date, dateRangeToCompareTo?: Date) : Promise<CustomersHistoryResult> {
     if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
-        const resolution = calculateResolution(from);
+        const resolution = calculateResolution(from, to);
         const afterCustomers = await this.activeManager_.getRepository(Customer)
         .createQueryBuilder('customer')
         .select(`date_trunc('${resolution}', customer.created_at) AS date`)
@@ -468,7 +473,8 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
     }
 
     if (startQueryFrom) {
-      const resolution = calculateResolution(startQueryFrom);
+      const endQuery = to ? to : new Date(Date.now());
+      const resolution = calculateResolution(startQueryFrom, endQuery);
       const allCustomers = await this.activeManager_.getRepository(Customer)
         .createQueryBuilder('customer')
         .select(`date_trunc('${resolution}', customer.created_at) AS date`)
@@ -476,6 +482,8 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
           `SUM(COUNT(*)) OVER (ORDER BY date_trunc('${resolution}', customer.created_at) ASC) AS cumulative_count`
         )
         .setParameters({ startQueryFrom: startQueryFrom })
+        .where(`created_at >= :startQueryFrom`, { startQueryFrom })
+        .andWhere(`created_at <= :endQuery`, { endQuery })
         .groupBy('date')
         .orderBy('date', 'ASC')
         .getRawMany();
@@ -536,8 +544,9 @@ export default class CustomersAnalyticsService extends TransactionBaseService {
       } else {
           startQueryFrom = dateRangeFromCompareTo;
       }
+      const endQuery = to ? to : new Date(Date.now());
       const orders: Order[] = await this.orderService.list({
-        created_at: startQueryFrom ? { gte: startQueryFrom } : undefined,
+        created_at: startQueryFrom ? { gte: startQueryFrom, lte: endQuery } : undefined,
         status: In(orderStatusesAsStrings)
       }, {
         select: [

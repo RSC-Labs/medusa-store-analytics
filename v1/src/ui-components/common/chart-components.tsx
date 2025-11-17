@@ -190,12 +190,26 @@ toDate is inclusive. It means that:
 
 const areRangesTheSame = (fromDate: Date, toDate: Date, fromCompareDate?: Date, toCompareDate?: Date) : boolean => {
 
+  function isToday(date: Date) : boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const givenDate = new Date(date);
+    givenDate.setHours(0, 0, 0, 0);
+    return today.getTime() === givenDate.getTime();
+  }
+
   if (fromCompareDate) {
     const oneDay = 24 * 60 * 60 * 1000;
     if (toCompareDate) {
-      // Math.ceil is used to round the day to larger value for taking the whole day for comparison
-      const diffBase = Math.ceil(Math.abs((toDate.getTime() - fromDate.getTime()) / oneDay));
-      const diffCompare = Math.ceil(Math.abs((toCompareDate.getTime() - fromCompareDate.getTime()) / oneDay));
+
+      // Cover situation when toDate is today so gives jsut couple of hours while we need the whole day.
+      if (isToday(toDate)) {
+        const diffBase = Math.ceil(Math.abs((toDate.getTime() - fromDate.getTime()) / oneDay));
+        const diffCompare = Math.round(Math.abs((toCompareDate.getTime() - fromCompareDate.getTime()) / oneDay));
+        return (diffBase == diffCompare);
+      }
+      const diffBase = Math.round(Math.abs((toDate.getTime() - fromDate.getTime()) / oneDay));
+      const diffCompare = Math.round(Math.abs((toCompareDate.getTime() - fromCompareDate.getTime()) / oneDay));
       return (diffBase == diffCompare);
     }
 
@@ -229,7 +243,14 @@ export const ChartCurrentPrevious = ({rawChartData, fromDate, toDate, fromCompar
 
   if (!areRangesTheSame(fromDate, toDate, fromCompareDate, toCompareDate)) {
     const currentPeriodInDays = Math.ceil((toDate.getTime() - fromDate.getTime()) / (24*60*60*1000));
-    const precedingPeriodInDays = Math.ceil((toCompareDate.getTime() - fromCompareDate.getTime()) / (24*60*60*1000));
+    let precedingPeriodInDays = 0;
+    if (fromCompareDate) {
+      if (toCompareDate) {
+        precedingPeriodInDays = Math.ceil((toCompareDate.getTime() - fromCompareDate.getTime()) / (24*60*60*1000));
+      } else {
+        precedingPeriodInDays = Math.ceil((new Date(Date.now()).getTime() - fromCompareDate.getTime()) / (24*60*60*1000));
+      }
+    }
     return (
       <Box 
         width={500} 

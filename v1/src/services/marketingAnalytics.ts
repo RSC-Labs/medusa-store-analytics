@@ -52,12 +52,13 @@ export default class MarketingAnalyticsService extends TransactionBaseService {
         .addSelect("discount.id", "discount_id")
         .addSelect("COUNT(discount.id)", "sum")
         .where('order.created_at >= :from', { from })
+        .where('order.created_at <= :to', { to })
         .andWhere(`order.status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings });
 
         const topDiscounts = await query
         .groupBy('discount.code, discount.id')
         .orderBy('sum', 'DESC')
-        .setParameters({from})
+        .setParameters({from, to})
         .limit(this.TOP_LIMIT)
         .getRawMany()
 
@@ -95,6 +96,7 @@ export default class MarketingAnalyticsService extends TransactionBaseService {
       }
 
       if (startQueryFrom) {
+        const endQuery = to ? to : new Date(Date.now());
         const query = this.activeManager_
         .getRepository(Order)
         .createQueryBuilder('order')
@@ -103,12 +105,13 @@ export default class MarketingAnalyticsService extends TransactionBaseService {
         .addSelect("discount.id", "discount_id")
         .addSelect("COUNT(discount.id)", "sum")
         .where('order.created_at >= :startQueryFrom', { startQueryFrom })
+        .where('order.created_at <= :endQuery', { endQuery })
         .andWhere(`order.status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings });
 
         const topDiscounts = await query
         .groupBy('discount.code, discount.id')
         .orderBy('sum', 'DESC')
-        .setParameters({startQueryFrom})
+        .setParameters({startQueryFrom, endQuery})
         .limit(this.TOP_LIMIT)
         .getRawMany()
 

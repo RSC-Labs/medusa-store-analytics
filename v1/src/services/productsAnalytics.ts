@@ -73,12 +73,12 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
         .innerJoin('lineitem.order', 'order')
         .innerJoinAndSelect('lineitem.variant', 'variant')
         .where('order.created_at >= :from', { from })
+        .andWhere('order.created_at <= :to', { to })
         .andWhere(`order.status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings });
 
         const variantsSumInLinteItemsInOrders = await query
           .groupBy('lineitem.variant_id, variant.id, variant.product_id, lineitem.title, lineitem.thumbnail')
           .orderBy('sum', 'DESC')
-          .setParameters({from, dateRangeFromCompareTo})
           .limit(this.TOP_LIMIT)
           .getRawMany()
 
@@ -123,6 +123,7 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
       }
 
       if (startQueryFrom) {
+        const endQuery = to ? to : new Date(Date.now());
         const query = this.activeManager_
         .getRepository(LineItem)
         .createQueryBuilder('lineitem')
@@ -133,12 +134,12 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
         .innerJoin('lineitem.order', 'order')
         .innerJoinAndSelect('lineitem.variant', 'variant')
         .where('order.created_at >= :startQueryFrom', { startQueryFrom })
+        .andWhere('order.created_at <= :endQuery', { endQuery })
         .andWhere(`order.status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings });
 
         const variantsSumInLinteItemsInOrders = await query
           .groupBy('lineitem.variant_id, variant.id, variant.product_id, lineitem.title, lineitem.thumbnail')
           .orderBy('sum', 'DESC')
-          .setParameters({startQueryFrom, dateRangeFromCompareTo})
           .limit(this.TOP_LIMIT)
           .getRawMany()
 
@@ -201,6 +202,7 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
       .addSelect('lineItem.thumbnail', 'thumbnail')
       .addSelect('SUM(returnItem.quantity)', 'sum')
       .where('return.created_at >= :from', { from })
+      .andWhere('return.created_at <= :to', { to })
       .groupBy('lineItem.title, variant_title, variant.product_id, lineItem.thumbnail, lineItem.variant_id')
 
       const variantsReturnedSum = await query
@@ -249,6 +251,7 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
     }
 
     if (startQueryFrom) {
+      const endQuery = to ? to : new Date(Date.now());
       const query = this.activeManager_.getRepository(ReturnItem)
       .createQueryBuilder('returnItem')
       .leftJoinAndMapOne(
@@ -276,6 +279,7 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
       .addSelect('lineItem.thumbnail', 'thumbnail')
       .addSelect('SUM(returnItem.quantity)', 'sum')
       .where('return.created_at >= :startQueryFrom', { startQueryFrom })
+      .andWhere('return.created_at <= :endQuery', { endQuery })
       .groupBy('lineItem.title, variant_title, variant.product_id, lineItem.thumbnail, lineItem.variant_id')
 
       const variantsReturnedSum = await query
@@ -323,6 +327,7 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
         .select("SUM(lineItem.quantity)")
         .innerJoin('lineitem.order', 'order')
         .where('order.created_at >= :from', { from })
+        .andWhere('order.created_at <= :to', { to })
         .andWhere(`order.status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings })
         .getRawOne()
 
@@ -368,12 +373,14 @@ export default class ProductsAnalyticsService extends TransactionBaseService {
       }
   
       if (startQueryFrom) {
+        const endQuery = to ? to : new Date(Date.now());
         const productsSoldCurrently = await this.activeManager_
         .getRepository(LineItem)
         .createQueryBuilder('lineitem')
         .select("SUM(lineItem.quantity)")
         .innerJoin('lineitem.order', 'order')
         .where('order.created_at >= :startQueryFrom', { startQueryFrom })
+        .andWhere('order.created_at <= :endQuery', { endQuery })
         .andWhere(`order.status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings })
         .getRawOne()
 

@@ -61,7 +61,7 @@ export default class OrdersAnalyticsService extends TransactionBaseService {
     const orderStatusesAsStrings = Object.values(orderStatuses);
     if (orderStatusesAsStrings.length) {
       if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
-        const resolution = calculateResolution(from);
+        const resolution = calculateResolution(from, to);
         const query = this.activeManager_.getRepository(Order)
         .createQueryBuilder('order')
         .select(`
@@ -126,7 +126,8 @@ export default class OrdersAnalyticsService extends TransactionBaseService {
       }
   
       if (startQueryFrom) {
-        const resolution = calculateResolution(startQueryFrom);
+        const endQuery = to ? to : new Date(Date.now());
+        const resolution = calculateResolution(startQueryFrom, endQuery);
         const query = this.activeManager_.getRepository(Order)
           .createQueryBuilder('order')
           .select(`date_trunc('${resolution}', order.created_at)`, 'date')
@@ -184,8 +185,9 @@ export default class OrdersAnalyticsService extends TransactionBaseService {
       } else {
           startQueryFrom = dateRangeFromCompareTo;
       }
+      const endQuery = to ? to : new Date(Date.now());
       const orders = await this.orderService.listAndCount({
-        created_at: startQueryFrom ? { gte: startQueryFrom } : undefined,
+        created_at: startQueryFrom ? { gte: startQueryFrom, lte: endQuery } : undefined,
         status: In(orderStatusesAsStrings)
       }, {
         select: [
@@ -334,7 +336,8 @@ export default class OrdersAnalyticsService extends TransactionBaseService {
     }
     
     if (startQueryFrom) {
-      const resolution = calculateResolution(startQueryFrom);
+      const endQuery = to ? to : new Date(Date.now());
+      const resolution = calculateResolution(startQueryFrom, endQuery);
       const query = this.activeManager_
       .getRepository(Order)
       .createQueryBuilder('order')
@@ -342,6 +345,7 @@ export default class OrdersAnalyticsService extends TransactionBaseService {
       .addSelect('COUNT(order.id)', 'orderCount')
       .leftJoinAndSelect('order.payments', 'payments')
       .where('order.created_at >= :startQueryFrom', { startQueryFrom })
+      .andWhere('order.created_at <= :endQuery', { endQuery })
 
       const ordersCountWithPayments = await query
       .groupBy('date, payments.id')

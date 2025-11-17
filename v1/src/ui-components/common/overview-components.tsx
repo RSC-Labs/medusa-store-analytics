@@ -210,7 +210,6 @@ export const SelectDateLasts = ({dateLast, onSelectChange} : {dateLast: DateLast
     DateLasts.LastYear,
     DateLasts.All
   ]
-
   return (
     <div className="w-[170px]">
       <Select size="small" onValueChange={onSelectChange} value={dateLast}>

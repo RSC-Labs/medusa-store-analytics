@@ -126,8 +126,9 @@ export default class SalesAnalyticsService extends TransactionBaseService {
           startQueryFrom = dateRangeFromCompareTo;
       }
 
+      const endQuery = to ? to : new Date(Date.now());
       const orders = await this.orderService.list({
-        created_at: startQueryFrom ? { gte: startQueryFrom } : undefined,
+        created_at: startQueryFrom ? { gte: startQueryFrom, lte: endQuery } : undefined,
         currency_code: currencyCode,
         status: In(orderStatusesAsStrings)
       }, {
@@ -145,7 +146,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
         if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
           const previousOrders = orders.filter(order => order.created_at < from);
           const currentOrders = orders.filter(order => order.created_at >= from);
-          const resolution = calculateResolution(from);
+          const resolution = calculateResolution(from, to);
           const groupedCurrentOrders = groupPerDate(currentOrders, resolution);
           const groupedPreviousOrders = groupPerDate(previousOrders, resolution);
           const currentSales: SalesHistory[] = Object.values(groupedCurrentOrders);
@@ -161,7 +162,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
             previous: previousSales.sort((a, b) => a.date.getTime() - b.date.getTime())
           }
         }
-        const resolution = calculateResolution(startQueryFrom);
+        const resolution = calculateResolution(startQueryFrom, endQuery);
         const currentOrders = orders;
         const groupedCurrentOrders = groupPerDate(currentOrders, resolution);
         const currentSales: SalesHistory[] = Object.values(groupedCurrentOrders);
@@ -195,7 +196,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
     const orderStatusesAsStrings = Object.values(orderStatuses);
     if (orderStatusesAsStrings.length) {
       if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
-        const resolution = calculateResolution(from);
+        const resolution = calculateResolution(from, to);
         const query = this.activeManager_
         .getRepository(Order)
         .createQueryBuilder('order')
@@ -208,6 +209,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
         .addSelect('COUNT(order.id)', 'orderCount')
         .leftJoinAndSelect('order.sales_channel', 'sales_channel')
         .where('order.created_at >= :dateRangeFromCompareTo', { dateRangeFromCompareTo })
+        .andWhere('order.created_at <= :to', { to })
         .andWhere(`status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings });
 
         const ordersCountBySalesChannel = await query
@@ -268,7 +270,8 @@ export default class SalesAnalyticsService extends TransactionBaseService {
       }
       
       if (startQueryFrom) {
-        const resolution = calculateResolution(startQueryFrom);
+        const endQuery = to ? to : new Date(Date.now());
+        const resolution = calculateResolution(startQueryFrom, endQuery);
         const query = this.activeManager_
         .getRepository(Order)
         .createQueryBuilder('order')
@@ -276,6 +279,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
         .addSelect('COUNT(order.id)', 'orderCount')
         .leftJoinAndSelect('order.sales_channel', 'sales_channel')
         .where('order.created_at >= :startQueryFrom', { startQueryFrom })
+        .andWhere('order.created_at <= :endQuery', { endQuery })
         .andWhere(`status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings });
 
         const ordersCountBySalesChannel = await query
@@ -317,7 +321,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
     const orderStatusesAsStrings = Object.values(orderStatuses);
     if (orderStatusesAsStrings.length) {
       if (dateRangeFromCompareTo && from && to && dateRangeToCompareTo) {
-        const resolution = calculateResolution(from);
+        const resolution = calculateResolution(from, to);
         const query = this.activeManager_
         .getRepository(Order)
         .createQueryBuilder('order')
@@ -330,6 +334,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
         .addSelect('COUNT(order.id)', 'orderCount')
         .leftJoinAndSelect('order.region', 'region')
         .where('order.created_at >= :dateRangeFromCompareTo', { dateRangeFromCompareTo })
+        .andWhere('order.created_at <= :to', { to })
         .andWhere(`status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings });
 
         const ordersCountByRegion = await query
@@ -390,7 +395,8 @@ export default class SalesAnalyticsService extends TransactionBaseService {
       }
       
       if (startQueryFrom) {
-        const resolution = calculateResolution(startQueryFrom);
+        const endQuery = to ? to : new Date(Date.now());
+        const resolution = calculateResolution(startQueryFrom, endQuery);
         const query = this.activeManager_
         .getRepository(Order)
         .createQueryBuilder('order')
@@ -398,6 +404,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
         .addSelect('COUNT(order.id)', 'orderCount')
         .leftJoinAndSelect('order.region', 'region')
         .where('order.created_at >= :startQueryFrom', { startQueryFrom })
+        .andWhere('order.created_at <= :endQuery', { endQuery })
         .andWhere(`status IN(:...orderStatusesAsStrings)`, { orderStatusesAsStrings });
 
         const ordersCountByRegion = await query
@@ -449,6 +456,7 @@ export default class SalesAnalyticsService extends TransactionBaseService {
         .addSelect("SUM(refund.amount)", "sum")
         .innerJoin('refund.order', 'order')
         .where(`refund.created_at >= :dateRangeFromCompareTo`, { dateRangeFromCompareTo })
+        .andWhere(`refund.created_at <= :to`, { to })
         .andWhere(`order.currency_code = :currencyCode`, { currencyCode })
 
         const refunds: {
@@ -492,11 +500,13 @@ export default class SalesAnalyticsService extends TransactionBaseService {
     }
 
     if (startQueryFrom) {
+      const endQuery = to ? to : new Date(Date.now());
       const query = this.activeManager_.getRepository(Refund)
         .createQueryBuilder('refund')
         .select("SUM(refund.amount)", "sum")
         .innerJoin('refund.order', 'order')
         .where(`refund.created_at >= :startQueryFrom`, { startQueryFrom })
+        .andWhere(`refund.created_at <= :endQuery`, { endQuery })
         .andWhere(`order.currency_code = :currencyCode`, { currencyCode })
 
       const refunds = await query.getRawOne();

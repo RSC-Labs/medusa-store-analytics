@@ -15,20 +15,38 @@ export enum DateResolutionType {
   Month = 'month'
 }
 
-export function calculateResolution(date?: Date) : DateResolutionType | undefined {
-  if (!date) return undefined;
+export function calculateResolution(date?: Date, toDate?: Date) : DateResolutionType {
+  if (!date) return DateResolutionType.Month;
 
   const weekAgoTruncated = new Date(new Date(Date.now() - 604800000).setHours(0,0,0,0)); 
+  const monthAgoTruncated = new Date(new Date(new Date().setMonth(new Date().getMonth() - 1)).setHours(0,0,0,0));
+  const yearAgoTruncated = new Date(new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setHours(0,0,0,0));
+
+  if (toDate) {
+    const diffTime = toDate.getTime() - date.getTime();
+
+    const weekTime = 604800000;
+    const monthTime = weekTime * 4;
+    const twoMonthsTime = monthTime * 2;
+    if (diffTime <= twoMonthsTime) {
+
+      return DateResolutionType.Day;
+    }
+    const yearTime = monthTime * 12;
+  
+    if (diffTime < yearTime) {
+      return DateResolutionType.Month;
+    }
+  }
+
   if (date.getTime() >= weekAgoTruncated.getTime()) {
     return DateResolutionType.Day;
   }
 
-  const monthAgoTruncated = new Date(new Date(new Date().setMonth(new Date().getMonth() - 1)).setHours(0,0,0,0));
   if (date.getTime() >= monthAgoTruncated.getTime()) {
     return DateResolutionType.Day;
   }
 
-  const yearAgoTruncated = new Date(new Date(new Date().setFullYear(new Date().getFullYear() - 1)).setHours(0,0,0,0));
   if (date.getTime() > yearAgoTruncated.getTime()) {
     return DateResolutionType.Month;
   }
