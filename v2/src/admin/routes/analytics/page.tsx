@@ -15,7 +15,7 @@ import { useMemo } from "react"
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { Tabs } from "@medusajs/ui"
 import { LightBulb } from "@medusajs/icons"
-import { Box, CircularProgress, Grid2 } from "@mui/material";
+import { Box } from "@mui/material";
 import OverviewTab from "../../../ui-components/tabs/overview";
 import OrdersTab from "../../../ui-components/tabs/orders";
 import ProductsTab from '../../../ui-components/tabs/products';
@@ -27,6 +27,8 @@ import { ComparedDate, GenerateReportButton, SelectDateLasts, SwitchComparison }
 import ProTab from '../../../ui-components/tabs/pro';
 
 const AnalyticsPage = () => {
+  // @ts-ignore
+  const showProTab = import.meta.env.VITE_MEDUSA_ADMIN_MEDUSA_STORE_ANALYTICS_HIDE_PRO === undefined;
   const [dateLast, setDateLasts] = useState<DateLasts>(DateLasts.LastWeek);
   const [compareEnabled, setCompare] = useState<boolean>(true)
   const [orderStatuses, setOrderStatuses] = useState<OrderStatus[]>([OrderStatus.COMPLETED, OrderStatus.PENDING])
@@ -83,7 +85,7 @@ const AnalyticsPage = () => {
             <Tabs.Trigger value='orders'>Orders</Tabs.Trigger>
             <Tabs.Trigger value='customers'>Customers</Tabs.Trigger>
             <Tabs.Trigger value='products'>Products</Tabs.Trigger>
-            {import.meta.env.VITE_MEDUSA_ADMIN_MEDUSA_STORE_ANALYTICS_HIDE_PRO === undefined && <Tabs.Trigger value='pro' style={ { color: 'purple' }}>Pro version</Tabs.Trigger>} 
+            {showProTab && <Tabs.Trigger value='pro' style={ { color: 'purple' }}>Pro version</Tabs.Trigger>} 
          </Tabs.List>
           <Tabs.Content value='overview'>
             <Box height={20}></Box>
@@ -105,7 +107,7 @@ const AnalyticsPage = () => {
             <Box height={20}></Box>
             <ProductsTab orderStatuses={orderStatuses} dateRange={dateRange} dateRangeCompareTo={dateRangeComparedTo} compareEnabled={compareEnabled}/>
           </Tabs.Content>
-          {import.meta.env.VITE_MEDUSA_ADMIN_MEDUSA_STORE_ANALYTICS_HIDE_PRO === undefined && <Tabs.Content value='pro'>
+          {showProTab && <Tabs.Content value='pro'>
             <Box height={20}></Box>
             <ProTab/>
           </Tabs.Content>}
